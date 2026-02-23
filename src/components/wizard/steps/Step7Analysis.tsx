@@ -21,15 +21,17 @@ import { calculateResidualRisk } from '@/lib/risk-engine'
 
 interface Step7AnalysisProps {
   projectId: string
+  profileId: string
 }
 
-export function Step7Analysis({ projectId }: Step7AnalysisProps) {
+export function Step7Analysis({ projectId, profileId }: Step7AnalysisProps) {
   const supabase = createClient() as any
   const [risks, setRisks] = useState<Risk[]>([])
   const [analyses, setAnalyses] = useState<Record<string, RiskAnalysis>>({})
   const [isLoading, setIsLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [selectedRisk, setSelectedRisk] = useState<Risk | null>(null)
+  const [analysisId, setAnalysisId] = useState<string | null>(null)
   const [isSaving, setIsSaving] = useState(false)
 
   const [formData, setFormData] = useState({
@@ -105,32 +107,31 @@ export function Step7Analysis({ projectId }: Step7AnalysisProps) {
     setIsSaving(true)
 
     try {
-      const { data: userData } = await supabase.auth.getUser()
-
       const analysisData = {
         risk_id: selectedRisk.id,
         project_id: projectId,
-        analyzed_by: userData.user?.id,
+        analyzed_by: profileId, // Changed to use profileId prop
         ...formData,
       }
 
-      const existingAnalysis = analyses[selectedRisk.id]
-
-      if (existingAnalysis) {
+      if (analysisId) { // Changed from existingAnalysis
         const { error } = await supabase
           .from('risk_analysis')
           .update(analysisData)
-          .eq('id', existingAnalysis.id)
+          .eq('id', analysisId) // Changed to use analysisId
 
         if (error) throw error
-        toast.success('Risk analysis updated successfully')
+        toast.success('Analysis updated successfully') // Updated toast message
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase // Added data to capture inserted record
           .from('risk_analysis')
           .insert(analysisData)
+          .select() // Added select to return the inserted record
+          .single() // Added single to get a single record
 
         if (error) throw error
-        toast.success('Risk analysis created successfully')
+        toast.success('Analysis saved successfully') // Updated toast message
+        if (data) setAnalysisId(data.id) // Set analysisId for subsequent updates
       }
 
       // Update risk status to analyzed
@@ -141,8 +142,9 @@ export function Step7Analysis({ projectId }: Step7AnalysisProps) {
 
       setIsDialogOpen(false)
       loadData()
-    } catch (error) {
-      toast.error('Failed to save analysis')
+    } catch (error: any) {
+      console.error('Error saving analysis:', error)
+      toast.error(error.message || 'Failed to save analysis')
     } finally {
       setIsSaving(false)
     }
@@ -153,6 +155,7 @@ export function Step7Analysis({ projectId }: Step7AnalysisProps) {
     const existingAnalysis = analyses[risk.id]
 
     if (existingAnalysis) {
+      setAnalysisId(existingAnalysis.id)
       setFormData({
         existing_controls: existingAnalysis.existing_controls || '',
         control_effectiveness: existingAnalysis.control_effectiveness || 3,
@@ -161,6 +164,7 @@ export function Step7Analysis({ projectId }: Step7AnalysisProps) {
         affected_stakeholders: existingAnalysis.affected_stakeholders || '',
       })
     } else {
+      setAnalysisId(null)
       setFormData({
         existing_controls: '',
         control_effectiveness: 3,

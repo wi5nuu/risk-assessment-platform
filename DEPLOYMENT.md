@@ -13,9 +13,11 @@ Create a `.env.local` file with the following variables:
 
 ```env
 # Supabase Configuration
-NEXT_PUBLIC_SUPABASE_URL=https://ocrnmhyawvxhpssadhmz.supabase.co
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=sb_publishable_mzLs6tXUswXDCR14M9zOeg_Vcs_rrCs
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key_here
+NEXT_PUBLIC_SUPABASE_URL=https://your-project-ref.supabase.co
+# IMPORTANT: This must be the "Anon / Public" key starting with 'eyJ'. Do NOT use a Stripe key.
+NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=eyJ...
+# IMPORTANT: This must be the "Service Role" key starting with 'eyJ'. Never expose this on the client.
+SUPABASE_SERVICE_ROLE_KEY=eyJ...
 
 # Application Configuration
 NEXT_PUBLIC_APP_NAME="OCTAVE Allegro Risk Assessment Platform"

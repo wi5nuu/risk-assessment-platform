@@ -66,7 +66,7 @@ export interface Database {
           first_name: string
           last_name: string
           email: string
-          role: 'admin' | 'auditor' | 'viewer'
+          role: 'admin' | 'auditor' | 'auditee'
           department: string | null
           phone: string | null
           is_active: boolean
@@ -81,7 +81,7 @@ export interface Database {
           first_name: string
           last_name: string
           email: string
-          role: 'admin' | 'auditor' | 'viewer'
+          role: 'admin' | 'auditor' | 'auditee'
           department?: string | null
           phone?: string | null
           is_active?: boolean
@@ -827,6 +827,183 @@ export interface Database {
           change_summary?: string | null
           created_by?: string
           created_at?: string
+        }
+      }
+      vulnerabilities: {
+        Row: {
+          id: string
+          category: string
+          name: string
+          description: string | null
+          suggested_impact: number | null
+          suggested_likelihood: number | null
+          audit_checklist_item: string | null
+          created_at: string
+          is_active: boolean
+        }
+        Insert: {
+          id?: string
+          category: string
+          name: string
+          description?: string | null
+          suggested_impact?: number | null
+          suggested_likelihood?: number | null
+          audit_checklist_item?: string | null
+          created_at?: string
+          is_active?: boolean
+        }
+        Update: {
+          id?: string
+          category?: string
+          name?: string
+          description?: string | null
+          suggested_impact?: number | null
+          suggested_likelihood?: number | null
+          audit_checklist_item?: string | null
+          created_at?: string
+          is_active?: boolean
+        }
+      }
+      risk_vulnerability_mapping: {
+        Row: {
+          risk_id: string
+          vulnerability_id: string
+        }
+        Insert: {
+          risk_id: string
+          vulnerability_id: string
+        }
+        Update: {
+          risk_id?: string
+          vulnerability_id?: string
+        }
+      }
+      audit_checklists: {
+        Row: {
+          id: string
+          project_id: string
+          framework: string
+          status: string | null
+          compliance_score: number | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          framework: string
+          status?: string | null
+          compliance_score?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          framework?: string
+          status?: string | null
+          compliance_score?: number | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      audit_items: {
+        Row: {
+          id: string
+          checklist_id: string
+          category: string | null
+          control_title: string
+          control_description: string | null
+          compliance_status: 'compliant' | 'partially_compliant' | 'non_compliant' | 'not_applicable' | null
+          auditor_comments: string | null
+          source: string | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          checklist_id: string
+          category?: string | null
+          control_title: string
+          control_description?: string | null
+          compliance_status?: 'compliant' | 'partially_compliant' | 'non_compliant' | 'not_applicable' | null
+          auditor_comments?: string | null
+          source?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          checklist_id?: string
+          category?: string | null
+          control_title?: string
+          control_description?: string | null
+          compliance_status?: 'compliant' | 'partially_compliant' | 'non_compliant' | 'not_applicable' | null
+          auditor_comments?: string | null
+          source?: string | null
+          created_at?: string
+          updated_at?: string
+        }
+      }
+      audit_evidence: {
+        Row: {
+          id: string
+          audit_item_id: string
+          attachment_id: string
+          notes: string | null
+          created_at: string
+        }
+        Insert: {
+          id?: string
+          audit_item_id: string
+          attachment_id: string
+          notes?: string | null
+          created_at?: string
+        }
+        Update: {
+          id?: string
+          audit_item_id?: string
+          attachment_id?: string
+          notes?: string | null
+          created_at?: string
+        }
+      }
+      audit_findings: {
+        Row: {
+          id: string
+          project_id: string
+          audit_item_id: string
+          issue: string
+          risk_description: string
+          affected_asset_id: string | null
+          recommendation: string | null
+          severity: 'low' | 'medium' | 'high' | 'critical' | null
+          created_at: string
+          updated_at: string
+        }
+        Insert: {
+          id?: string
+          project_id: string
+          audit_item_id: string
+          issue: string
+          risk_description: string
+          affected_asset_id?: string | null
+          recommendation?: string | null
+          severity?: 'low' | 'medium' | 'high' | 'critical' | null
+          created_at?: string
+          updated_at?: string
+        }
+        Update: {
+          id?: string
+          project_id?: string
+          audit_item_id?: string
+          issue?: string
+          risk_description?: string
+          affected_asset_id?: string | null
+          recommendation?: string | null
+          severity?: 'low' | 'medium' | 'high' | 'critical' | null
+          created_at?: string
+          updated_at?: string
         }
       }
     }

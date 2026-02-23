@@ -16,13 +16,13 @@ export type Enums<T extends keyof Database['public']['Enums']> = Database['publi
 // USER & AUTHENTICATION TYPES
 // =====================================================
 
-export type UserRole = 'admin' | 'auditor' | 'viewer'
+export type UserRole = 'admin' | 'auditor' | 'auditee'
 
 export interface UserProfile extends Tables<'user_profiles'> {
   organization?: Organization
 }
 
-export interface Organization extends Tables<'organizations'> {}
+export interface Organization extends Tables<'organizations'> { }
 
 export interface AuthSession {
   user: {
@@ -144,15 +144,15 @@ export interface Concern extends Tables<'concerns'> {
 // STEP 5: THREAT SCENARIOS
 // =====================================================
 
-export type ThreatActorType = 
-  | 'external_attacker' 
-  | 'internal_attacker' 
-  | 'competitor' 
-  | 'nation_state' 
-  | 'criminal' 
-  | 'terrorist' 
-  | 'activist' 
-  | 'insider' 
+export type ThreatActorType =
+  | 'external_attacker'
+  | 'internal_attacker'
+  | 'competitor'
+  | 'nation_state'
+  | 'criminal'
+  | 'terrorist'
+  | 'activist'
+  | 'insider'
   | 'accidental'
 
 export type CapabilityLevel = 'low' | 'medium' | 'high'
@@ -332,7 +332,7 @@ export interface ReportSection {
   order: number
 }
 
-export type FinalRiskOpinion = 
+export type FinalRiskOpinion =
   | 'Immediate Remediation Required'
   | 'High Risk Exposure'
   | 'Moderate Risk Exposure'
@@ -346,7 +346,7 @@ export interface AuditLog extends Tables<'audit_logs'> {
   user?: UserProfile
 }
 
-export type AuditAction = 
+export type AuditAction =
   | 'create'
   | 'update'
   | 'delete'
@@ -417,4 +417,42 @@ export interface RiskTrend {
   high: number
   medium: number
   low: number
+}
+// =====================================================
+// VULNERABILITY & AUDIT TYPES
+// =====================================================
+
+export interface Vulnerability extends Tables<'vulnerabilities'> { }
+
+export interface RiskVulnerabilityMapping extends Tables<'risk_vulnerability_mapping'> {
+  risk?: Risk
+  vulnerability?: Vulnerability
+}
+
+export type ComplianceStatus = 'compliant' | 'partially_compliant' | 'non_compliant' | 'not_applicable'
+
+export interface AuditChecklist extends Tables<'audit_checklists'> {
+  project?: Project
+  items?: AuditItem[]
+}
+
+export interface AuditItem extends Tables<'audit_items'> {
+  checklist?: AuditChecklist
+  evidence?: AuditEvidence[]
+}
+
+export interface AuditEvidence extends Tables<'audit_evidence'> {
+  auditItem?: AuditItem
+  attachment?: Attachment
+}
+
+export interface Attachment extends Tables<'attachments'> {
+  project?: Project
+  uploadedByUser?: UserProfile
+}
+
+export interface AuditFinding extends Tables<'audit_findings'> {
+  project?: Project
+  auditItem?: AuditItem
+  affectedAsset?: Asset
 }

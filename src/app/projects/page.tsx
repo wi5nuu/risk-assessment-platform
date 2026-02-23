@@ -3,208 +3,145 @@
 import React, { useEffect, useState } from 'react'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { MainLayout } from '@/components/layout/MainLayout'
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card'
 import { Button } from '@/components/ui/button'
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge'
 import { Progress } from '@/components/ui/progress'
-import { ProjectWithProgress } from '@/types'
-import { Plus, FolderOpen, ArrowLeft, Edit, Trash2 } from 'lucide-react'
+import { Plus, FolderOpen, ArrowRight, Clock, Target } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
-import { toast } from 'sonner'
 
-export default function ProjectsPage() {
+export default function ProjectsListPage() {
   const supabase = createClient() as any
-  const [projects, setProjects] = useState<ProjectWithProgress[]>([])
+  const [projects, setProjects] = useState<any[]>([])
   const [isLoading, setIsLoading] = useState(true)
 
   useEffect(() => {
+    const loadProjects = async () => {
+      try {
+        const { data: { user } } = await supabase.auth.getUser()
+        if (!user) return
+
+        const { data: profile } = await supabase
+          .from('user_profiles')
+          .select('organization_id')
+          .eq('user_id', user.id)
+          .single()
+
+        if (!profile) return
+
+        const { data: projectsData } = await supabase
+          .from('projects')
+          .select('*')
+          .eq('organization_id', profile.organization_id)
+          .eq('is_active', true)
+          .order('created_at', { ascending: false })
+
+        const projectsWithProgress = (projectsData as any[] || []).map(p => {
+          const completedSteps = [
+            p.step_1_completed, p.step_2_completed, p.step_3_completed, p.step_4_completed,
+            p.step_5_completed, p.step_6_completed, p.step_7_completed, p.step_8_completed,
+          ].filter(Boolean).length
+
+          return {
+            ...p,
+            progress: Math.round((completedSteps / 8) * 100),
+            completedSteps,
+          }
+        })
+
+        setProjects(projectsWithProgress)
+      } catch (error) {
+        console.error('Error loading projects:', error)
+      } finally {
+        setIsLoading(false)
+      }
+    }
+
     loadProjects()
-  }, [])
-
-  const loadProjects = async () => {
-    try {
-      const { data: userData } = await supabase.auth.getUser()
-      if (!userData.user) return
-
-      const { data: profile } = await supabase
-        .from('user_profiles')
-        .select('organization_id')
-        .eq('user_id', userData.user.id)
-        .single()
-
-      if (!profile) return
-
-      const { data } = await supabase
-        .from('projects')
-        .select('*')
-        .eq('organization_id', profile.organization_id)
-        .eq('is_active', true)
-        .order('created_at', { ascending: false })
-
-      const projectsWithProgress: ProjectWithProgress[] = (data as any[] || []).map((project: any) => {
-        const completedSteps = [
-          project.step_1_completed,
-          project.step_2_completed,
-          project.step_3_completed,
-          project.step_4_completed,
-          project.step_5_completed,
-          project.step_6_completed,
-          project.step_7_completed,
-          project.step_8_completed,
-        ].filter(Boolean).length
-
-        return {
-          ...project,
-          progress: Math.round((completedSteps / 8) * 100),
-          completedSteps,
-          totalSteps: 8,
-        }
-      })
-
-      setProjects(projectsWithProgress)
-    } catch (error) {
-      toast.error('Failed to load projects')
-    } finally {
-      setIsLoading(false)
-    }
-  }
-
-  const handleDelete = async (project: ProjectWithProgress) => {
-    if (!confirm('Are you sure you want to delete this project?')) return
-
-    try {
-      const { error } = await supabase
-        .from('projects')
-        .update({ is_active: false })
-        .eq('id', project.id)
-
-      if (error) throw error
-      toast.success('Project deleted')
-      loadProjects()
-    } catch (error) {
-      toast.error('Failed to delete project')
-    }
-  }
+  }, [supabase.auth])
 
   if (isLoading) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div>
+        </div>
+      </MainLayout>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-xl font-bold">Projects</h1>
-                <p className="text-sm text-muted-foreground">
-                  Manage your risk assessment projects
-                </p>
-              </div>
-            </div>
-            <Link href="/projects/new">
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                New Project
-              </Button>
-            </Link>
+    <MainLayout>
+      <div className="space-y-8 max-w-7xl mx-auto">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+          <div>
+            <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Risk Assessment Projects</h1>
+            <p className="text-muted-foreground mt-1 text-xs sm:text-sm font-medium">Manage and track your OCTAVE Allegro security risk assessments.</p>
           </div>
+          <Link href="/projects/new" className="sm:flex-none">
+            <Button className="w-full sm:w-auto">
+              <Plus className="w-4 h-4 mr-2" />
+              New Assessment
+            </Button>
+          </Link>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        {projects.length === 0 ? (
-          <div className="text-center py-16">
-            <FolderOpen className="w-16 h-16 mx-auto mb-4 text-muted-foreground" />
-            <h2 className="text-xl font-semibold mb-2">No projects yet</h2>
-            <p className="text-muted-foreground mb-6">
-              Create your first risk assessment project to get started.
-            </p>
-            <Link href="/projects/new">
-              <Button>
-                <Plus className="w-4 h-4 mr-2" />
-                Create Project
-              </Button>
-            </Link>
-          </div>
-        ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {projects.map((project) => (
-              <Card key={project.id}>
-                <CardHeader className="pb-3">
-                  <div className="flex items-start justify-between">
-                    <div>
-                      <CardTitle className="text-lg">{project.name}</CardTitle>
-                      <p className="text-sm text-muted-foreground">
-                        Created {formatDate(project.created_at)}
-                      </p>
-                    </div>
-                    <Badge variant={getStatusVariant(project.status)}>
-                      {project.status}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+          {projects.length === 0 ? (
+            <div className="col-span-full text-center py-20 bg-card rounded-xl border-2 border-dashed">
+              <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-10" />
+              <p className="text-muted-foreground">No risk assessment projects found.</p>
+              <Link href="/projects/new" className="mt-4 inline-block">
+                <Button variant="outline">Start Your First Assessment</Button>
+              </Link>
+            </div>
+          ) : (
+            projects.map((p) => (
+              <Card key={p.id} className="group hover:shadow-md transition-all border-none shadow-sm flex flex-col">
+                <CardHeader>
+                  <div className="flex justify-between items-start mb-2">
+                    <Badge variant={p.status === 'completed' ? 'default' : 'secondary'}>
+                      {p.status.replace('_', ' ')}
                     </Badge>
+                    <span className="text-[10px] text-muted-foreground font-mono uppercase">{p.id.slice(0, 8)}</span>
                   </div>
+                  <CardTitle className="group-hover:text-primary transition-colors">{p.name}</CardTitle>
+                  <CardDescription className="line-clamp-2 min-h-[40px]">{p.description || 'No description provided.'}</CardDescription>
                 </CardHeader>
-                <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <div className="flex justify-between text-sm mb-1">
-                        <span className="text-muted-foreground">Progress</span>
-                        <span>{project.progress}%</span>
-                      </div>
-                      <Progress value={project.progress} className="h-2" />
-                      <p className="text-xs text-muted-foreground mt-1">
-                        Step {project.current_step} of 8 • {project.completedSteps} completed
-                      </p>
+                <CardContent className="flex-1 space-y-4">
+                  <div className="space-y-2">
+                    <div className="flex justify-between text-xs font-medium">
+                      <span>Assessment Progress</span>
+                      <span>{p.progress}%</span>
                     </div>
+                    <Progress value={p.progress} className="h-1.5" />
+                  </div>
 
-                    {project.target_completion_date && (
-                      <p className="text-sm text-muted-foreground">
-                        Target: {formatDate(project.target_completion_date)}
-                      </p>
-                    )}
-
-                    <div className="flex gap-2 pt-2">
-                      <Link href={`/wizard/${project.id}`} className="flex-1">
-                        <Button className="w-full" variant={project.progress === 100 ? 'outline' : 'default'}>
-                          {project.progress === 100 ? 'View' : 'Continue'}
-                        </Button>
-                      </Link>
-                      <Button variant="ghost" size="icon" onClick={() => handleDelete(project)}>
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
+                  <div className="flex items-center gap-4 text-xs text-muted-foreground pt-2 border-t">
+                    <div className="flex items-center gap-1">
+                      <Clock className="w-3.4 h-3.4" />
+                      {formatDate(p.created_at)}
+                    </div>
+                    <div className="flex items-center gap-1">
+                      <Target className="w-3.4 h-3.4" />
+                      {p.completedSteps}/8 Steps
                     </div>
                   </div>
                 </CardContent>
+                <div className="p-6 pt-0 mt-auto">
+                  <Link href={`/wizard/${p.id}`}>
+                    <Button variant="outline" className="w-full group-hover:bg-primary group-hover:text-primary-foreground transition-all">
+                      Continue Analysis
+                      <ArrowRight className="w-4 h-4 ml-2 opacity-0 group-hover:opacity-100 transition-all translate-x-[-10px] group-hover:translate-x-0" />
+                    </Button>
+                  </Link>
+                </div>
               </Card>
-            ))}
-          </div>
-        )}
-      </main>
-    </div>
+            ))
+          )}
+        </div>
+      </div>
+    </MainLayout>
   )
-}
-
-function getStatusVariant(status: string): 'default' | 'secondary' | 'destructive' | 'outline' {
-  switch (status) {
-    case 'completed':
-      return 'default'
-    case 'in_progress':
-      return 'secondary'
-    case 'archived':
-      return 'outline'
-    default:
-      return 'outline'
-  }
 }

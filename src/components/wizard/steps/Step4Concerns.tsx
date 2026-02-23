@@ -21,6 +21,7 @@ import { Concern, Container, ConcernCategory } from '@/types'
 
 interface Step4ConcernsProps {
   projectId: string
+  profileId: string
 }
 
 const concernCategories: { value: ConcernCategory; label: string }[] = [
@@ -31,7 +32,7 @@ const concernCategories: { value: ConcernCategory; label: string }[] = [
   { value: 'operational', label: 'Operational' },
 ]
 
-export function Step4Concerns({ projectId }: Step4ConcernsProps) {
+export function Step4Concerns({ projectId, profileId }: Step4ConcernsProps) {
   const supabase = createClient() as any
   const [concerns, setConcerns] = useState<Concern[]>([])
   const [containers, setContainers] = useState<Container[]>([])
@@ -84,8 +85,6 @@ export function Step4Concerns({ projectId }: Step4ConcernsProps) {
     setIsSaving(true)
 
     try {
-      const { data: userData } = await supabase.auth.getUser()
-
       if (editingConcern) {
         const { error } = await supabase
           .from('concerns')
@@ -99,12 +98,12 @@ export function Step4Concerns({ projectId }: Step4ConcernsProps) {
           .from('concerns')
           .insert({
             project_id: projectId,
-            identified_by: userData.user?.id,
+            identified_by: profileId,
             ...formData,
           })
 
         if (error) throw error
-        toast.success('Concern created successfully')
+        toast.success('Concern added successfully')
       }
 
       setIsDialogOpen(false)
@@ -285,8 +284,8 @@ export function Step4Concerns({ projectId }: Step4ConcernsProps) {
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <span className={`px-2 py-1 rounded text-xs font-medium ${concern.priority === 'high' ? 'bg-red-100 text-red-800' :
-                          concern.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
-                            'bg-green-100 text-green-800'
+                        concern.priority === 'medium' ? 'bg-yellow-100 text-yellow-800' :
+                          'bg-green-100 text-green-800'
                         }`}>
                         {concern.priority.toUpperCase()}
                       </span>

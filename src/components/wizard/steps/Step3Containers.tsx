@@ -21,6 +21,7 @@ import { Container, ContainerType, Asset } from '@/types'
 
 interface Step3ContainersProps {
   projectId: string
+  profileId: string
 }
 
 const containerTypes: { value: ContainerType; label: string }[] = [
@@ -30,7 +31,7 @@ const containerTypes: { value: ContainerType; label: string }[] = [
   { value: 'process', label: 'Process' },
 ]
 
-export function Step3Containers({ projectId }: Step3ContainersProps) {
+export function Step3Containers({ projectId, profileId }: Step3ContainersProps) {
   const supabase = createClient() as any
   const [containers, setContainers] = useState<Container[]>([])
   const [assets, setAssets] = useState<Asset[]>([])
@@ -88,8 +89,6 @@ export function Step3Containers({ projectId }: Step3ContainersProps) {
     setIsSaving(true)
 
     try {
-      const { data: userData } = await supabase.auth.getUser()
-
       if (editingContainer) {
         const { error } = await supabase
           .from('containers')
@@ -103,7 +102,7 @@ export function Step3Containers({ projectId }: Step3ContainersProps) {
           .from('containers')
           .insert({
             project_id: projectId,
-            created_by: userData.user?.id,
+            created_by: profileId,
             ...formData,
           })
 
@@ -377,8 +376,8 @@ export function Step3Containers({ projectId }: Step3ContainersProps) {
                 key={asset.id}
                 onClick={() => handleToggleAsset(asset.id)}
                 className={`p-3 border rounded-lg cursor-pointer transition-colors ${linkedAssets.includes(asset.id)
-                    ? 'bg-primary/10 border-primary'
-                    : 'hover:bg-muted'
+                  ? 'bg-primary/10 border-primary'
+                  : 'hover:bg-muted'
                   }`}
               >
                 <div className="flex items-center justify-between">

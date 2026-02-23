@@ -17,18 +17,24 @@ import {
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { Plus, Edit, Trash2, Loader2, Calculator } from 'lucide-react'
-import { Risk, ThreatScenario, Asset } from '@/types'
+import { Badge } from '@/components/ui/badge'
+import { Checkbox } from '@/components/ui/checkbox'
+import { Asset, Risk, ThreatScenario, Vulnerability } from '@/types'
 import { calculateRiskScore, determineRiskLevel } from '@/lib/risk-engine'
+import { groupBy } from '@/lib/utils'
 
 interface Step6RisksProps {
   projectId: string
+  profileId: string
 }
 
-export function Step6Risks({ projectId }: Step6RisksProps) {
+export function Step6Risks({ projectId, profileId }: Step6RisksProps) {
   const supabase = createClient() as any
   const [risks, setRisks] = useState<Risk[]>([])
   const [scenarios, setScenarios] = useState<ThreatScenario[]>([])
   const [assets, setAssets] = useState<Asset[]>([])
+  const [allVulnerabilities, setAllVulnerabilities] = useState<Vulnerability[]>([])
+  const [selectedVulnerabilityIds, setSelectedVulnerabilityIds] = useState<string[]>([])
   const [isLoading, setIsLoading] = useState(true)
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [editingRisk, setEditingRisk] = useState<Risk | null>(null)
@@ -72,7 +78,7 @@ export function Step6Risks({ projectId }: Step6RisksProps) {
 
   const loadData = async () => {
     try {
-      const [risksRes, scenariosRes, assetsRes] = await Promise.all([
+      const [risksRes, scenariosRes, assetsRes, vulnerabilitiesRes] = await Promise.all([
         supabase
           .from('risks')
           .select('*')
@@ -89,15 +95,22 @@ export function Step6Risks({ projectId }: Step6RisksProps) {
           .select('*')
           .eq('project_id', projectId)
           .eq('is_active', true),
+        supabase
+          .from('vulnerabilities')
+          .select('*')
+          .eq('is_active', true)
+          .order('category', { ascending: true }),
       ])
 
       if (risksRes.error) throw risksRes.error
       if (scenariosRes.error) throw scenariosRes.error
       if (assetsRes.error) throw assetsRes.error
+      if (vulnerabilitiesRes.error) throw vulnerabilitiesRes.error
 
       setRisks(risksRes.data || [])
       setScenarios(scenariosRes.data || [])
       setAssets(assetsRes.data || [])
+      setAllVulnerabilities(vulnerabilitiesRes.data || [])
     } catch (error) {
       toast.error('Failed to load data')
     } finally {
@@ -110,7 +123,25 @@ export function Step6Risks({ projectId }: Step6RisksProps) {
     setIsSaving(true)
 
     try {
-      const { data: userData } = await supabase.auth.getUser()
+      // Validation
+      if (!formData.asset_id || !formData.threat_scenario_id) {
+        toast.error('Please select an asset and a threat scenario')
+        setIsSaving(false)
+        return
+      }
+
+      if (!formData.risk_title || !formData.vulnerability_description) {
+        toast.error('Risk title and vulnerability description are required')
+        setIsSaving(false)
+        return
+      }
+
+      if (!profileId) {
+        toast.error('User profile not found. Please try logging in again.')
+        setIsSaving(false)
+        return
+      }
+
       const maxImpact = Math.max(
         formData.financial_impact,
         formData.reputational_impact,
@@ -121,6 +152,7 @@ export function Step6Risks({ projectId }: Step6RisksProps) {
       const riskData = {
         ...formData,
         impact: maxImpact,
+        review_date: formData.review_date || null, // Handle empty date string
       }
 
       if (editingRisk) {
@@ -130,25 +162,107 @@ export function Step6Risks({ projectId }: Step6RisksProps) {
           .eq('id', editingRisk.id)
 
         if (error) throw error
+
+        // Update vulnerability mappings
+        await supabase.from('risk_vulnerability_mapping').delete().eq('risk_id', editingRisk.id)
+        if (selectedVulnerabilityIds.length > 0) {
+          await supabase.from('risk_vulnerability_mapping').insert(
+            selectedVulnerabilityIds.map(vId => ({
+              risk_id: editingRisk.id,
+              vulnerability_id: vId
+            }))
+          )
+        }
+
         toast.success('Risk updated successfully')
       } else {
-        const { error } = await supabase
+        const { data, error } = await supabase
           .from('risks')
           .insert({
             project_id: projectId,
-            identified_by: userData.user?.id,
+            identified_by: profileId,
             ...riskData,
           })
+          .select()
+          .single()
 
         if (error) throw error
+
+        // Save vulnerability mappings
+        if (selectedVulnerabilityIds.length > 0 && data) {
+          const { error: mapError } = await supabase.from('risk_vulnerability_mapping').insert(
+            selectedVulnerabilityIds.map(vId => ({
+              risk_id: data.id,
+              vulnerability_id: vId
+            }))
+          )
+          if (mapError) console.error('Error saving vulnerability mappings:', mapError)
+        }
+
         toast.success('Risk created successfully')
+      }
+
+      // Module 4.5: Connection to Security Audit Module
+      if (selectedVulnerabilityIds.length > 0) {
+        // 1. Get or create audit checklist for this project
+        let { data: checklist } = await supabase
+          .from('audit_checklists')
+          .select('id')
+          .eq('project_id', projectId)
+          .single()
+
+        if (!checklist) {
+          const { data: newChecklist, error: checklistError } = await supabase
+            .from('audit_checklists')
+            .insert({
+              project_id: projectId,
+              framework: 'OCTAVE Allegro', // Default framework
+              status: 'in_progress'
+            })
+            .select()
+            .single()
+
+          if (!checklistError) checklist = newChecklist
+        }
+
+        if (checklist) {
+          // 2. Clear existing triggered items for this specific risk to avoid duplicates if re-saved
+          // (Optionally skip if we want to keep history, but requirement says "automatically creates")
+
+          // 3. Get the audit items from selected vulnerabilities
+          const selectedVulns = allVulnerabilities.filter(v => selectedVulnerabilityIds.includes(v.id))
+
+          for (const vuln of selectedVulns) {
+            if (vuln.audit_checklist_item) {
+              // Check if this specific vulcan control already exists in the checklist
+              const { data: existingItem } = await supabase
+                .from('audit_items')
+                .select('id')
+                .eq('checklist_id', checklist.id)
+                .eq('control_title', vuln.name)
+                .single()
+
+              if (!existingItem) {
+                await supabase.from('audit_items').insert({
+                  checklist_id: checklist.id,
+                  category: vuln.category,
+                  control_title: vuln.name,
+                  control_description: vuln.audit_checklist_item,
+                  source: 'vulnerability_triggered',
+                  compliance_status: 'not_applicable'
+                })
+              }
+            }
+          }
+        }
       }
 
       setIsDialogOpen(false)
       resetForm()
       loadData()
-    } catch (error) {
-      toast.error(editingRisk ? 'Failed to update risk' : 'Failed to create risk')
+    } catch (error: any) {
+      console.error('Error saving risk:', error)
+      toast.error(error.message || (editingRisk ? 'Failed to update risk' : 'Failed to create risk'))
     } finally {
       setIsSaving(false)
     }
@@ -171,7 +285,33 @@ export function Step6Risks({ projectId }: Step6RisksProps) {
     }
   }
 
-  const handleEdit = (risk: Risk) => {
+  const handleVulnerabilityToggle = (vulnerabilityId: string) => {
+    setSelectedVulnerabilityIds(prev => {
+      const next = prev.includes(vulnerabilityId)
+        ? prev.filter(id => id !== vulnerabilityId)
+        : [...prev, vulnerabilityId]
+
+      // Automatic Scoring Logic (Requirement 4.3 & 4.4)
+      if (next.length > 0) {
+        const selectedVulns = allVulnerabilities.filter(v => next.includes(v.id))
+        const maxImpact = Math.max(...selectedVulns.map(v => v.suggested_impact ?? 3))
+        const maxLikelihood = Math.max(...selectedVulns.map(v => v.suggested_likelihood ?? 3))
+        setFormData(f => ({
+          ...f,
+          likelihood: maxLikelihood,
+          impact: maxImpact,
+          financial_impact: maxImpact,
+          reputational_impact: maxImpact,
+          legal_impact: maxImpact,
+          operational_impact: maxImpact,
+        }))
+      }
+
+      return next
+    })
+  }
+
+  const handleEdit = async (risk: Risk) => {
     setEditingRisk(risk)
     setFormData({
       asset_id: risk.asset_id,
@@ -188,11 +328,18 @@ export function Step6Risks({ projectId }: Step6RisksProps) {
       owner: risk.owner || '',
       review_date: risk.review_date || '',
     })
+    // Load existing vulnerability mappings
+    const { data } = await supabase
+      .from('risk_vulnerability_mapping')
+      .select('vulnerability_id')
+      .eq('risk_id', risk.id)
+    setSelectedVulnerabilityIds(data?.map((m: any) => m.vulnerability_id) || [])
     setIsDialogOpen(true)
   }
 
   const resetForm = () => {
     setEditingRisk(null)
+    setSelectedVulnerabilityIds([])
     setFormData({
       asset_id: '',
       threat_scenario_id: '',
@@ -305,6 +452,40 @@ export function Step6Risks({ projectId }: Step6RisksProps) {
                       ))}
                     </SelectContent>
                   </Select>
+                </div>
+
+                <div className="col-span-2">
+                  <Label>Suspected Vulnerabilities (Select to auto-calculate scores)</Label>
+                  <Card className="mt-2 border-dashed">
+                    <CardContent className="p-0">
+                      <div className="max-h-[200px] overflow-y-auto p-4 space-y-4">
+                        {Object.entries(groupBy(allVulnerabilities, 'category')).map(([category, vulns]) => (
+                          <div key={category} className="space-y-2">
+                            <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider">{category}</h4>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+                              {vulns.map((vuln) => (
+                                <div key={vuln.id} className="flex items-start space-x-2">
+                                  <Checkbox
+                                    id={`vuln-${vuln.id}`}
+                                    checked={selectedVulnerabilityIds.includes(vuln.id)}
+                                    onChange={() => handleVulnerabilityToggle(vuln.id)}
+                                  />
+                                  <div className="grid gap-1.5 leading-none">
+                                    <label
+                                      htmlFor={`vuln-${vuln.id}`}
+                                      className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70 cursor-pointer"
+                                    >
+                                      {vuln.name}
+                                    </label>
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </CardContent>
+                  </Card>
                 </div>
 
                 <div className="col-span-2">

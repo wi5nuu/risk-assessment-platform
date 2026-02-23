@@ -11,22 +11,61 @@ export async function updateSession(request: NextRequest) {
     request,
   })
 
+  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!
+  const supabaseKey = process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!
+
+  // Validate key format
+  if (supabaseKey && !supabaseKey.startsWith('eyJ')) {
+    console.error(
+      'CRITICAL AUTH ERROR: NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY is invalid (it looks like a Stripe key). ' +
+      'Authentication will NEVER work with this key. Please use the Supabase Anon key starting with eyJ.'
+    )
+  }
+
   const supabase = createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY!,
+    supabaseUrl,
+    supabaseKey,
     {
       cookies: {
-        getAll() {
-          return request.cookies.getAll()
+        get(name: string) {
+          const cookie = request.cookies.get(name)
+          if (cookie) {
+          }
+          return cookie?.value
         },
-        setAll(cookiesToSet: any[]) {
-          cookiesToSet.forEach(({ name, value, options }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({
-            request,
+        set(name: string, value: string, options: any) {
+          request.cookies.set({
+            name,
+            value,
+            ...options,
           })
-          cookiesToSet.forEach(({ name, value, options }) =>
-            supabaseResponse.cookies.set(name, value, options)
-          )
+          supabaseResponse = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          supabaseResponse.cookies.set({
+            name,
+            value,
+            ...options,
+          })
+        },
+        remove(name: string, options: any) {
+          request.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
+          supabaseResponse = NextResponse.next({
+            request: {
+              headers: request.headers,
+            },
+          })
+          supabaseResponse.cookies.set({
+            name,
+            value: '',
+            ...options,
+          })
         },
       },
     }
@@ -35,7 +74,13 @@ export async function updateSession(request: NextRequest) {
   // Refresh session if expired
   const {
     data: { user },
+    error: authError
   } = await supabase.auth.getUser()
+
+  if (authError) {
+    console.warn('Middleware auth check error:', authError.message)
+  }
+
 
   return { supabaseResponse, user }
 }
@@ -57,11 +102,14 @@ export const PROTECTED_ROUTES = [
   '/risk-register',
   '/reports',
   '/settings',
+  '/admin',
+  '/audit',
 ]
 
 export const ADMIN_ROUTES = [
-  '/settings/organization',
-  '/settings/users',
+  '/admin',
+  '/admin/organization',
+  '/admin/users',
 ]
 
 export function isProtectedRoute(pathname: string): boolean {

@@ -11,6 +11,7 @@ import { Loader2, Save } from 'lucide-react'
 
 interface Step1CriteriaProps {
   projectId: string
+  profileId: string
 }
 
 interface CriteriaForm {
@@ -69,7 +70,7 @@ const defaultCriteria: CriteriaForm = {
   likelihood_5: 'Almost Certain (monthly+)',
 }
 
-export function Step1Criteria({ projectId }: Step1CriteriaProps) {
+export function Step1Criteria({ projectId, profileId }: Step1CriteriaProps) {
   const supabase = createClient() as any
   const [criteria, setCriteria] = useState<CriteriaForm>(defaultCriteria)
   const [isLoading, setIsLoading] = useState(true)
@@ -128,8 +129,6 @@ export function Step1Criteria({ projectId }: Step1CriteriaProps) {
   const handleSave = async () => {
     setIsSaving(true)
     try {
-      const { data: userData } = await supabase.auth.getUser()
-
       if (criteriaId) {
         // Update existing
         const { error } = await supabase
@@ -144,7 +143,7 @@ export function Step1Criteria({ projectId }: Step1CriteriaProps) {
           .from('risk_measurement_criteria')
           .insert({
             project_id: projectId,
-            created_by: userData.user?.id,
+            created_by: profileId,
             ...criteria,
           })
           .select()

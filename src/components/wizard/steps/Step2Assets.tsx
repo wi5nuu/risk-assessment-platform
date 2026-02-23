@@ -21,6 +21,7 @@ import { Asset, AssetType, ClassificationLevel } from '@/types'
 
 interface Step2AssetsProps {
   projectId: string
+  profileId: string
 }
 
 const assetTypes: { value: AssetType; label: string }[] = [
@@ -40,7 +41,7 @@ const classificationLevels: { value: ClassificationLevel; label: string }[] = [
   { value: 'restricted', label: 'Restricted' },
 ]
 
-export function Step2Assets({ projectId }: Step2AssetsProps) {
+export function Step2Assets({ projectId, profileId }: Step2AssetsProps) {
   const supabase = createClient() as any
   const [assets, setAssets] = useState<Asset[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -94,8 +95,6 @@ export function Step2Assets({ projectId }: Step2AssetsProps) {
     setIsSaving(true)
 
     try {
-      const { data: userData } = await supabase.auth.getUser()
-
       if (editingAsset) {
         const { error } = await supabase
           .from('assets')
@@ -109,7 +108,7 @@ export function Step2Assets({ projectId }: Step2AssetsProps) {
           .from('assets')
           .insert({
             project_id: projectId,
-            created_by: userData.user?.id,
+            created_by: profileId,
             ...formData,
           })
 

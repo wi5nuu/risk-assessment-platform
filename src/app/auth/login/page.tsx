@@ -4,6 +4,7 @@ import React, { useState } from 'react'
 import { useRouter } from 'next/navigation'
 import Link from 'next/link'
 import { createClient } from '@/lib/supabase/client'
+import { toast } from 'sonner'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -23,24 +24,47 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
+    console.log('Login attempt started for:', email)
 
     try {
+      console.log('Attempting sign-in with email:', email)
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (signInError) {
+        console.error('Login error details:', signInError)
         setError(signInError.message)
+        // If it's an email confirmation issue, explain it clearly
+        if (signInError.message.includes('Email not confirmed')) {
+          setError('Please check your email and confirm your account before logging in.')
+        }
         return
       }
 
+      console.log('Login successful! Data:', {
+        userId: data.user?.id,
+        sessionExists: !!data.session,
+        expiresAt: data.session?.expires_at
+      })
+
       if (data.user) {
-        router.push('/dashboard')
-        router.refresh()
+        console.log('Initiating redirect to /dashboard...')
+        console.log('Browser cookies after login:', document.cookie.split(';').map(c => c.trim().split('=')[0]))
+
+        toast.success('Login successful! Redirecting...')
+
+        // Use router.push and force a hard refresh if needed
+        window.location.href = '/dashboard'
+      } else {
+        console.warn('Login returned no user data')
+        toast.error('Login failed: No user data returned')
       }
-    } catch (err) {
-      setError('An unexpected error occurred. Please try again.')
+    } catch (err: any) {
+      console.error('Unexpected login error:', err)
+      setError('An unexpected error occurred: ' + (err.message || 'Please try again.'))
+      toast.error('An unexpected error occurred')
     } finally {
       setIsLoading(false)
     }

@@ -9,8 +9,14 @@ export const metadata: Metadata = {
   description: "AI-Assisted Cybersecurity Risk Assessment Platform Based on OCTAVE Allegro Methodology",
   keywords: ["cybersecurity", "risk assessment", "OCTAVE Allegro", "GRC", "risk management"],
   authors: [{ name: "OCTAVE Risk Platform" }],
-  viewport: "width=device-width, initial-scale=1",
 };
+
+export const viewport = {
+  width: "device-width",
+  initialScale: 1,
+};
+
+import { Toaster } from 'sonner'
 
 export default function RootLayout({
   children,
@@ -21,6 +27,7 @@ export default function RootLayout({
     <html lang="en" suppressHydrationWarning>
       <body className="font-sans antialiased">
         {children}
+        <Toaster position="top-right" richColors />
       </body>
     </html>
   );

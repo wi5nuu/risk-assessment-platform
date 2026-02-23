@@ -21,6 +21,7 @@ import { Risk, MitigationPlan, TreatmentStrategy } from '@/types'
 
 interface Step8MitigationProps {
   projectId: string
+  profileId: string
 }
 
 const treatmentStrategies: { value: TreatmentStrategy; label: string }[] = [
@@ -45,7 +46,7 @@ const mitigationStatuses = [
   { value: 'cancelled', label: 'Cancelled' },
 ]
 
-export function Step8Mitigation({ projectId }: Step8MitigationProps) {
+export function Step8Mitigation({ projectId, profileId }: Step8MitigationProps) {
   const supabase = createClient() as any
   const [risks, setRisks] = useState<Risk[]>([])
   const [mitigationPlans, setMitigationPlans] = useState<Record<string, MitigationPlan[]>>({})
@@ -110,16 +111,19 @@ export function Step8Mitigation({ projectId }: Step8MitigationProps) {
     e.preventDefault()
     if (!selectedRisk) return
 
-    setIsSaving(true)
-
     try {
-      const { data: userData } = await supabase.auth.getUser()
+      if (!profileId) {
+        toast.error('User profile not found. Please try logging in again.')
+        return
+      }
 
       const planData = {
         risk_id: selectedRisk.id,
         project_id: projectId,
-        created_by: userData.user?.id,
+        created_by: profileId,
         ...formData,
+        planned_start_date: formData.planned_start_date || null,
+        planned_completion_date: formData.planned_completion_date || null,
       }
 
       if (editingPlan) {

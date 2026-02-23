@@ -32,12 +32,12 @@ export function WizardContainer({
   className
 }: WizardContainerProps) {
   const [isCompleting, setIsCompleting] = useState(false)
-  
+
   const canGoNext = currentStep < 8
   const canGoPrevious = currentStep > 1
   const isStepCompleted = completedSteps.includes(currentStep)
   const canCompleteStep = !isStepCompleted
-  
+
   const handleNext = useCallback(async () => {
     if (canGoNext) {
       // If current step is not completed, complete it first
@@ -47,13 +47,13 @@ export function WizardContainer({
       onStepChange((currentStep + 1) as OctaveStepNumber)
     }
   }, [canGoNext, canCompleteStep, currentStep, onStepChange])
-  
+
   const handlePrevious = useCallback(() => {
     if (canGoPrevious) {
       onStepChange((currentStep - 1) as OctaveStepNumber)
     }
   }, [canGoPrevious, currentStep, onStepChange])
-  
+
   const handleCompleteStep = useCallback(async () => {
     setIsCompleting(true)
     try {
@@ -62,86 +62,91 @@ export function WizardContainer({
       setIsCompleting(false)
     }
   }, [currentStep, onCompleteStep])
-  
+
   const handleStepClick = useCallback((step: OctaveStepNumber) => {
     onStepChange(step)
   }, [onStepChange])
-  
+
   return (
-    <div className={cn("space-y-6", className)}>
+    <div className={cn("space-y-4 sm:space-y-6", className)}>
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold">{project.name}</h1>
-          <p className="text-muted-foreground">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+        <div className="space-y-1">
+          <h1 className="text-xl md:text-2xl font-bold truncate max-w-[280px] sm:max-w-none">{project.name}</h1>
+          <p className="text-xs md:text-sm text-muted-foreground font-medium uppercase tracking-wider">
             OCTAVE Allegro Risk Assessment
           </p>
         </div>
         <Button
           variant="outline"
+          size="sm"
           onClick={onSaveProgress}
           disabled={isSaving}
+          className="w-full sm:w-auto h-9"
         >
           <Save className="w-4 h-4 mr-2" />
           {isSaving ? 'Saving...' : 'Save Progress'}
         </Button>
       </div>
-      
+
       {/* Step Indicator */}
       <WizardStepIndicator
         currentStep={currentStep}
         completedSteps={completedSteps}
         onStepClick={handleStepClick}
       />
-      
+
       {/* Step Content */}
       <Card>
-        <CardHeader className="border-b">
-          <div className="flex items-center justify-between">
+        <CardHeader className="border-b p-4 sm:p-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h2 className="text-lg font-semibold">
+              <h2 className="text-base sm:text-lg font-semibold">
                 Step {currentStep}: {getStepName(currentStep)}
               </h2>
-              <p className="text-sm text-muted-foreground">
+              <p className="text-xs sm:text-sm text-muted-foreground mt-0.5">
                 {getStepDescription(currentStep)}
               </p>
             </div>
             {isStepCompleted && (
-              <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-sm font-medium">
+              <div className="px-3 py-1 bg-green-100 text-green-800 rounded-full text-xs sm:text-sm font-medium w-fit">
                 Completed
               </div>
             )}
           </div>
         </CardHeader>
-        
+
         <CardContent className="pt-6">
           {children}
         </CardContent>
-        
-        <CardFooter className="border-t flex justify-between">
+
+        <CardFooter className="border-t p-4 sm:p-6 flex flex-col sm:flex-row justify-between gap-3">
           <Button
             variant="outline"
             onClick={handlePrevious}
             disabled={!canGoPrevious || isCompleting}
+            className="w-full sm:w-auto order-2 sm:order-1"
           >
             <ChevronLeft className="w-4 h-4 mr-2" />
             Previous
           </Button>
-          
-          <div className="flex gap-2">
+
+          <div className="flex gap-2 w-full sm:w-auto order-1 sm:order-2">
             {canCompleteStep && (
               <Button
                 onClick={handleCompleteStep}
                 disabled={isCompleting}
                 variant="secondary"
+                className="flex-1 sm:flex-none"
               >
                 {isCompleting ? 'Completing...' : 'Complete Step'}
               </Button>
             )}
-            
+
             <Button
               onClick={handleNext}
               disabled={!canGoNext || isCompleting}
+              className="flex-1 sm:flex-none"
             >
               Next
               <ChevronRight className="w-4 h-4 ml-2" />

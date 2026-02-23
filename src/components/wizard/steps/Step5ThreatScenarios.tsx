@@ -21,6 +21,7 @@ import { ThreatScenario, Concern, Asset, Container, ThreatActorType } from '@/ty
 
 interface Step5ThreatScenariosProps {
   projectId: string
+  profileId: string
 }
 
 const threatActorTypes: { value: ThreatActorType; label: string }[] = [
@@ -35,7 +36,7 @@ const threatActorTypes: { value: ThreatActorType; label: string }[] = [
   { value: 'accidental', label: 'Accidental' },
 ]
 
-export function Step5ThreatScenarios({ projectId }: Step5ThreatScenariosProps) {
+export function Step5ThreatScenarios({ projectId, profileId }: Step5ThreatScenariosProps) {
   const supabase = createClient() as any
   const [scenarios, setScenarios] = useState<ThreatScenario[]>([])
   const [concerns, setConcerns] = useState<Concern[]>([])
@@ -110,8 +111,6 @@ export function Step5ThreatScenarios({ projectId }: Step5ThreatScenariosProps) {
     setIsSaving(true)
 
     try {
-      const { data: userData } = await supabase.auth.getUser()
-
       if (editingScenario) {
         const { error } = await supabase
           .from('threat_scenarios')
@@ -119,18 +118,18 @@ export function Step5ThreatScenarios({ projectId }: Step5ThreatScenariosProps) {
           .eq('id', editingScenario.id)
 
         if (error) throw error
-        toast.success('Threat scenario updated successfully')
+        toast.success('Scenario updated successfully')
       } else {
         const { error } = await supabase
           .from('threat_scenarios')
           .insert({
             project_id: projectId,
-            created_by: userData.user?.id,
+            created_by: profileId,
             ...formData,
           })
 
         if (error) throw error
-        toast.success('Threat scenario created successfully')
+        toast.success('Scenario added successfully')
       }
 
       setIsDialogOpen(false)

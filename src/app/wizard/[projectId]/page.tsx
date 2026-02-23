@@ -24,6 +24,7 @@ export default function WizardPage() {
   const projectId = params.projectId as string
 
   const [project, setProject] = useState<Project | null>(null)
+  const [profileId, setProfileId] = useState<string | null>(null)
   const [currentStep, setCurrentStep] = useState<OctaveStepNumber>(1)
   const [completedSteps, setCompletedSteps] = useState<OctaveStepNumber[]>([])
   const [isLoading, setIsLoading] = useState(true)
@@ -35,6 +36,31 @@ export default function WizardPage() {
 
   const loadProject = async () => {
     try {
+      // 1. Get current auth user
+      const { data: { user: authUser } } = await supabase.auth.getUser()
+
+      if (!authUser) {
+        toast.error('You must be logged in')
+        router.push('/auth/login')
+        return
+      }
+
+      // 2. Load user profile to get the correct profile ID (different from auth ID)
+      const { data: profileData, error: profileError } = await supabase
+        .from('user_profiles')
+        .select('id')
+        .eq('user_id', authUser.id)
+        .single()
+
+      if (profileError || !profileData) {
+        console.error('Profile not found:', profileError)
+        toast.error('User profile not found')
+        return
+      }
+
+      setProfileId(profileData.id)
+
+      // 3. Load project
       const { data, error } = await supabase
         .from('projects')
         .select('*')
@@ -42,6 +68,7 @@ export default function WizardPage() {
         .single()
 
       if (error) {
+        console.error('Project load error:', error)
         toast.error('Failed to load project')
         router.push('/dashboard')
         return
@@ -62,7 +89,8 @@ export default function WizardPage() {
       if (data.step_8_completed) completed.push(8)
       setCompletedSteps(completed)
     } catch (error) {
-      toast.error('An error occurred')
+      console.error('Wizard initialization error:', error)
+      toast.error('An error occurred during initialization')
     } finally {
       setIsLoading(false)
     }
@@ -126,14 +154,14 @@ export default function WizardPage() {
           onSaveProgress={handleSaveProgress}
           isSaving={isSaving}
         >
-          {currentStep === 1 && <Step1Criteria projectId={projectId} />}
-          {currentStep === 2 && <Step2Assets projectId={projectId} />}
-          {currentStep === 3 && <Step3Containers projectId={projectId} />}
-          {currentStep === 4 && <Step4Concerns projectId={projectId} />}
-          {currentStep === 5 && <Step5ThreatScenarios projectId={projectId} />}
-          {currentStep === 6 && <Step6Risks projectId={projectId} />}
-          {currentStep === 7 && <Step7Analysis projectId={projectId} />}
-          {currentStep === 8 && <Step8Mitigation projectId={projectId} />}
+          {currentStep === 1 && <Step1Criteria projectId={projectId} profileId={profileId!} />}
+          {currentStep === 2 && <Step2Assets projectId={projectId} profileId={profileId!} />}
+          {currentStep === 3 && <Step3Containers projectId={projectId} profileId={profileId!} />}
+          {currentStep === 4 && <Step4Concerns projectId={projectId} profileId={profileId!} />}
+          {currentStep === 5 && <Step5ThreatScenarios projectId={projectId} profileId={profileId!} />}
+          {currentStep === 6 && <Step6Risks projectId={projectId} profileId={profileId!} />}
+          {currentStep === 7 && <Step7Analysis projectId={projectId} profileId={profileId!} />}
+          {currentStep === 8 && <Step8Mitigation projectId={projectId} profileId={profileId!} />}
         </WizardContainer>
       </main>
     </div>
