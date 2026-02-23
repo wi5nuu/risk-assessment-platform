@@ -44,7 +44,7 @@ export async function POST(request: Request) {
         if (profile.role === 'admin') {
             welcomeMessage = `Security Alert: New login detected from ${currentIp}. Welcome back, Administrator ${profile.first_name}.`
         } else {
-            welcomeMessage = `Welcome to CYBER 2, ${profile.first_name}! You are logged in as ${profile.role}.`
+            welcomeMessage = `Welcome to Risk Shield System, ${profile.first_name}! You are logged in as ${profile.role}.`
         }
     }
 

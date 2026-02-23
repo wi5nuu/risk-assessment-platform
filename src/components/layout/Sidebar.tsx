@@ -78,7 +78,7 @@ export function Sidebar({ isMobile, onMobileClose }: SidebarProps) {
             <div className="p-6">
                 <Link href="/dashboard" className="flex items-center gap-2 font-bold text-xl text-primary">
                     <ShieldAlert className="w-6 h-6" />
-                    <span>CYBER 2</span>
+                    <span>Risk Shield System</span>
                 </Link>
             </div>
             <nav className="px-4 space-y-8 flex-1">

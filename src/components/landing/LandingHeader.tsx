@@ -35,7 +35,7 @@ export function LandingHeader() {
                         <Shield className="w-9 h-9 text-primary transition-transform duration-500 group-hover:scale-110" />
                         <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-500" />
                     </div>
-                    <span className="tracking-tighter bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">CYBER 2</span>
+                    <span className="tracking-tighter bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Risk Shield System</span>
                 </Link>
 
                 {/* Desktop Nav */}

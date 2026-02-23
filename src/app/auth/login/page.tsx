@@ -105,7 +105,7 @@ export default function LoginPage() {
             </div>
           </div>
           <CardTitle className="text-2xl font-bold tracking-tight">
-            CYBER 2
+            Risk Shield System
           </CardTitle>
           <CardDescription className="text-base">
             Risk Assessment & Compliance Platform

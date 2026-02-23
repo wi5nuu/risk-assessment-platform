@@ -13,7 +13,7 @@ export function LandingFooter() {
                     <div className="col-span-1 md:col-span-1">
                         <Link href="/" className="flex items-center gap-2 font-bold text-xl text-primary mb-6">
                             <Shield className="w-6 h-6" />
-                            <span>CYBER 2</span>
+                            <span>Risk Shield System</span>
                         </Link>
                         <p className="text-sm text-muted-foreground leading-relaxed">
                             Proactive GRC platform for modern organizations. Built to solve the complexity of cyber risk management.
@@ -47,7 +47,7 @@ export function LandingFooter() {
                             <Link href="#" className="p-2 bg-muted rounded-lg hover:text-primary transition-colors"><Github className="w-5 h-5" /></Link>
                             <Link href="#" className="p-2 bg-muted rounded-lg hover:text-primary transition-colors"><Linkedin className="w-5 h-5" /></Link>
                         </div>
-                        <p className="text-xs text-muted-foreground">© 2026 CYBER 2. All rights reserved.</p>
+                        <p className="text-xs text-muted-foreground">© 2026 Risk Shield System. All rights reserved.</p>
                     </div>
                 </div>
 
@@ -70,7 +70,7 @@ export function CTASection() {
 
                     <h2 className="text-4xl md:text-5xl font-bold mb-6 relative z-10">Ready to transform your <br /> security posture?</h2>
                     <p className="text-primary-foreground/80 text-lg mb-10 max-w-2xl mx-auto relative z-10">
-                        Join hundreds of security professionals using CYBER 2 to simplify their compliance and risk assessments.
+                        Join hundreds of security professionals using Risk Shield System to simplify their compliance and risk assessments.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">

@@ -8,7 +8,7 @@ import { LANDING_AI_KNOWLEDGE, INITIAL_SUGGESTIONS } from '@/lib/ai/landing-know
 export function LandingAI() {
     const [isOpen, setIsOpen] = useState(false)
     const [messages, setMessages] = useState<{ role: 'user' | 'ai', content: string }[]>([
-        { role: 'ai', content: "Halo! Saya Asisten Virtual CYBER 2. Ada yang bisa saya bantu jelaskan mengenai platform GRC ini?" }
+        { role: 'ai', content: "Halo! Saya Asisten Virtual Risk Shield System. Ada yang bisa saya bantu jelaskan mengenai platform GRC ini?" }
     ])
     const [suggestions, setSuggestions] = useState<string[]>(INITIAL_SUGGESTIONS)
     const [input, setInput] = useState('')

@@ -185,7 +185,7 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
                         <div>
                             <div className="flex items-center gap-2 mb-2">
                                 <ShieldCheck className="w-8 h-8 text-primary" />
-                                <span className="font-black text-2xl tracking-tighter">CYBER 2</span>
+                                <span className="font-black text-2xl tracking-tighter">Risk Shield System</span>
                             </div>
                             <p className="text-sm font-bold text-muted-foreground uppercase tracking-widest">Confidential Security Report</p>
                         </div>
@@ -294,7 +294,7 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
                     )}
 
                     <div className="pt-12 border-t mt-12 text-center text-[10px] text-slate-400 uppercase tracking-widest hidden print:block">
-                        Proprietary & Confidential | CYBER 2 Report Security Data
+                        Proprietary & Confidential | Risk Shield System Report Security Data
                     </div>
                 </div>
             </div>
