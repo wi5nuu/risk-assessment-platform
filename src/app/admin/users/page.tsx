@@ -25,7 +25,7 @@ import {
     DialogTrigger,
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
-import { Loader2, Users, UserPlus, ArrowLeft, Shield } from 'lucide-react'
+import { Loader2, Users, UserPlus, ArrowLeft, Shield, Mail, CheckCircle2 } from 'lucide-react'
 import Link from 'next/link'
 import { MainLayout } from '@/components/layout/MainLayout'
 import { cn } from '@/lib/utils'
@@ -49,7 +49,8 @@ export default function UsersManagementPage() {
     const [isCreating, setIsCreating] = useState(false)
     const [showCreateDialog, setShowCreateDialog] = useState(false)
     const [newUser, setNewUser] = useState({
-        email: '', password: '', firstName: '', lastName: '', role: 'auditor' as string
+        email: '', password: '', firstName: '', lastName: '', role: 'auditor' as string,
+        inviteOnly: true
     })
 
     useEffect(() => {
@@ -73,8 +74,8 @@ export default function UsersManagementPage() {
     }
 
     const handleCreateUser = async () => {
-        if (!newUser.email || !newUser.password || !newUser.firstName || !newUser.lastName) {
-            toast.error('Please fill all fields')
+        if (!newUser.email || (!newUser.password && !newUser.inviteOnly) || !newUser.firstName || !newUser.lastName) {
+            toast.error('Please fill all required fields')
             return
         }
         setIsCreating(true)
@@ -86,14 +87,14 @@ export default function UsersManagementPage() {
             })
             const data = await res.json()
             if (res.ok) {
-                toast.success('User created successfully')
+                toast.success(newUser.inviteOnly ? 'Invitation sent successfully' : 'User created successfully')
                 setShowCreateDialog(false)
-                setNewUser({ email: '', password: '', firstName: '', lastName: '', role: 'auditor' })
+                setNewUser({ email: '', password: '', firstName: '', lastName: '', role: 'auditor', inviteOnly: true })
                 loadUsers()
             } else {
                 toast.error(data.error)
             }
-        } catch { toast.error('Failed to create user') }
+        } catch { toast.error('Failed to process request') }
         finally { setIsCreating(false) }
     }
 
@@ -125,7 +126,7 @@ export default function UsersManagementPage() {
                 toast.success(currentActive ? 'User deactivated' : 'User activated')
                 setUsers(prev => prev.map(u => u.id === profileId ? { ...u, is_active: !currentActive } : u))
             }
-        } catch { toast.error('Failed to update') }
+        } catch { toast.error('Failed to update status') }
     }
 
     if (auth.isLoading || isLoading) {
@@ -155,132 +156,154 @@ export default function UsersManagementPage() {
                             </Button>
                         </Link>
                         <div>
-                            <h1 className="text-2xl font-bold tracking-tight">Users Management</h1>
-                            <p className="text-muted-foreground text-sm">Create and manage access for your team.</p>
+                            <h1 className="text-2xl font-black tracking-tight">Team Management</h1>
+                            <p className="text-muted-foreground text-sm font-medium">Manage permissions and project access.</p>
                         </div>
                     </div>
 
                     <Dialog open={showCreateDialog} onOpenChange={setShowCreateDialog}>
                         <DialogTrigger asChild>
-                            <Button className="w-full sm:w-auto">
+                            <Button className="w-full sm:w-auto shadow-lg shadow-primary/20">
                                 <UserPlus className="w-4 h-4 mr-2" />
-                                Create New User
+                                Add Team Member
                             </Button>
                         </DialogTrigger>
-                        <DialogContent className="sm:max-w-[425px]">
+                        <DialogContent className="sm:max-w-[425px] border-none shadow-2xl">
                             <DialogHeader>
-                                <DialogTitle>Create New User</DialogTitle>
-                                <DialogDescription>Enter details to add a new member to your organization.</DialogDescription>
+                                <DialogTitle className="text-xl font-bold">Add Team Member</DialogTitle>
+                                <DialogDescription>Configure system access for a new member.</DialogDescription>
                             </DialogHeader>
-                            <div className="space-y-4 py-4">
+                            <div className="space-y-5 py-4">
+                                <div className="flex items-center justify-between p-4 bg-primary/5 rounded-xl border border-primary/10">
+                                    <div className="space-y-0.5">
+                                        <Label className="text-sm font-bold flex items-center gap-2">
+                                            <Mail className="w-3.5 h-3.5" />
+                                            Invite via Email
+                                        </Label>
+                                        <p className="text-[11px] text-muted-foreground">Recommended for maximum security.</p>
+                                    </div>
+                                    <div className="flex items-center h-5">
+                                        <input
+                                            type="checkbox"
+                                            className="w-4 h-4 rounded border-gray-300 text-primary focus:ring-primary cursor-pointer"
+                                            checked={newUser.inviteOnly}
+                                            onChange={e => setNewUser({ ...newUser, inviteOnly: e.target.checked })}
+                                        />
+                                    </div>
+                                </div>
+
                                 <div className="grid grid-cols-2 gap-4">
-                                    <div className="space-y-2">
-                                        <Label>First Name</Label>
-                                        <Input placeholder="John" value={newUser.firstName} onChange={e => setNewUser({ ...newUser, firstName: e.target.value })} />
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] uppercase font-black text-slate-400">First Name</Label>
+                                        <Input placeholder="John" value={newUser.firstName} onChange={e => setNewUser({ ...newUser, firstName: e.target.value })} className="h-10" />
                                     </div>
-                                    <div className="space-y-2">
-                                        <Label>Last Name</Label>
-                                        <Input placeholder="Doe" value={newUser.lastName} onChange={e => setNewUser({ ...newUser, lastName: e.target.value })} />
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] uppercase font-black text-slate-400">Last Name</Label>
+                                        <Input placeholder="Doe" value={newUser.lastName} onChange={e => setNewUser({ ...newUser, lastName: e.target.value })} className="h-10" />
                                     </div>
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Email Address</Label>
-                                    <Input type="email" placeholder="john@example.com" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} />
+                                <div className="space-y-1.5">
+                                    <Label className="text-[10px] uppercase font-black text-slate-400">Email Address</Label>
+                                    <Input type="email" placeholder="john@example.com" value={newUser.email} onChange={e => setNewUser({ ...newUser, email: e.target.value })} className="h-10" />
                                 </div>
-                                <div className="space-y-2">
-                                    <Label>Initial Password</Label>
-                                    <Input type="password" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} />
-                                </div>
-                                <div className="space-y-2">
-                                    <Label>System Role</Label>
+
+                                {!newUser.inviteOnly && (
+                                    <div className="space-y-1.5">
+                                        <Label className="text-[10px] uppercase font-black text-slate-400">Initial Password</Label>
+                                        <Input type="password" placeholder="••••••••" value={newUser.password} onChange={e => setNewUser({ ...newUser, password: e.target.value })} className="h-10" />
+                                    </div>
+                                )}
+
+                                <div className="space-y-1.5">
+                                    <Label className="text-[10px] uppercase font-black text-slate-400">Organization Role</Label>
                                     <Select value={newUser.role} onValueChange={v => setNewUser({ ...newUser, role: v })}>
-                                        <SelectTrigger><SelectValue /></SelectTrigger>
+                                        <SelectTrigger className="h-10 font-bold"><SelectValue /></SelectTrigger>
                                         <SelectContent>
-                                            <SelectItem value="auditor">🕵️ Auditor</SelectItem>
-                                            <SelectItem value="auditee">🏢 Auditee</SelectItem>
+                                            <SelectItem value="auditor">🕵️ Security Auditor</SelectItem>
+                                            <SelectItem value="auditee">🏢 Project Owner (Auditee)</SelectItem>
                                         </SelectContent>
                                     </Select>
                                 </div>
                             </div>
                             <DialogFooter>
-                                <Button onClick={handleCreateUser} disabled={isCreating} className="w-full">
-                                    {isCreating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <UserPlus className="w-4 h-4 mr-2" />}
-                                    Finalize Creation
+                                <Button onClick={handleCreateUser} disabled={isCreating} className="w-full h-11 font-black shadow-lg shadow-primary/20">
+                                    {isCreating ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CheckCircle2 className="w-4 h-4 mr-2" />}
+                                    {newUser.inviteOnly ? 'SEND ACTIVATION LINK' : 'CREATE ACCOUNT NOW'}
                                 </Button>
                             </DialogFooter>
                         </DialogContent>
                     </Dialog>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <Card className="bg-purple-50/50 border-purple-100">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <Card className="border-none shadow-sm bg-gradient-to-br from-purple-50 to-white ring-1 ring-purple-100">
                         <CardContent className="pt-6">
                             <div className="flex items-center gap-4">
-                                <div className="p-2 bg-purple-100 rounded-lg"><Shield className="w-5 h-5 text-purple-600" /></div>
+                                <div className="p-3 bg-purple-500 rounded-2xl shadow-lg shadow-purple-200"><Shield className="w-6 h-6 text-white" /></div>
                                 <div>
-                                    <p className="text-2xl font-bold">{users.filter(u => u.role === 'admin').length}</p>
-                                    <p className="text-xs text-muted-foreground uppercase font-semibold">Administrators</p>
+                                    <p className="text-3xl font-black">{users.filter(u => u.role === 'admin').length}</p>
+                                    <p className="text-[10px] text-purple-600 uppercase font-black tracking-widest">Administrators</p>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-blue-50/50 border-blue-100">
+                    <Card className="border-none shadow-sm bg-gradient-to-br from-blue-50 to-white ring-1 ring-blue-100">
                         <CardContent className="pt-6">
                             <div className="flex items-center gap-4">
-                                <div className="p-2 bg-blue-100 rounded-lg"><Users className="w-5 h-5 text-blue-600" /></div>
+                                <div className="p-3 bg-blue-500 rounded-2xl shadow-lg shadow-blue-200"><Users className="w-6 h-6 text-white" /></div>
                                 <div>
-                                    <p className="text-2xl font-bold">{users.filter(u => u.role === 'auditor').length}</p>
-                                    <p className="text-xs text-muted-foreground uppercase font-semibold">Security Auditors</p>
+                                    <p className="text-3xl font-black">{users.filter(u => u.role === 'auditor').length}</p>
+                                    <p className="text-[10px] text-blue-600 uppercase font-black tracking-widest">Security Auditors</p>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
-                    <Card className="bg-green-50/50 border-green-100">
+                    <Card className="border-none shadow-sm bg-gradient-to-br from-green-50 to-white ring-1 ring-green-100">
                         <CardContent className="pt-6">
                             <div className="flex items-center gap-4">
-                                <div className="p-2 bg-green-100 rounded-lg"><Users className="w-5 h-5 text-green-600" /></div>
+                                <div className="p-3 bg-green-500 rounded-2xl shadow-lg shadow-green-200"><Users className="w-6 h-6 text-white" /></div>
                                 <div>
-                                    <p className="text-2xl font-bold">{users.filter(u => u.role === 'auditee').length}</p>
-                                    <p className="text-xs text-muted-foreground uppercase font-semibold">Project Owners</p>
+                                    <p className="text-3xl font-black">{users.filter(u => u.role === 'auditee').length}</p>
+                                    <p className="text-[10px] text-green-600 uppercase font-black tracking-widest">Project Owners</p>
                                 </div>
                             </div>
                         </CardContent>
                     </Card>
                 </div>
 
-                <Card className="border-none shadow-sm overflow-hidden">
-                    <CardHeader className="bg-muted/10 border-b">
-                        <CardTitle className="text-lg">User Directory</CardTitle>
-                        <CardDescription>Click on a user to modify their role or status.</CardDescription>
+                <Card className="border-none shadow-xl overflow-hidden ring-1 ring-slate-200">
+                    <CardHeader className="bg-slate-50 border-b py-6">
+                        <CardTitle className="text-xl font-bold">User Directory</CardTitle>
+                        <CardDescription className="text-sm font-medium">Manage identity, roles, and system health status.</CardDescription>
                     </CardHeader>
                     <CardContent className="p-0">
-                        <div className="divide-y">
+                        <div className="divide-y divide-slate-100">
                             {users.map(user => (
-                                <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-4 gap-4 hover:bg-muted/30 transition-colors">
+                                <div key={user.id} className="flex flex-col sm:flex-row sm:items-center justify-between p-5 gap-4 hover:bg-slate-50/50 transition-colors">
                                     <div className="flex items-center gap-4">
                                         <div className={cn(
-                                            "w-12 h-12 rounded-full flex items-center justify-center font-bold text-lg",
-                                            user.is_active ? "bg-primary text-primary-foreground shadow-sm" : "bg-muted text-muted-foreground"
+                                            "w-12 h-12 rounded-xl flex items-center justify-center font-black text-lg transition-all",
+                                            user.is_active ? "bg-primary text-primary-foreground shadow-md rotate-3" : "bg-slate-100 text-slate-400"
                                         )}>
                                             {user.first_name[0]}{user.last_name[0]}
                                         </div>
                                         <div>
-                                            <p className={cn("font-bold text-base", !user.is_active && "text-muted-foreground line-through")}>
+                                            <p className={cn("font-bold text-base tracking-tight", !user.is_active && "text-slate-400 line-through")}>
                                                 {user.first_name} {user.last_name}
                                             </p>
-                                            <p className="text-sm text-muted-foreground">{user.email}</p>
+                                            <p className="text-xs font-medium text-slate-400">{user.email}</p>
                                         </div>
                                     </div>
 
                                     <div className="flex items-center gap-3 ml-16 sm:ml-0">
-                                        <Badge className={cn("px-3 py-1 border", roleColor(user.role))}>
+                                        <Badge className={cn("px-3 py-1 border-none shadow-sm font-black text-[10px] uppercase tracking-tighter", roleColor(user.role))}>
                                             {user.role === 'admin' ? '👑 Admin' : user.role === 'auditor' ? '🕵️ Auditor' : '🏢 Auditee'}
                                         </Badge>
 
                                         {user.user_id !== auth.userId && (
                                             <div className="flex items-center gap-2">
                                                 <Select value={user.role} onValueChange={v => handleUpdateRole(user.id, v)}>
-                                                    <SelectTrigger className="w-[110px] h-9"><SelectValue /></SelectTrigger>
+                                                    <SelectTrigger className="w-[110px] h-9 font-bold bg-white"><SelectValue /></SelectTrigger>
                                                     <SelectContent>
                                                         <SelectItem value="admin">Admin</SelectItem>
                                                         <SelectItem value="auditor">Auditor</SelectItem>
@@ -290,7 +313,7 @@ export default function UsersManagementPage() {
                                                 <Button
                                                     variant={user.is_active ? "outline" : "default"}
                                                     size="sm"
-                                                    className="h-9 px-3"
+                                                    className={cn("h-9 px-4 font-bold border-2 transition-all", !user.is_active && "shadow-lg shadow-primary/20")}
                                                     onClick={() => handleToggleActive(user.id, user.is_active)}
                                                 >
                                                     {user.is_active ? 'Suspend' : 'Reactive'}
@@ -298,15 +321,18 @@ export default function UsersManagementPage() {
                                             </div>
                                         )}
                                         {user.user_id === auth.userId && (
-                                            <span className="text-xs font-medium text-muted-foreground italic px-2">You (Current User)</span>
+                                            <span className="text-[10px] font-black text-primary uppercase tracking-widest bg-primary/10 px-3 py-1 rounded-full">Active You</span>
                                         )}
                                     </div>
                                 </div>
                             ))}
                             {users.length === 0 && (
-                                <div className="text-center py-12">
-                                    <Users className="w-12 h-12 mx-auto text-muted-foreground/30 mb-3" />
-                                    <p className="text-muted-foreground">No accounts found in your organization.</p>
+                                <div className="text-center py-24">
+                                    <div className="w-16 h-16 bg-slate-50 rounded-full flex items-center justify-center mx-auto mb-4 border-2 border-dashed">
+                                        <Users className="w-8 h-8 text-slate-300" />
+                                    </div>
+                                    <p className="text-slate-900 font-bold italic">Identity vault is empty.</p>
+                                    <p className="text-slate-400 text-sm">Add your team members to get started.</p>
                                 </div>
                             )}
                         </div>

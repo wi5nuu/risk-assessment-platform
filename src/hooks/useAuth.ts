@@ -36,46 +36,56 @@ export function useAuth() {
 
     const loadAuth = async () => {
         try {
-            const { data: { user } } = await supabase.auth.getUser()
-            if (!user) {
+            const { data: { user }, error: userError } = await supabase.auth.getUser()
+            if (userError || !user) {
                 setAuth(prev => ({ ...prev, isLoading: false }))
                 return
             }
 
-            // Fetch profile and organization name in one query if possible or separate
-            const { data: profile } = await supabase
+            // Fetch profile - simple fetch
+            const { data: profile, error: profileError } = await supabase
                 .from('user_profiles')
-                .select('id, first_name, last_name, email, role, organization_id, organizations(name)')
+                .select('*')
                 .eq('user_id', user.id)
-                .single()
+                .maybeSingle()
 
             if (profile) {
+                // Get organization name separately if needed, or stick to profile
+                const { data: org } = await supabase
+                    .from('organizations')
+                    .select('name')
+                    .eq('id', profile.organization_id)
+                    .maybeSingle()
+
                 setAuth({
                     userId: user.id,
                     profileId: profile.id,
                     email: profile.email,
                     firstName: profile.first_name,
                     lastName: profile.last_name,
-                    role: profile.role,
+                    role: profile.role?.toLowerCase() as UserRole,
                     organizationId: profile.organization_id,
-                    organizationName: profile.organizations?.name || null,
+                    organizationName: org?.name || null,
                     isLoading: false,
                 })
             } else {
                 setAuth(prev => ({ ...prev, userId: user.id, isLoading: false }))
             }
         } catch (err) {
-            console.error('useAuth error:', err)
+            console.error('useAuth exception:', err)
             setAuth(prev => ({ ...prev, isLoading: false }))
         }
     }
 
     return {
         ...auth,
-        isAdmin: () => auth.role === 'admin',
-        isAuditor: () => auth.role === 'auditor',
-        isAuditee: () => auth.role === 'auditee',
-        canEdit: () => auth.role === 'admin' || auth.role === 'auditor',
-        canManageUsers: () => auth.role === 'admin',
+        isAdmin: () => auth.role?.toLowerCase() === 'admin',
+        isAuditor: () => auth.role?.toLowerCase() === 'auditor',
+        isAuditee: () => auth.role?.toLowerCase() === 'auditee',
+        canEdit: () => {
+            const r = auth.role?.toLowerCase()
+            return r === 'admin' || r === 'auditor'
+        },
+        canManageUsers: () => auth.role?.toLowerCase() === 'admin',
     }
 }

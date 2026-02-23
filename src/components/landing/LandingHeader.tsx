@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from 'react'
 import Link from 'next/link'
-import { Shield, Menu, X } from 'lucide-react'
+import { Shield, Menu, X, User, Sparkles } from 'lucide-react'
 import { Button } from '@/components/ui/button'
 import { cn } from '@/lib/utils'
 
@@ -51,9 +51,40 @@ export function LandingHeader() {
                         </Link>
                     ))}
                     <div className="flex items-center gap-3 pl-6 border-l border-foreground/10">
-                        <Link href="/auth/login">
-                            <Button variant="ghost" className="font-bold">Member Login</Button>
-                        </Link>
+                        <div className="relative group/login">
+                            <Link href="/auth/login">
+                                <Button variant="ghost" className="font-bold flex items-center gap-2">
+                                    <User className="w-4 h-4" />
+                                    Member Login
+                                </Button>
+                            </Link>
+                            {/* Info Card on Hover */}
+                            <div className="absolute top-full right-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/login:opacity-100 group-hover/login:translate-y-0 group-hover/login:pointer-events-auto transition-all duration-300 z-[60]">
+                                {/* Bridge to prevent hover loss */}
+                                <div className="absolute -top-4 left-0 right-0 h-4" />
+                                <h4 className="text-sm font-black text-primary mb-2 flex items-center gap-2">
+                                    <Sparkles className="w-4 h-4" />
+                                    Secure Access
+                                </h4>
+                                <ul className="text-[11px] font-bold text-slate-600 space-y-2">
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1 h-1 bg-primary rounded-full" />
+                                        Advanced Risk Dashboard
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1 h-1 bg-primary rounded-full" />
+                                        OCTAVE Allegro Compliance
+                                    </li>
+                                    <li className="flex items-center gap-2">
+                                        <div className="w-1 h-1 bg-primary rounded-full" />
+                                        AI-Powered Audit Reports
+                                    </li>
+                                </ul>
+                                <div className="mt-3 pt-3 border-t border-slate-200/50 text-[10px] text-muted-foreground italic">
+                                    Bagi anggota berlisensi, silakan masuk.
+                                </div>
+                            </div>
+                        </div>
                         <Link href="/auth/register">
                             <Button className="font-bold px-6 shadow-lg shadow-primary/25 border-b-4 border-primary/20 hover:border-b-0 hover:translate-y-[2px] transition-all">
                                 Get Started

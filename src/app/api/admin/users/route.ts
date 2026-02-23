@@ -63,10 +63,10 @@ export async function POST(request: NextRequest) {
     }
 
     const body = await request.json()
-    const { email, password, firstName, lastName, role } = body
-    console.log(`POST /api/admin/users: Creating ${role} user: ${email}`)
+    const { email, password, firstName, lastName, role, inviteOnly } = body
+    console.log(`POST /api/admin/users: ${inviteOnly ? 'Inviting' : 'Creating'} ${role} user: ${email}`)
 
-    if (!email || !password || !firstName || !lastName || !role) {
+    if (!email || (!password && !inviteOnly) || !firstName || !lastName || !role) {
         return NextResponse.json({ error: 'Missing required fields' }, { status: 400 })
     }
 
@@ -76,25 +76,46 @@ export async function POST(request: NextRequest) {
 
     const supabase = createAdminClient() as any
 
-    // 1. Create auth user via Supabase Admin API
-    const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email,
-        password,
-        email_confirm: true,
-    })
+    let userId: string
 
-    if (authError) {
-        console.error('POST /api/admin/users: Auth creation failed', authError)
-        return NextResponse.json({ error: authError.message }, { status: 500 })
+    if (inviteOnly) {
+        // Invite via email
+        const { data: inviteData, error: inviteError } = await supabase.auth.admin.inviteUserByEmail(email, {
+            redirectTo: `${request.nextUrl.origin}/auth/callback`,
+            data: {
+                first_name: firstName,
+                last_name: lastName,
+                role: role,
+            }
+        })
+
+        if (inviteError) {
+            console.error('POST /api/admin/users: Invite failed', inviteError)
+            return NextResponse.json({ error: inviteError.message }, { status: 500 })
+        }
+        userId = inviteData.user.id
+    } else {
+        // 1. Create auth user with password
+        const { data: authData, error: authError } = await supabase.auth.admin.createUser({
+            email,
+            password,
+            email_confirm: true,
+        })
+
+        if (authError) {
+            console.error('POST /api/admin/users: Auth creation failed', authError)
+            return NextResponse.json({ error: authError.message }, { status: 500 })
+        }
+        userId = authData.user.id
     }
 
-    console.log(`POST /api/admin/users: Auth user created: ${authData.user.id}`)
+    console.log(`POST /api/admin/users: Auth user ${inviteOnly ? 'invited' : 'created'}: ${userId}`)
 
     // 2. Create user profile
     const { error: profileError } = await supabase
         .from('user_profiles')
         .insert({
-            user_id: authData.user.id,
+            user_id: userId,
             organization_id: admin.orgId,
             first_name: firstName,
             last_name: lastName,
@@ -106,12 +127,12 @@ export async function POST(request: NextRequest) {
     if (profileError) {
         console.error('POST /api/admin/users: Profile creation failed', profileError)
         // Rollback: delete auth user
-        await supabase.auth.admin.deleteUser(authData.user.id)
+        await supabase.auth.admin.deleteUser(userId)
         return NextResponse.json({ error: profileError.message }, { status: 500 })
     }
 
     console.log('POST /api/admin/users: Success')
-    return NextResponse.json({ success: true, userId: authData.user.id })
+    return NextResponse.json({ success: true, userId: userId })
 }
 
 // PATCH: Update user role or status

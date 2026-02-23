@@ -11,10 +11,13 @@ import {
     Users,
     Building2,
     FileText,
-    Brain
+    Brain,
+    LogOut
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
+import { createClient } from '@/lib/supabase/client'
 import { useAuth } from '@/hooks/useAuth'
+import { useRouter } from 'next/navigation'
 
 interface SidebarProps {
     isMobile?: boolean
@@ -23,6 +26,7 @@ interface SidebarProps {
 
 export function Sidebar({ isMobile, onMobileClose }: SidebarProps) {
     const pathname = usePathname()
+    const router = useRouter()
     const { role, isAdmin } = useAuth()
 
     const navItems = [
@@ -45,7 +49,7 @@ export function Sidebar({ isMobile, onMobileClose }: SidebarProps) {
 
     if (isAdmin()) {
         navItems.push({
-            label: 'Admin',
+            label: 'Admin Control',
             items: [
                 { name: 'Users Management', href: '/admin/users', icon: Users },
                 { name: 'Organization Profile', href: '/admin/organization', icon: Building2 },
@@ -53,9 +57,22 @@ export function Sidebar({ isMobile, onMobileClose }: SidebarProps) {
         })
     }
 
+    navItems.push({
+        label: 'Account',
+        items: [
+            { name: 'Profile Settings', href: '/settings/profile', icon: Settings },
+        ]
+    })
+
+    const handleLogout = async () => {
+        const supabase = createClient()
+        await supabase.auth.signOut()
+        router.push('/')
+    }
+
     return (
         <div className={cn(
-            "border-r bg-card h-screen sticky top-0 overflow-y-auto",
+            "border-r bg-card h-screen sticky top-0 flex flex-col overflow-y-auto",
             isMobile ? "w-full shadow-2xl" : "w-64 hidden md:block"
         )}>
             <div className="p-6">
@@ -64,7 +81,7 @@ export function Sidebar({ isMobile, onMobileClose }: SidebarProps) {
                     <span>CYBER 2</span>
                 </Link>
             </div>
-            <nav className="px-4 space-y-8">
+            <nav className="px-4 space-y-8 flex-1">
                 {navItems.map((group) => (
                     <div key={group.label} className="space-y-4">
                         <h4 className="text-xs font-semibold text-muted-foreground uppercase tracking-wider px-2">
@@ -94,6 +111,16 @@ export function Sidebar({ isMobile, onMobileClose }: SidebarProps) {
                     </div>
                 ))}
             </nav>
+
+            <div className="p-4 border-t mt-auto">
+                <button
+                    onClick={handleLogout}
+                    className="flex w-full items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium text-red-600 hover:bg-red-50 transition-colors"
+                >
+                    <LogOut className="w-4 h-4" />
+                    Log Out
+                </button>
+            </div>
         </div>
     )
 }

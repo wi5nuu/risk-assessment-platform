@@ -7,6 +7,7 @@ import { FeaturesSection } from './FeaturesSection'
 import { MethodologySection } from './MethodologySection'
 import { CTASection, LandingFooter } from './LandingFooter'
 import { LandingBackground } from './LandingBackground'
+import { LandingAI } from './LandingAI'
 
 export function LandingPage() {
     return (
@@ -20,6 +21,7 @@ export function LandingPage() {
                 <CTASection />
             </main>
             <LandingFooter />
+            <LandingAI />
 
             <style jsx global>{`
                 @keyframes spin-slow {

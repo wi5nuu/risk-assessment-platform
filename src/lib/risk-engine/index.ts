@@ -121,13 +121,13 @@ export function calculateRiskScore(
       `Invalid likelihood value: ${likelihood}. Must be between ${RISK_CONSTANTS.MIN_LIKELIHOOD} and ${RISK_CONSTANTS.MAX_LIKELIHOOD}`
     )
   }
-  
+
   if (!validateImpact(impact)) {
     throw new Error(
       `Invalid impact value: ${impact}. Must be between ${RISK_CONSTANTS.MIN_IMPACT} and ${RISK_CONSTANTS.MAX_IMPACT}`
     )
   }
-  
+
   return likelihood * impact
 }
 
@@ -140,7 +140,7 @@ export function determineRiskLevel(score: number): RiskLevel {
       `Invalid risk score: ${score}. Must be between ${RISK_CONSTANTS.MIN_RISK_SCORE} and ${RISK_CONSTANTS.MAX_RISK_SCORE}`
     )
   }
-  
+
   if (score <= RISK_CLASSIFICATIONS.LOW.max) return 'low'
   if (score <= RISK_CLASSIFICATIONS.MEDIUM.max) return 'medium'
   if (score <= RISK_CLASSIFICATIONS.HIGH.max) return 'high'
@@ -156,7 +156,7 @@ export function calculateRisk(
 ): RiskCalculationResult {
   const riskScore = calculateRiskScore(input.likelihood, input.impact)
   const riskLevel = determineRiskLevel(riskScore)
-  
+
   let classification
   switch (riskLevel) {
     case 'low':
@@ -172,7 +172,7 @@ export function calculateRisk(
       classification = RISK_CLASSIFICATIONS.CRITICAL
       break
   }
-  
+
   return {
     riskScore,
     riskLevel,
@@ -191,35 +191,35 @@ export function calculateResidualRisk(
   if (!validateLikelihood(inherentLikelihood)) {
     throw new Error(`Invalid inherent likelihood: ${inherentLikelihood}`)
   }
-  
+
   if (!validateImpact(inherentImpact)) {
     throw new Error(`Invalid inherent impact: ${inherentImpact}`)
   }
-  
+
   if (controlEffectiveness < 1 || controlEffectiveness > 5) {
     throw new Error(
       `Invalid control effectiveness: ${controlEffectiveness}. Must be between 1 and 5`
     )
   }
-  
+
   const inherentScore = inherentLikelihood * inherentImpact
-  
+
   // Calculate reduction factor based on control effectiveness
   // Effectiveness 1 = 0% reduction, 5 = 80% reduction
   const reductionFactor = (controlEffectiveness - 1) * 0.2
-  
+
   // Apply reduction to likelihood (controls primarily reduce likelihood)
   let residualLikelihood = Math.round(
     inherentLikelihood * (1 - reductionFactor)
   )
   residualLikelihood = Math.max(residualLikelihood, 1)
-  
+
   // Impact may also be slightly reduced by controls
   let residualImpact = Math.round(inherentImpact * (1 - reductionFactor * 0.3))
   residualImpact = Math.max(residualImpact, 1)
-  
+
   const residualScore = residualLikelihood * residualImpact
-  
+
   return {
     inherentLikelihood,
     inherentImpact,
@@ -228,6 +228,7 @@ export function calculateResidualRisk(
     residualLikelihood,
     residualImpact,
     residualScore,
+    reductionFactor,
   }
 }
 
@@ -250,7 +251,7 @@ export function generateRiskMatrix(): Array<{
     score: number
     level: RiskLevel
   }> = []
-  
+
   for (let likelihood = 5; likelihood >= 1; likelihood--) {
     for (let impact = 1; impact <= 5; impact++) {
       const score = likelihood * impact
@@ -262,7 +263,7 @@ export function generateRiskMatrix(): Array<{
       })
     }
   }
-  
+
   return matrix
 }
 
@@ -299,26 +300,26 @@ export function determineFinalOpinion(riskDistribution: {
 }): FinalRiskOpinion {
   const { critical, high, medium, low } = riskDistribution
   const total = critical + high + medium + low
-  
+
   if (total === 0) {
     return 'Acceptable Risk Level'
   }
-  
+
   // If any critical risks exist
   if (critical > 0) {
     return 'Immediate Remediation Required'
   }
-  
+
   // If high risks are dominant
   if (high > medium && high > low) {
     return 'High Risk Exposure'
   }
-  
+
   // If medium risks are dominant or equal to high
   if (medium >= high && medium > low) {
     return 'Moderate Risk Exposure'
   }
-  
+
   // Only low risks
   return 'Acceptable Risk Level'
 }

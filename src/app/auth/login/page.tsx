@@ -24,47 +24,72 @@ export default function LoginPage() {
     e.preventDefault()
     setIsLoading(true)
     setError(null)
-    console.log('Login attempt started for:', email)
 
     try {
-      console.log('Attempting sign-in with email:', email)
       const { data, error: signInError } = await supabase.auth.signInWithPassword({
         email,
         password,
       })
 
       if (signInError) {
-        console.error('Login error details:', signInError)
         setError(signInError.message)
-        // If it's an email confirmation issue, explain it clearly
         if (signInError.message.includes('Email not confirmed')) {
           setError('Please check your email and confirm your account before logging in.')
         }
         return
       }
 
-      console.log('Login successful! Data:', {
-        userId: data.user?.id,
-        sessionExists: !!data.session,
-        expiresAt: data.session?.expires_at
-      })
-
       if (data.user) {
-        console.log('Initiating redirect to /dashboard...')
-        console.log('Browser cookies after login:', document.cookie.split(';').map(c => c.trim().split('=')[0]))
+        // Track login IP and get welcome metadata
+        try {
+          const trackRes = await fetch('/api/auth/track-login', {
+            method: 'POST',
+          })
+          const trackData = await trackRes.json()
+
+          if (trackData.welcomeMessage) {
+            sessionStorage.setItem('login_welcome', trackData.welcomeMessage)
+          }
+        } catch (err) {
+          console.error('Failed to track login info', err)
+        }
 
         toast.success('Login successful! Redirecting...')
-
-        // Use router.push and force a hard refresh if needed
         window.location.href = '/dashboard'
       } else {
-        console.warn('Login returned no user data')
         toast.error('Login failed: No user data returned')
       }
     } catch (err: any) {
-      console.error('Unexpected login error:', err)
-      setError('An unexpected error occurred: ' + (err.message || 'Please try again.'))
+      setError('An unexpected error occurred. Please try again.')
       toast.error('An unexpected error occurred')
+    } finally {
+      setIsLoading(false)
+    }
+  }
+
+  const handleMagicLink = async (e: React.FormEvent) => {
+    e.preventDefault()
+    if (!email) {
+      toast.error('Please enter your email address first')
+      return
+    }
+    setIsLoading(true)
+    setError(null)
+
+    try {
+      const { error: magicError } = await supabase.auth.signInWithOtp({
+        email,
+        options: {
+          emailRedirectTo: `${window.location.origin}/auth/callback`,
+        },
+      })
+
+      if (magicError) throw magicError
+
+      toast.success('Magic link sent! Check your inbox.')
+    } catch (err: any) {
+      setError(err.message)
+      toast.error('Failed to send magic link')
     } finally {
       setIsLoading(false)
     }
@@ -72,35 +97,36 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-slate-50 to-slate-100 p-4">
-      <Card className="w-full max-w-md">
-        <CardHeader className="space-y-1 text-center">
-          <div className="flex justify-center mb-4">
-            <div className="w-16 h-16 bg-primary rounded-xl flex items-center justify-center">
+      <Card className="w-full max-w-md border-none shadow-xl">
+        <CardHeader className="space-y-1 text-center pb-8">
+          <div className="flex justify-center mb-6">
+            <div className="w-16 h-16 bg-primary rounded-2xl flex items-center justify-center shadow-lg shadow-primary/20">
               <Shield className="w-8 h-8 text-primary-foreground" />
             </div>
           </div>
-          <CardTitle className="text-2xl font-bold">
-            OCTAVE Allegro Risk Assessment
+          <CardTitle className="text-2xl font-bold tracking-tight">
+            CYBER 2
           </CardTitle>
-          <CardDescription>
-            Sign in to access your risk assessment projects
+          <CardDescription className="text-base">
+            Risk Assessment & Compliance Platform
           </CardDescription>
         </CardHeader>
 
         <form onSubmit={handleSubmit}>
           <CardContent className="space-y-4">
             {error && (
-              <Alert variant="destructive">
+              <Alert variant="destructive" className="bg-red-50 border-red-200 text-red-800">
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
 
             <div className="space-y-2">
-              <Label htmlFor="email">Email</Label>
+              <Label htmlFor="email" className="text-sm font-semibold">Work Email</Label>
               <Input
                 id="email"
                 type="email"
                 placeholder="name@organization.com"
+                className="h-11"
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
@@ -109,11 +135,20 @@ export default function LoginPage() {
             </div>
 
             <div className="space-y-2">
-              <Label htmlFor="password">Password</Label>
+              <div className="flex items-center justify-between">
+                <Label htmlFor="password" text-sm font-semibold>Security Password</Label>
+                <Link
+                  href="/auth/forgot-password"
+                  className="text-xs text-primary hover:underline font-medium"
+                >
+                  Forgot password?
+                </Link>
+              </div>
               <Input
                 id="password"
                 type="password"
-                placeholder="Enter your password"
+                placeholder="••••••••"
+                className="h-11"
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
@@ -122,31 +157,54 @@ export default function LoginPage() {
             </div>
           </CardContent>
 
-          <CardFooter className="flex flex-col space-y-4">
+          <CardFooter className="flex flex-col space-y-4 pt-2">
             <Button
               type="submit"
-              className="w-full"
+              className="w-full h-11 font-semibold text-base shadow-lg shadow-primary/20"
               disabled={isLoading}
             >
               {isLoading ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                  Signing in...
+                  Authenticating...
                 </>
               ) : (
-                'Sign In'
+                'Sign In with Password'
               )}
             </Button>
 
-            <p className="text-sm text-muted-foreground text-center">
+            <div className="relative w-full">
+              <div className="absolute inset-0 flex items-center">
+                <span className="w-full border-t border-slate-200" />
+              </div>
+              <div className="relative flex justify-center text-xs uppercase">
+                <span className="bg-background px-2 text-muted-foreground font-medium">Or continue with</span>
+              </div>
+            </div>
+
+            <Button
+              type="button"
+              variant="outline"
+              className="w-full h-11 border-2"
+              onClick={handleMagicLink}
+              disabled={isLoading}
+            >
+              {isLoading ? (
+                <Loader2 className="h-4 w-4 animate-spin" />
+              ) : (
+                'Email Magic Link'
+              )}
+            </Button>
+
+            <div className="pt-4 text-sm text-muted-foreground text-center">
               Don&apos;t have an account?{' '}
               <Link
                 href="/auth/register"
-                className="text-primary hover:underline"
+                className="text-primary font-bold hover:underline"
               >
-                Register now
+                Register Organization
               </Link>
-            </p>
+            </div>
           </CardFooter>
         </form>
       </Card>

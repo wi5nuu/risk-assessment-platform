@@ -174,6 +174,7 @@ export default function AuditPage() {
                         <EvidenceUpload
                             projectId={projectId}
                             checklistId={checklistId}
+                            profileId={profileId}
                             canUpload={true}
                         />
                     </TabsContent>

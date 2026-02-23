@@ -244,6 +244,7 @@ export interface ResidualRiskCalculation {
   residualLikelihood: number
   residualImpact: number
   residualScore: number
+  reductionFactor: number
 }
 
 // =====================================================

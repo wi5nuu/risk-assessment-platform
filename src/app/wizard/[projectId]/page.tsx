@@ -103,23 +103,38 @@ export default function WizardPage() {
   const handleCompleteStep = useCallback(async (step: OctaveStepNumber) => {
     try {
       const stepField = `step_${step}_completed`
+      const isLastStep = step === 8
+
+      const updateData: any = {
+        [stepField]: true,
+        current_step: Math.min(step + 1, 8)
+      }
+
+      if (isLastStep) {
+        updateData.status = 'completed'
+      }
+
       const { error } = await supabase
         .from('projects')
-        .update({
-          [stepField]: true,
-          current_step: Math.min(step + 1, 8)
-        })
+        .update(updateData)
         .eq('id', projectId)
 
       if (error) throw error
 
       setCompletedSteps(prev => [...prev, step])
-      toast.success(`Step ${step} completed successfully`)
+      toast.success(isLastStep ? 'Wizard completed! Project is now active.' : `Step ${step} completed successfully`)
+
+      if (isLastStep) {
+        // Optional: wait a bit then redirect
+        setTimeout(() => {
+          router.push(`/audit/${projectId}`)
+        }, 1500)
+      }
     } catch (error) {
       toast.error('Failed to complete step')
       throw error
     }
-  }, [projectId, supabase])
+  }, [projectId, supabase, router])
 
   const handleSaveProgress = useCallback(async () => {
     setIsSaving(true)

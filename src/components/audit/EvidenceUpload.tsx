@@ -12,6 +12,7 @@ interface EvidenceUploadProps {
     checklistId: string | null
     itemId?: string
     projectId: string
+    profileId: string | null
     canUpload: boolean // Both auditor and auditee can upload
 }
 
@@ -25,7 +26,7 @@ interface EvidenceRow {
     created_at: string
 }
 
-export function EvidenceUpload({ checklistId, itemId, projectId, canUpload }: EvidenceUploadProps) {
+export function EvidenceUpload({ checklistId, itemId, projectId, profileId, canUpload }: EvidenceUploadProps) {
     const supabase = createClient() as any
     const fileInputRef = useRef<HTMLInputElement>(null)
     const [evidence, setEvidence] = useState<EvidenceRow[]>([])
@@ -43,19 +44,11 @@ export function EvidenceUpload({ checklistId, itemId, projectId, canUpload }: Ev
             if (itemId) {
                 query = query.eq('item_id', itemId)
             } else if (checklistId) {
-                // Get all evidence for this checklist via items
-                const { data: items } = await supabase
-                    .from('audit_items')
-                    .select('id')
-                    .eq('checklist_id', checklistId)
-                const itemIds = items?.map((i: any) => i.id) || []
-                if (itemIds.length > 0) {
-                    query = query.in('item_id', itemIds)
-                } else {
-                    setEvidence([])
-                    setIsLoading(false)
-                    return
-                }
+                query = query.eq('checklist_id', checklistId)
+            } else {
+                setEvidence([])
+                setIsLoading(false)
+                return
             }
             const { data, error } = await query.order('created_at', { ascending: false })
             if (error) throw error
@@ -91,11 +84,12 @@ export function EvidenceUpload({ checklistId, itemId, projectId, canUpload }: Ev
             const { error: dbError } = await supabase
                 .from('audit_evidence')
                 .insert({
+                    checklist_id: checklistId,
                     item_id: itemId || null,
                     file_name: file.name,
                     file_path: filePath,
                     file_size: file.size,
-                    uploaded_by: user?.id || null,
+                    uploaded_by: profileId || null,
                 })
 
             if (dbError) throw dbError

@@ -104,6 +104,10 @@ export function AuditFindings({ projectId, checklistId }: AuditFindingsProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
+        if (!canEdit) {
+            toast.error('Unauthorized: Only Admins and Auditors can add audit findings')
+            return
+        }
         try {
             const { error } = await supabase.from('audit_findings').insert({
                 project_id: projectId,
@@ -125,6 +129,10 @@ export function AuditFindings({ projectId, checklistId }: AuditFindingsProps) {
     }
 
     const autoGenerateFindings = async () => {
+        if (!canEdit) {
+            toast.error('Unauthorized: Only Admins and Auditors can use Auto-Generate')
+            return
+        }
         if (!checklistId) { toast.error('Create a checklist first'); return }
         setIsGenerating(true)
         try {

@@ -82,13 +82,23 @@ export default function OrganizationPage() {
 
     if (auth.isLoading || isLoading) {
         return (
-            <div className="flex items-center justify-center h-screen">
-                <Loader2 className="w-8 h-8 animate-spin" />
-            </div>
+            <MainLayout>
+                <div className="flex items-center justify-center h-[60vh]">
+                    <Loader2 className="w-8 h-8 animate-spin text-primary" />
+                </div>
+            </MainLayout>
         )
     }
 
-    if (!org) return null
+    if (!org) {
+        return (
+            <MainLayout>
+                <div className="text-center py-12">
+                    <p className="text-muted-foreground">Organization data not found.</p>
+                </div>
+            </MainLayout>
+        )
+    }
 
     return (
         <MainLayout>

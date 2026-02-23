@@ -19,7 +19,7 @@ export function MethodologySection() {
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest mb-6">
                             Scientific Methodology
                         </div>
-                        <h2 className="text-5xl font-black tracking-tight mb-8 leading-[1.1]">The OCTAVE Allegro <br /> <span className="text-primary underline decoration-primary/20 decoration-8 underline-offset-8 font-serif italic">Advantage</span></h2>
+                        <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-8 leading-[1.1]">The OCTAVE Allegro <br /> <span className="text-primary underline decoration-primary/20 decoration-8 underline-offset-8 font-serif italic">Advantage</span></h2>
                         <p className="text-xl text-muted-foreground font-medium mb-12 max-w-xl">
                             Standardized precision from Carnegie Mellon SEI. We replace guesswork with mathematically sound NIST-aligned structural integrity.
                         </p>

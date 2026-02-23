@@ -73,6 +73,7 @@ export interface Database {
           created_at: string
           updated_at: string
           last_login_at: string | null
+          last_login_ip: string | null
         }
         Insert: {
           id?: string
@@ -88,6 +89,7 @@ export interface Database {
           created_at?: string
           updated_at?: string
           last_login_at?: string | null
+          last_login_ip?: string | null
         }
         Update: {
           id?: string
@@ -96,13 +98,14 @@ export interface Database {
           first_name?: string
           last_name?: string
           email?: string
-          role?: 'admin' | 'auditor' | 'viewer'
+          role?: 'admin' | 'auditor' | 'auditee'
           department?: string | null
           phone?: string | null
           is_active?: boolean
           created_at?: string
           updated_at?: string
           last_login_at?: string | null
+          last_login_ip?: string | null
         }
       }
       projects: {
@@ -948,23 +951,32 @@ export interface Database {
       audit_evidence: {
         Row: {
           id: string
-          audit_item_id: string
-          attachment_id: string
-          notes: string | null
+          item_id: string | null
+          checklist_id: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          uploaded_by: string | null
           created_at: string
         }
         Insert: {
           id?: string
-          audit_item_id: string
-          attachment_id: string
-          notes?: string | null
+          item_id?: string | null
+          checklist_id?: string | null
+          file_name: string
+          file_path: string
+          file_size: number
+          uploaded_by?: string | null
           created_at?: string
         }
         Update: {
           id?: string
-          audit_item_id?: string
-          attachment_id?: string
-          notes?: string | null
+          item_id?: string | null
+          checklist_id?: string | null
+          file_name?: string
+          file_path?: string
+          file_size?: number
+          uploaded_by?: string | null
           created_at?: string
         }
       }

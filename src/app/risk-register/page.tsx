@@ -10,8 +10,10 @@ import { RiskMatrix } from '@/components/risk/RiskMatrix'
 import { RiskWithDetails, Risk } from '@/types'
 import { Loader2, ArrowLeft, Download } from 'lucide-react'
 import { toast } from 'sonner'
+import { MainLayout } from '@/components/layout/MainLayout'
 
 export default function RiskRegisterPage() {
+  // ... (keep state and effects same)
   const supabase = createClient() as any
   const [risks, setRisks] = useState<Risk[]>([])
   const [risksWithDetails, setRisksWithDetails] = useState<RiskWithDetails[]>([])
@@ -77,7 +79,6 @@ export default function RiskRegisterPage() {
 
       setRisks(risksData || [])
 
-      // Transform to RiskWithDetails
       const withDetails: RiskWithDetails[] = (risksData || []).map((risk: any) => ({
         ...risk,
         assetName: risk.assets?.name || 'Unknown',
@@ -95,7 +96,6 @@ export default function RiskRegisterPage() {
   }
 
   const handleExport = () => {
-    // Export to CSV
     const headers = ['Risk ID', 'Title', 'Asset', 'Threat Actor', 'Likelihood', 'Impact', 'Score', 'Level', 'Status', 'Owner']
     const rows = risksWithDetails.map(risk => [
       risk.id,
@@ -122,60 +122,56 @@ export default function RiskRegisterPage() {
 
   if (isLoading && !selectedProject) {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <Loader2 className="w-8 h-8 animate-spin" />
-      </div>
+      <MainLayout>
+        <div className="flex items-center justify-center h-[60vh]">
+          <Loader2 className="w-8 h-8 animate-spin" />
+        </div>
+      </MainLayout>
     )
   }
 
   return (
-    <div className="min-h-screen bg-background">
-      {/* Header */}
-      <header className="border-b bg-card">
-        <div className="container mx-auto px-4 py-4">
-          <div className="flex items-center justify-between">
-            <div className="flex items-center gap-4">
-              <Link href="/dashboard">
-                <Button variant="ghost" size="icon">
-                  <ArrowLeft className="w-5 h-5" />
-                </Button>
-              </Link>
-              <div>
-                <h1 className="text-xl font-bold">Risk Register</h1>
-                <p className="text-sm text-muted-foreground">
-                  Enterprise risk management view
-                </p>
-              </div>
-            </div>
-            <div className="flex items-center gap-4">
-              <select
-                value={selectedProject}
-                onChange={(e) => setSelectedProject(e.target.value)}
-                className="border rounded-md px-3 py-2 text-sm"
-              >
-                {projects.map((project) => (
-                  <option key={project.id} value={project.id}>
-                    {project.name}
-                  </option>
-                ))}
-              </select>
-              <Button variant="outline" onClick={handleExport}>
-                <Download className="w-4 h-4 mr-2" />
-                Export CSV
+    <MainLayout>
+      <div className="space-y-6">
+        {/* Header Section */}
+        <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+          <div className="flex items-center gap-3">
+            <Link href="/dashboard">
+              <Button variant="ghost" size="icon" className="-ml-2">
+                <ArrowLeft className="w-4 h-4" />
               </Button>
+            </Link>
+            <div>
+              <h1 className="text-2xl font-bold tracking-tight">Risk Register</h1>
+              <p className="text-muted-foreground text-sm">Enterprise risk management view</p>
             </div>
           </div>
+          <div className="flex flex-wrap items-center gap-3">
+            <select
+              value={selectedProject}
+              onChange={(e) => setSelectedProject(e.target.value)}
+              className="border rounded-md px-3 py-2 text-sm bg-background"
+            >
+              {projects.map((project) => (
+                <option key={project.id} value={project.id}>
+                  {project.name}
+                </option>
+              ))}
+            </select>
+            <Button variant="outline" onClick={handleExport} size="sm">
+              <Download className="w-4 h-4 mr-2" />
+              Export CSV
+            </Button>
+          </div>
         </div>
-      </header>
 
-      {/* Main Content */}
-      <main className="container mx-auto px-4 py-8">
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
           {/* Risk Matrix */}
-          <div className="lg:col-span-1">
+          <div className="lg:col-span-4">
             <Card>
               <CardHeader>
-                <CardTitle>Risk Matrix</CardTitle>
+                <CardTitle className="text-base">Risk Distribution</CardTitle>
               </CardHeader>
               <CardContent>
                 {isLoading ? (
@@ -190,10 +186,10 @@ export default function RiskRegisterPage() {
           </div>
 
           {/* Risk Register Table */}
-          <div className="lg:col-span-2">
+          <div className="lg:col-span-8">
             <Card>
               <CardHeader>
-                <CardTitle>Risk Register</CardTitle>
+                <CardTitle className="text-base">Identified Risks</CardTitle>
               </CardHeader>
               <CardContent>
                 {isLoading ? (
@@ -207,7 +203,7 @@ export default function RiskRegisterPage() {
             </Card>
           </div>
         </div>
-      </main>
-    </div>
+      </div>
+    </MainLayout>
   )
 }

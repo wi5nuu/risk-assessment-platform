@@ -1,331 +1,280 @@
 # OCTAVE Allegro Risk Assessment Platform
 
-A production-grade, AI-assisted cybersecurity risk assessment platform strictly following the official OCTAVE Allegro methodology developed by Carnegie Mellon University.
+> A full-stack, AI-assisted cybersecurity risk assessment platform built on the OCTAVE Allegro methodology. Designed for teams performing structured risk assessments, compliance audits, and security governance.
+
+---
+
+## 📋 Table of Contents
+
+- [Overview](#overview)
+- [Features](#features)
+- [Tech Stack](#tech-stack)
+- [Project Structure](#project-structure)
+- [Getting Started](#getting-started)
+- [Environment Variables](#environment-variables)
+- [Database Setup](#database-setup)
+- [Role-Based Access Control](#role-based-access-control)
+- [Available Scripts](#available-scripts)
+- [Contributing](#contributing)
+
+---
+
+## Overview
+
+This platform guides organizations through the 8-step **OCTAVE Allegro** risk assessment lifecycle — from establishing risk criteria to selecting mitigation approaches. It includes a full audit module for post-assessment compliance tracking, AI-powered advisory, and structured reporting.
+
+---
 
 ## Features
 
-### Core Methodology (OCTAVE Allegro 8 Steps)
+### 🧙 8-Step OCTAVE Allegro Wizard
+A guided, step-by-step assessment workflow:
+| Step | Name |
+|------|------|
+| 1 | Establish Risk Measurement Criteria |
+| 2 | Develop Information Asset Profiles |
+| 3 | Identify Information Asset Containers |
+| 4 | Identify Areas of Concern |
+| 5 | Identify Threat Scenarios |
+| 6 | Identify Risks |
+| 7 | Analyze Risks |
+| 8 | Select Mitigation Approach |
 
-1. **Step 1: Establish Risk Measurement Criteria**
-   - Define impact criteria (Financial, Reputational, Legal, Operational)
-   - Define likelihood criteria (1-5 scale)
-   - Customizable for organization context
+- Progress is auto-saved per step.
+- On completion of Step 8, the project status is automatically set to `completed` and the user is redirected to the Audit Dashboard.
 
-2. **Step 2: Develop Information Asset Profile**
-   - Asset inventory management
-   - Security attributes (CIA: Confidentiality, Integrity, Availability)
-   - Impact value assignment
-   - Asset classification
+### 🔒 Audit & Compliance Module
+After an assessment, a dedicated audit workspace provides:
+- **Checklist**: OCTAVE Allegro-aligned control items, auto-populated. Auto-generated items are injected from detected vulnerabilities.
+- **Evidence Upload**: Upload files per control item or for the entire checklist. Supports PDF, DOCX, XLSX, PNG, JPG, CSV, and TXT.
+- **Compliance Dashboard**: Calculates and visualizes overall compliance scores by category.
+- **Findings Management**: Document audit findings with severity, status, and recommendations. Auto-generate from non-compliant items.
+- **AI Advisor**: Gemini-powered assistant for control guidance and risk recommendations.
+- **Audit Report**: Exportable PDF report summarizing the audit, findings, and compliance posture.
 
-3. **Step 3: Identify Information Asset Containers**
-   - Container mapping (Physical, Technical, People, Process)
-   - Asset-container relationships
-   - Security controls documentation
+### 🤖 AI-Powered Risk Analysis
+- Integration with **Google Gemini** for risk narrative generation and remediation suggestions.
+- Context-aware responses based on the organization's specific assets and threat scenarios.
 
-4. **Step 4: Identify Areas of Concern**
-   - Concern documentation per container
-   - Category classification (Confidentiality, Integrity, Availability, Compliance, Operational)
-   - Priority assignment
+### 📊 Risk Register
+- Centralized register of all identified risks across projects.
+- View risks by project, category, asset, and likelihood/impact scores.
 
-5. **Step 5: Identify Threat Scenarios**
-   - Threat actor profiling
-   - Attack vector documentation
-   - Motivation and capability assessment
-   - Likelihood estimation
+### 🛡️ Role-Based Access Control (RBAC)
+Three distinct user roles with granular permissions. See [Role-Based Access Control](#role-based-access-control).
 
-6. **Step 6: Identify Risks**
-   - Risk-vulnerability-threat mapping
-   - Automatic risk score calculation
-   - Impact breakdown tracking
+### 👤 User & Organization Management (Admin)
+- Admin panel for managing team members.
+- Invite users, assign roles, and manage organization settings.
 
-7. **Step 7: Analyze Risks**
-   - Existing controls assessment
-   - Control effectiveness rating
-   - Residual risk calculation
-   - Root cause analysis
+### 🔐 Authentication & Security
+- Supabase Authentication with email/password.
+- IP-based login change detection with security alerts.
+- Role-specific welcome messages on login.
+- Row Level Security (RLS) enforced at the database level.
 
-8. **Step 8: Select Mitigation Approach**
-   - Treatment strategy selection (Mitigate, Transfer, Accept, Avoid)
-   - Mitigation plan development
-   - Implementation tracking
-
-### Risk Engine
-
-- **Formula**: Risk Score = Likelihood × Impact
-- **Impact Calculation**: Maximum of (Financial, Reputational, Legal, Operational)
-- **Risk Classification**:
-  - 1-5: Low (Green)
-  - 6-10: Medium (Yellow)
-  - 11-15: High (Orange)
-  - 16-25: Critical (Red)
-- **Residual Risk**: Calculated based on control effectiveness
-
-### Visualizations
-
-- **5×5 Risk Matrix Heatmap**: Interactive visualization of risk distribution
-- **Risk Register**: Enterprise-grade table with filtering and sorting
-- **Dashboard**: Project overview and risk statistics
-
-### Security Features
-
-- Row Level Security (RLS) with PostgreSQL
-- Role-Based Access Control (Admin, Auditor, Viewer)
-- Input validation with Zod
-- CSRF protection
-- Secure HTTP headers
-- JWT-based authentication
-
-### AI Features (Optional)
-
-- Mitigation recommendation generation
-- Executive summary generation
-- Technical-to-management language translation
+---
 
 ## Tech Stack
 
-- **Frontend**: Next.js 14+ (App Router), TypeScript, Tailwind CSS
-- **Backend**: Next.js API Routes, Server Actions
-- **Database**: PostgreSQL via Supabase
-- **Authentication**: Supabase Auth with JWT
-- **Validation**: Zod
-- **Testing**: Jest
-- **Deployment**: Vercel
+| Layer | Technology |
+|-------|------------|
+| **Framework** | Next.js 14 (App Router) |
+| **Language** | TypeScript 5 |
+| **Styling** | Tailwind CSS + `tailwindcss-animate` |
+| **UI Components** | Radix UI + shadcn/ui |
+| **Icons** | Lucide React |
+| **Animations** | Framer Motion |
+| **State Management** | Zustand |
+| **Forms** | React Hook Form + Zod |
+| **Charts** | Recharts |
+| **Backend & Auth** | Supabase (PostgreSQL + Storage + Auth) |
+| **AI** | Google Gemini (`@google/generative-ai`) |
+| **PDF Export** | jsPDF + jspdf-autotable + html2canvas |
+| **Notifications** | Sonner |
+| **Testing** | Jest + jest-environment-jsdom |
+
+---
 
 ## Project Structure
 
 ```
-├── src/
-│   ├── app/                    # Next.js App Router
-│   │   ├── api/               # API routes
-│   │   ├── auth/              # Authentication pages
-│   │   ├── dashboard/         # Dashboard page
-│   │   ├── risk-register/     # Risk register page
-│   │   ├── wizard/            # OCTAVE wizard
-│   │   ├── layout.tsx         # Root layout
-│   │   └── page.tsx           # Home page
-│   ├── components/
-│   │   ├── ui/               # shadcn/ui components
-│   │   ├── risk/             # Risk components (Matrix, Register)
-│   │   └── wizard/           # Wizard components
-│   ├── lib/
-│   │   ├── risk-engine/      # Risk calculation engine
-│   │   ├── supabase/         # Supabase clients
-│   │   ├── validation/       # Zod schemas
-│   │   └── utils.ts          # Utility functions
-│   ├── types/
-│   │   ├── database.ts       # Database types
-│   │   └── index.ts          # Application types
-│   └── __tests__/            # Unit tests
-├── sql/
-│   └── schema.sql            # Database schema
-├── public/                   # Static assets
-├── package.json
-├── tsconfig.json
-├── tailwind.config.ts
-├── next.config.mjs
-├── jest.config.js
-└── README.md
+src/
+├── app/                    # Next.js App Router pages
+│   ├── admin/              # Admin panel (user management, settings)
+│   ├── ai-advisor/         # Standalone AI advisor page
+│   ├── api/                # API routes (auth, AI, risk engine)
+│   ├── audit/[projectId]/  # Audit workspace per project
+│   ├── auth/               # Login, register, forgot password
+│   ├── dashboard/          # Project dashboard (overview)
+│   ├── projects/           # Project list and details
+│   ├── risk-register/      # Consolidated risk register
+│   ├── settings/           # User settings
+│   └── wizard/[projectId]/ # 8-step OCTAVE Allegro wizard
+│
+├── components/
+│   ├── audit/              # Audit module components
+│   │   ├── AIAdvisor.tsx
+│   │   ├── AuditChecklist.tsx
+│   │   ├── AuditFindings.tsx
+│   │   ├── AuditReport.tsx
+│   │   ├── ComplianceDashboard.tsx
+│   │   └── EvidenceUpload.tsx
+│   ├── layout/             # Main app layout and navigation
+│   ├── landing/            # Landing page sections
+│   ├── risk/               # Risk matrix and scoring components
+│   ├── ui/                 # shadcn/ui base components
+│   └── wizard/             # Wizard container + 8 step components
+│
+├── hooks/
+│   ├── useAuth.ts          # Auth state + RBAC helpers
+│   └── ...
+│
+├── lib/
+│   ├── risk-engine/        # Pure risk score calculation logic
+│   └── supabase/           # Supabase client (browser + server)
+│
+├── types/
+│   ├── database.ts         # Auto-generated Supabase types
+│   └── index.ts            # Application-level types
+│
+sql/
+├── schema.sql              # Full database schema
+├── audit_module.sql        # Audit-specific tables
+├── rls_fixes.sql           # Row Level Security policies
+├── rbac_migration.sql      # RBAC role migration
+└── fix_*.sql               # Incremental schema migrations
 ```
 
-## Database Schema
-
-### Core Tables
-
-- `organizations` - Organization data
-- `user_profiles` - User profiles with roles
-- `projects` - Risk assessment projects
-- `risk_measurement_criteria` - Step 1 criteria
-- `assets` - Information assets (Step 2)
-- `containers` - Asset containers (Step 3)
-- `asset_container_mapping` - Many-to-many mapping
-- `concerns` - Areas of concern (Step 4)
-- `threat_scenarios` - Threat scenarios (Step 5)
-- `risks` - Identified risks (Step 6)
-- `risk_analysis` - Risk analysis data (Step 7)
-- `mitigation_plans` - Mitigation plans (Step 8)
-- `audit_logs` - Audit trail
-- `attachments` - File attachments
-
-### Key Features
-
-- UUID primary keys
-- Foreign key constraints with ON DELETE rules
-- 3NF normalization
-- Row Level Security (RLS) policies
-- Soft delete strategy
-- Automatic timestamp updates
-
-## Risk Calculation
-
-### Input Validation
-
-```typescript
-// Likelihood: 1-5 integer
-// Impact: 1-5 integer
-validateLikelihood(3) // true
-validateImpact(5)     // true
-```
-
-### Score Calculation
-
-```typescript
-const score = calculateRiskScore(likelihood, impact)
-// Example: calculateRiskScore(4, 5) = 20
-```
-
-### Level Determination
-
-```typescript
-const level = determineRiskLevel(score)
-// 1-5   → 'low'
-// 6-10  → 'medium'
-// 11-15 → 'high'
-// 16-25 → 'critical'
-```
-
-### Residual Risk
-
-```typescript
-const residual = calculateResidualRisk(
-  inherentLikelihood,
-  inherentImpact,
-  controlEffectiveness // 1-5
-)
-```
+---
 
 ## Getting Started
 
 ### Prerequisites
-
-- Node.js 18+
-- npm or yarn
-- Supabase account
+- Node.js ≥ 18
+- A [Supabase](https://supabase.com) project
 
 ### Installation
 
-1. Clone the repository:
 ```bash
-git clone <repository-url>
-cd octave-allegro-risk
-```
+# 1. Clone the repository
+git clone <repo-url>
+cd risk-assessment-platform
 
-2. Install dependencies:
-```bash
+# 2. Install dependencies
 npm install
-```
 
-3. Set up environment variables:
-```bash
+# 3. Create environment file
 cp .env.local.example .env.local
-# Edit .env.local with your Supabase credentials
-```
 
-4. Set up the database:
-- Run `sql/schema.sql` in Supabase SQL Editor
+# 4. Add your environment variables (see below)
 
-5. Run the development server:
-```bash
+# 5. Run the development server
 npm run dev
 ```
 
-6. Open [http://localhost:3000](http://localhost:3000)
+Open [http://localhost:3000](http://localhost:3000) to view the application.
 
-### Environment Variables
+---
+
+## Environment Variables
+
+Create a `.env.local` file in the root directory with the following:
 
 ```env
-NEXT_PUBLIC_SUPABASE_URL=your_supabase_url
-NEXT_PUBLIC_SUPABASE_PUBLISHABLE_DEFAULT_KEY=your_anon_key
-SUPABASE_SERVICE_ROLE_KEY=your_service_role_key
+# Supabase
+NEXT_PUBLIC_SUPABASE_URL=your-supabase-project-url
+NEXT_PUBLIC_SUPABASE_ANON_KEY=your-supabase-anon-key
+
+# Google Gemini AI
+GOOGLE_GEMINI_API_KEY=your-gemini-api-key
+
+# App URL (used for redirects)
+NEXT_PUBLIC_APP_URL=http://localhost:3000
 ```
 
-## Testing
+> ⚠️ **Never commit `.env.local` to version control.** It is included in `.gitignore`.
+
+---
+
+## Database Setup
+
+### Initial Setup
+
+1. Go to your Supabase project → SQL Editor.
+2. Run the schema files **in order**:
+
+```sql
+-- Run these in the Supabase SQL Editor:
+-- 1. Main schema
+\i sql/schema.sql
+
+-- 2. Audit module tables
+\i sql/audit_module.sql
+
+-- 3. RLS policies
+\i sql/rls_fixes.sql
+
+-- 4. RBAC migration
+\i sql/rbac_migration.sql
+```
+
+### Evidence Storage Bucket
+
+Run `sql/fix_audit_evidence_checklist_relation.sql` to create the required storage bucket and apply evidence-related schema changes.
+
+### Regenerate Types (after schema changes)
 
 ```bash
-# Run all tests
-npm test
-
-# Run tests in watch mode
-npm run test:watch
-
-# Run tests with coverage
-npm run test:coverage
+npm run db:generate
 ```
 
-## Deployment
+---
 
-### Vercel (Recommended)
+## Role-Based Access Control
 
-1. Push code to GitHub
-2. Import project in Vercel
-3. Add environment variables
-4. Deploy
+The platform enforces three roles at both the application and database (RLS) level:
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for detailed instructions.
+| Capability | Admin | Auditor | Auditee |
+|-----------|:-----:|:-------:|:-------:|
+| View projects & audit workspaces | ✅ | ✅ | ✅ |
+| Run the OCTAVE Allegro Wizard | ✅ | ✅ | ❌ |
+| Set compliance status on controls | ✅ | ✅ | ❌ |
+| Write auditor comments | ❌ | ✅ | ❌ |
+| Upload evidence files | ✅ | ✅ | ✅ |
+| Manage audit findings | ✅ | ✅ | ❌ |
+| Manage users & organization | ✅ | ❌ | ❌ |
+| Generate audit reports | ✅ | ✅ | ✅ |
 
-## API Endpoints
+> Roles are enforced via the `useAuth` hook on the frontend and Supabase Row Level Security policies on the backend.
 
-### Risks
+---
 
-- `GET /api/risks?projectId={id}` - List risks
-- `POST /api/risks` - Create risk
-- `PATCH /api/risks` - Update risk
-- `DELETE /api/risks?id={id}` - Delete risk
+## Available Scripts
 
-### Reports
+```bash
+npm run dev          # Start development server
+npm run build        # Build for production
+npm run start        # Start production server
+npm run lint         # Run ESLint
+npm run type-check   # Run TypeScript type checking
+npm run test         # Run unit tests
+npm run test:watch   # Run tests in watch mode
+npm run db:generate  # Regenerate Supabase TypeScript types
+```
 
-- `GET /api/reports?projectId={id}&type={type}` - Generate report
-
-## Security
-
-### Authentication Flow
-
-1. User signs in via Supabase Auth
-2. JWT token stored in cookies
-3. Middleware validates token on protected routes
-4. RLS policies enforce data access control
-
-### Role-Based Access
-
-- **Admin**: Full access to all features
-- **Auditor**: Can create projects and assessments
-- **Viewer**: Read-only access to reports
-
-### Security Headers
-
-- X-Frame-Options: DENY
-- X-Content-Type-Options: nosniff
-- Referrer-Policy: strict-origin-when-cross-origin
-- Content-Security-Policy: Configured
-
-## Methodology Compliance
-
-This platform strictly adheres to the OCTAVE Allegro methodology:
-
-- Asset-centric risk identification
-- No risk without associated information asset
-- Threat scenarios linked to containers
-- Risk originates from vulnerability + threat + asset
-- Sequential step enforcement
-- Audit trail per step completion
+---
 
 ## Contributing
 
-1. Fork the repository
-2. Create a feature branch
-3. Commit your changes
-4. Push to the branch
-5. Create a Pull Request
+1. Create a feature branch from `main`:
+   ```bash
+   git checkout -b feature/your-feature-name
+   ```
+2. Make your changes and ensure the type check passes:
+   ```bash
+   npm run type-check
+   ```
+3. Open a Pull Request with a clear description of the changes.
 
-## License
-
-This project is licensed under the MIT License.
-
-## Acknowledgments
-
-- OCTAVE Allegro methodology by Carnegie Mellon University
-- Software Engineering Institute (SEI)
-- Supabase team for the excellent backend platform
-
-## Support
-
-For support, please contact your system administrator or open an issue in the repository.
+> All new database changes should include the corresponding `.sql` migration file in the `sql/` directory.

@@ -77,7 +77,7 @@ export async function updateSession(request: NextRequest) {
     error: authError
   } = await supabase.auth.getUser()
 
-  if (authError) {
+  if (authError && authError.message !== 'Auth session missing!') {
     console.warn('Middleware auth check error:', authError.message)
   }
 

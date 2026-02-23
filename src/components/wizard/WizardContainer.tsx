@@ -143,14 +143,24 @@ export function WizardContainer({
               </Button>
             )}
 
-            <Button
-              onClick={handleNext}
-              disabled={!canGoNext || isCompleting}
-              className="flex-1 sm:flex-none"
-            >
-              Next
-              <ChevronRight className="w-4 h-4 ml-2" />
-            </Button>
+            {currentStep === 8 && isStepCompleted ? (
+              <Button
+                onClick={() => window.location.href = `/audit/${project.id}`}
+                className="flex-1 sm:flex-none bg-green-600 hover:bg-green-700 hover:scale-105 transition-all duration-300 shadow-lg shadow-green-200"
+              >
+                Finish Wizard
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            ) : (
+              <Button
+                onClick={handleNext}
+                disabled={!canGoNext || isCompleting}
+                className="flex-1 sm:flex-none"
+              >
+                Next
+                <ChevronRight className="w-4 h-4 ml-2" />
+              </Button>
+            )}
           </div>
         </CardFooter>
       </Card>
