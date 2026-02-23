@@ -1,4 +1,5 @@
 /** @type {import('next').NextConfig} */
+// Force trigger deployment after Vercel reconnection
 const nextConfig = {
     serverExternalPackages: ['@supabase/supabase-js', '@supabase/ssr'],
     images: {
