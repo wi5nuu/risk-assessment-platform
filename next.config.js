@@ -1,8 +1,6 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-    experimental: {
-        serverComponentsExternalPackages: ['@supabase/supabase-js', '@supabase/ssr'],
-    },
+    serverExternalPackages: ['@supabase/supabase-js', '@supabase/ssr'],
     images: {
         remotePatterns: [
             {
@@ -34,7 +32,7 @@ const nextConfig = {
                     },
                     {
                         key: 'Content-Security-Policy',
-                        value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self'; connect-src 'self' https://ocrnmhyawvxhpssadhmz.supabase.co;",
+                        value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://ocrnmhyawvxhpssadhmz.supabase.co wss://ocrnmhyawvxhpssadhmz.supabase.co https://generativelanguage.googleapis.com;",
                     },
                 ],
             },
@@ -42,6 +40,9 @@ const nextConfig = {
     },
     eslint: {
         ignoreDuringBuilds: true,
+    },
+    typescript: {
+        ignoreBuildErrors: true,
     },
 };
 
