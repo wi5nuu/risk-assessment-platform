@@ -33,12 +33,25 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                     <div className="flex items-center gap-2 md:gap-4">
                         <MobileNav />
                         <div>
-                            <h2 className="text-sm font-semibold truncate max-w-[150px] sm:max-w-none">{organizationName || 'Assessment Platform'}</h2>
-                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{role} Dashboard</p>
+                            <h2 className="text-sm font-semibold truncate max-w-[150px] sm:max-w-none">{organizationName || 'Risk Shield System'}</h2>
+                            <p className="text-[10px] text-muted-foreground uppercase tracking-wider">{role || 'User'} Dashboard</p>
                         </div>
                     </div>
 
                     <div className="flex items-center gap-4">
+                        {role === 'admin' && (
+                            <Link href="/admin/security" className="p-2 hover:bg-muted rounded-full relative group/security" title="Security Command Center">
+                                <Shield className="w-5 h-5 text-primary" />
+                                <span className="absolute -top-1 -right-1 flex h-2 w-2">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-primary opacity-75"></span>
+                                    <span className="relative inline-flex rounded-full h-2 w-2 bg-primary"></span>
+                                </span>
+                                <div className="absolute top-full right-0 mt-2 w-48 bg-slate-900 text-white text-[10px] font-bold p-2 rounded shadow-xl opacity-0 group-hover/security:opacity-100 transition-opacity pointer-events-none z-50">
+                                    ELITE SECURITY ACTIVE: Monitor System Integrity
+                                </div>
+                            </Link>
+                        )}
+
                         <div className="relative group/notif">
                             <button className="p-2 hover:bg-muted rounded-full relative">
                                 <Bell className="w-5 h-5 text-muted-foreground" />

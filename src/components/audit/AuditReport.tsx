@@ -8,6 +8,7 @@ import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
 import { FileText, Download, Loader2, Printer, ShieldCheck, AlertCircle, CheckCircle2, TrendingUp, Info } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
+import { downloadReport } from '@/lib/pdf-generator'
 
 interface AuditReportProps {
     projectId: string
@@ -27,7 +28,20 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
 
     const loadReportData = async () => {
         try {
-            const [projectRes, risksRes, findingsRes, checklistRes, mitigationsRes, assetsRes, orgRes] = await Promise.all([
+            const [
+                projectRes,
+                risksRes,
+                findingsRes,
+                checklistRes,
+                mitigationsRes,
+                assetsRes,
+                orgRes,
+                criteriaRes,
+                containersRes,
+                concernsRes,
+                scenariosRes,
+                analysesRes
+            ] = await Promise.all([
                 supabase.from('projects').select('*').eq('id', projectId).single(),
                 supabase.from('risks').select('*').eq('project_id', projectId).eq('is_active', true).order('risk_score', { ascending: false }),
                 supabase.from('audit_findings').select('*').eq('project_id', projectId),
@@ -35,8 +49,13 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
                     ? supabase.from('audit_checklists').select('*, audit_items(*)').eq('id', checklistId).single()
                     : Promise.resolve({ data: null }),
                 supabase.from('mitigation_plans').select('*').eq('project_id', projectId),
-                supabase.from('assets').select('*').eq('project_id', projectId).eq('is_active', true),
+                supabase.from('assets').select('*').eq('project_id', projectId).eq('is_active', true).order('name'),
                 supabase.from('organizations').select('*').limit(1).single(),
+                supabase.from('risk_measurement_criteria').select('*').eq('project_id', projectId).maybeSingle(),
+                supabase.from('containers').select('*').eq('project_id', projectId).eq('is_active', true),
+                supabase.from('concerns').select('*').eq('project_id', projectId).eq('is_active', true),
+                supabase.from('threat_scenarios').select('*').eq('project_id', projectId).eq('is_active', true),
+                supabase.from('risk_analysis').select('*').in('risk_id', (await supabase.from('risks').select('id').eq('project_id', projectId)).data?.map((r: any) => r.id) || []),
             ])
 
             const risks = risksRes.data || []
@@ -80,6 +99,17 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
                     framework: checklistRes.data?.framework || 'OCTAVE Allegro',
                     totalAssets: assets.length,
                 },
+                allData: {
+                    project: projectRes.data,
+                    criteria: criteriaRes.data,
+                    assets: assets,
+                    containers: containersRes.data || [],
+                    concerns: concernsRes.data || [],
+                    threatScenarios: scenariosRes.data || [],
+                    risks: risks,
+                    analyses: analysesRes.data || [],
+                    mitigationPlans: mitigations
+                }
             })
         } catch (err) {
             toast.error('Failed to load report data')
@@ -88,13 +118,22 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
         }
     }
 
-    const handlePrint = () => {
-        window.print()
+    const handlePrint = async () => {
+        if (!reportData) return
+
+        try {
+            await downloadReport(reportData.allData, `Risk_Shield_Report_${reportData.project.name}.pdf`)
+            toast.success('Professional PDF generated successfully')
+        } catch (err) {
+            console.error(err)
+            toast.error('Failed to generate professional PDF. Falling back to browser print.')
+            window.print()
+        }
     }
 
     const handleExportWord = () => {
         const content = document.getElementById('report-content')
-        if (!content) return
+        if (!content || !reportData) return
 
         const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Audit Report</title><style>body { font-family: 'Segoe UI', sans-serif; } table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #ccc; padding: 8px; }</style></head><body>";
         const footer = "</body></html>";
@@ -107,14 +146,14 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.href = url;
-        link.download = `Audit_Report_${project?.name || 'Report'}.doc`;
+        link.download = `Audit_Report_${reportData.project?.name || 'Report'}.doc`;
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
     }
 
     const handleExportCSV = () => {
-        if (!findings || findings.length === 0) {
+        if (!reportData?.findings || reportData.findings.length === 0) {
             toast.error('No findings to export')
             return
         }
@@ -122,7 +161,7 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
         const headers = ['ID', 'Issue', 'Severity', 'Recommendation', 'Created At']
         const csvContent = [
             headers.join(','),
-            ...findings.map((f: any) => [
+            ...reportData.findings.map((f: any) => [
                 f.id,
                 `"${f.issue.replace(/"/g, '""')}"`,
                 f.severity,
@@ -135,7 +174,7 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.setAttribute('href', url)
-        link.setAttribute('download', `Audit_Findings_${project?.name || 'Report'}.csv`)
+        link.setAttribute('download', `Audit_Findings_${reportData.project?.name || 'Report'}.csv`)
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)

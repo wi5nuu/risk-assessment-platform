@@ -11,6 +11,8 @@ import { Label } from '@/components/ui/label'
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from '@/components/ui/card'
 import { Alert, AlertDescription } from '@/components/ui/alert'
 import { Shield, Loader2 } from 'lucide-react'
+import { sanitizeInput } from '@/lib/security/sanitizer'
+import { logSecurityEvent } from '@/lib/security/logger'
 
 export default function LoginPage() {
   const router = useRouter()
@@ -19,9 +21,17 @@ export default function LoginPage() {
   const [password, setPassword] = useState('')
   const [isLoading, setIsLoading] = useState(false)
   const [error, setError] = useState<string | null>(null)
+  const [honeyPot, setHoneyPot] = useState('')
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Defensive honey-pot check
+    if (honeyPot) {
+      console.warn('Bot detection: Honey-pot field filled')
+      return // Ignore the submission silently for the bot
+    }
+
     setIsLoading(true)
     setError(null)
 
@@ -32,6 +42,14 @@ export default function LoginPage() {
       })
 
       if (signInError) {
+        // Log failed login attempt
+        logSecurityEvent({
+          action: 'LOGIN_FAILURE',
+          entity_type: 'AUTH_SESSION',
+          new_values: { email: sanitizeInput(email) },
+          ip_address: 'CLIENT_SIDE' // Placeholder, server component would be better for real IP
+        })
+
         setError(signInError.message)
         if (signInError.message.includes('Email not confirmed')) {
           setError('Please check your email and confirm your account before logging in.')
@@ -119,6 +137,17 @@ export default function LoginPage() {
                 <AlertDescription>{error}</AlertDescription>
               </Alert>
             )}
+
+            <div className="hidden" aria-hidden="true">
+              <input
+                type="text"
+                name="user_login_honey"
+                value={honeyPot}
+                onChange={(e) => setHoneyPot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+              />
+            </div>
 
             <div className="space-y-2">
               <Label htmlFor="email" className="text-sm font-semibold">Work Email</Label>

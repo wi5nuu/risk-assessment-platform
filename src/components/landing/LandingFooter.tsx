@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button'
 
 export function LandingFooter() {
     return (
-        <footer className="bg-background border-t py-12">
+        <footer className="bg-background border-t border-white/5 py-24">
             <div className="container mx-auto px-6">
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-12">
                     <div className="col-span-1 md:col-span-1">
@@ -16,7 +16,7 @@ export function LandingFooter() {
                             <span>Risk Shield System</span>
                         </Link>
                         <p className="text-sm text-muted-foreground leading-relaxed">
-                            Proactive GRC platform for modern organizations. Built to solve the complexity of cyber risk management.
+                            Elite GRC intelligence platform for mission-critical cyber resilience. Operationalizing the OCTAVE Allegro framework through high-fidelity automation.
                         </p>
                     </div>
 
@@ -26,17 +26,18 @@ export function LandingFooter() {
                             <li><Link href="#features" className="hover:text-primary transition-colors">Features</Link></li>
                             <li><Link href="#methodology" className="hover:text-primary transition-colors">Methodology</Link></li>
                             <li><Link href="/audit" className="hover:text-primary transition-colors">Audit Module</Link></li>
-                            <li><Link href="/ai-advisor" className="hover:text-primary transition-colors">AI Advisor</Link></li>
+                            <li><Link href="/risk-register" className="hover:text-primary transition-colors">Risk Register</Link></li>
+                            <li><Link href="/ai-advisor" className="hover:text-primary transition-colors flex items-center gap-2">AI Advisor <Shield className="w-3 h-3 text-primary/50" /></Link></li>
                         </ul>
                     </div>
 
                     <div>
                         <h4 className="font-bold mb-6">Support</h4>
                         <ul className="space-y-4 text-sm text-muted-foreground">
-                            <li><Link href="#" className="hover:text-primary transition-colors">Documentation</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">API Reference</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">Community</Link></li>
-                            <li><Link href="#" className="hover:text-primary transition-colors">Help Center</Link></li>
+                            <li><Link href="/docs" className="hover:text-primary transition-colors">Documentation</Link></li>
+                            <li><Link href="/docs#api" className="hover:text-primary transition-colors">API Reference</Link></li>
+                            <li><Link href="/support#community" className="hover:text-primary transition-colors">Community</Link></li>
+                            <li><Link href="/support" className="hover:text-primary transition-colors">Help Center</Link></li>
                         </ul>
                     </div>
 
@@ -51,7 +52,7 @@ export function LandingFooter() {
                     </div>
                 </div>
 
-                <div className="pt-8 border-t text-center">
+                <div className="pt-8 border-t border-white/5 text-center">
                     <p className="text-xs text-muted-foreground">
                         Designed with excellence for the security community. Built using Next.js, Supabase, and Tailwind CSS.
                     </p>
@@ -63,24 +64,24 @@ export function LandingFooter() {
 
 export function CTASection() {
     return (
-        <section className="py-24">
+        <section className="py-32">
             <div className="container mx-auto px-6">
                 <div className="bg-primary rounded-3xl p-8 md:p-16 text-center text-primary-foreground relative overflow-hidden shadow-2xl">
                     <div className="absolute inset-0 bg-gradient-to-r from-black/20 to-transparent pointer-events-none" />
 
-                    <h2 className="text-4xl md:text-5xl font-bold mb-6 relative z-10">Ready to transform your <br /> security posture?</h2>
+                    <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-6 relative z-10">Ready to transform your <br /> security posture?</h2>
                     <p className="text-primary-foreground/80 text-lg mb-10 max-w-2xl mx-auto relative z-10">
                         Join hundreds of security professionals using Risk Shield System to simplify their compliance and risk assessments.
                     </p>
 
                     <div className="flex flex-col sm:flex-row items-center justify-center gap-4 relative z-10">
                         <Link href="/auth/register" className="w-full sm:w-auto">
-                            <Button size="lg" variant="secondary" className="h-14 px-10 text-lg font-bold w-full sm:w-auto">
-                                Get Started Free
+                            <Button size="lg" variant="secondary" className="h-11 md:h-14 px-10 text-sm md:text-lg font-bold w-full sm:w-auto text-primary">
+                                Deploy Solution
                             </Button>
                         </Link>
                         <Link href="/auth/login" className="w-full sm:w-auto">
-                            <Button size="lg" variant="outline" className="h-14 px-10 text-lg font-bold w-full sm:w-auto bg-transparent border-primary-foreground/30 hover:bg-primary-foreground/10 text-primary-foreground">
+                            <Button size="lg" variant="outline" className="h-11 md:h-14 px-10 text-sm md:text-lg font-bold w-full sm:w-auto bg-transparent border-primary-foreground/30 hover:bg-primary-foreground/10 text-primary-foreground">
                                 Sign In
                             </Button>
                         </Link>

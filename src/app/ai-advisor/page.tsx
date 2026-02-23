@@ -100,12 +100,12 @@ export default function GlobalAIAdvisorPage() {
                     </h3>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6 text-sm text-muted-foreground">
                         <div className="space-y-2">
-                            <p className="font-semibold text-foreground">Rule-Based Intelligence</p>
-                            <p>The AI Advisor uses heuristics and security best practices to identify critical concentrations of vulnerabilities and control gaps in your assessment data.</p>
+                            <p className="font-semibold text-foreground">Next-Gen AI Intelligence</p>
+                            <p>The AI Advisor is powered by <strong>Google Gemini 1.5 Flash</strong>, providing context-aware security analysis by processing your organizational risks and compliance data in real-time.</p>
                         </div>
                         <div className="space-y-2">
-                            <p className="font-semibold text-foreground">Strategic Recommendations</p>
-                            <p>Get automated guidance on risk prioritization, mitigation strategies, and compliance improvement based on the OCTAVE Allegro methodology.</p>
+                            <p className="font-semibold text-foreground">Strategic Guidance</p>
+                            <p>Receive human-like strategic recommendations on risk prioritization and mitigation based on the OCTAVE Allegro methodology and global security standards.</p>
                         </div>
                     </div>
                 </div>

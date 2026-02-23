@@ -5,8 +5,8 @@ import "./globals.css";
 // const inter = Inter({ subsets: ["latin"] });
 
 export const metadata: Metadata = {
-  title: "Risk Shield System",
-  description: "AI-Assisted Cybersecurity Risk Assessment Platform Based on OCTAVE Allegro Methodology",
+  title: "Risk Shield System - OCTAVE Allegro",
+  description: "Enterprise Cybersecurity Risk Assessment Platform using OCTAVE Allegro methodology",
   keywords: ["cybersecurity", "risk assessment", "OCTAVE Allegro", "GRC", "risk management", "risk shield"],
   authors: [{ name: "Risk Shield System" }],
 };

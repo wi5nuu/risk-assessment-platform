@@ -21,21 +21,22 @@ export function LandingHeader() {
     const navLinks = [
         { name: 'Features', href: '#features' },
         { name: 'Methodology', href: '#methodology' },
-        { name: 'Solutions', href: '#solutions' },
+        { name: 'Journey', href: '#journey' },
+        { name: 'FAQ', href: '#faq' },
     ]
 
     return (
         <header className={cn(
-            "fixed top-0 left-0 right-0 z-50 transition-all duration-500 px-6 md:px-12",
-            isScrolled ? "py-3 bg-background/40 backdrop-blur-xl border-b border-white/10 shadow-2xl" : "py-6 bg-transparent"
+            "fixed top-0 left-0 right-0 z-50 transition-all duration-500",
+            isScrolled ? "py-3 bg-background/20 backdrop-blur-xl border-b border-white/5 shadow-2xl" : "py-6 bg-transparent"
         )}>
-            <div className="max-w-7xl mx-auto flex items-center justify-between">
-                <Link href="/" className="group flex items-center gap-2 font-black text-2xl">
+            <div className="container mx-auto px-6 flex items-center justify-between">
+                <Link href="/" className="group flex items-center gap-2 font-bold text-2xl">
                     <div className="relative">
-                        <Shield className="w-9 h-9 text-primary transition-transform duration-500 group-hover:scale-110" />
+                        <Shield className="w-8 h-8 text-primary transition-transform duration-500 group-hover:scale-110" />
                         <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full scale-0 group-hover:scale-150 transition-transform duration-500" />
                     </div>
-                    <span className="tracking-tighter bg-gradient-to-r from-foreground to-foreground/60 bg-clip-text text-transparent">Risk Shield System</span>
+                    <span className="tracking-tighter bg-gradient-to-r from-foreground to-foreground/70 bg-clip-text text-transparent">Risk Shield System</span>
                 </Link>
 
                 {/* Desktop Nav */}
@@ -44,7 +45,7 @@ export function LandingHeader() {
                         <Link
                             key={link.name}
                             href={link.href}
-                            className="text-sm font-bold tracking-wide uppercase text-muted-foreground hover:text-primary transition-all duration-300 relative group"
+                            className="text-xs font-bold tracking-widest uppercase text-muted-foreground/70 hover:text-primary transition-all duration-300 relative group"
                         >
                             {link.name}
                             <span className="absolute -bottom-1 left-0 w-0 h-0.5 bg-primary transition-all duration-300 group-hover:w-full" />
@@ -59,29 +60,23 @@ export function LandingHeader() {
                                 </Button>
                             </Link>
                             {/* Info Card on Hover */}
-                            <div className="absolute top-full right-0 mt-2 w-64 bg-white/95 backdrop-blur-xl border border-white/20 p-4 rounded-2xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/login:opacity-100 group-hover/login:translate-y-0 group-hover/login:pointer-events-auto transition-all duration-300 z-[60]">
-                                {/* Bridge to prevent hover loss */}
+                            {/* Simplified Info Card */}
+                            <div className="absolute top-full right-0 mt-3 w-60 bg-background/95 backdrop-blur-xl border border-white/10 p-4 rounded-xl shadow-2xl opacity-0 translate-y-2 pointer-events-none group-hover/login:opacity-100 group-hover/login:translate-y-0 group-hover/login:pointer-events-auto transition-all duration-300 z-[60]">
                                 <div className="absolute -top-4 left-0 right-0 h-4" />
-                                <h4 className="text-sm font-black text-primary mb-2 flex items-center gap-2">
-                                    <Sparkles className="w-4 h-4" />
-                                    Secure Access
+                                <h4 className="text-[10px] font-black uppercase tracking-widest text-primary mb-3 flex items-center gap-2">
+                                    <Sparkles className="w-3 h-3" />
+                                    Secure Member Access
                                 </h4>
-                                <ul className="text-[11px] font-bold text-slate-600 space-y-2">
+                                <ul className="text-[10px] font-medium text-muted-foreground space-y-2">
                                     <li className="flex items-center gap-2">
-                                        <div className="w-1 h-1 bg-primary rounded-full" />
-                                        Advanced Risk Dashboard
+                                        Advanced Risk Data & Analytics
                                     </li>
                                     <li className="flex items-center gap-2">
-                                        <div className="w-1 h-1 bg-primary rounded-full" />
-                                        OCTAVE Allegro Compliance
-                                    </li>
-                                    <li className="flex items-center gap-2">
-                                        <div className="w-1 h-1 bg-primary rounded-full" />
-                                        AI-Powered Audit Reports
+                                        Audit Evidence Vault access
                                     </li>
                                 </ul>
-                                <div className="mt-3 pt-3 border-t border-slate-200/50 text-[10px] text-muted-foreground italic">
-                                    Bagi anggota berlisensi, silakan masuk.
+                                <div className="mt-3 pt-3 border-t border-white/5 text-[9px] text-muted-foreground italic">
+                                    Authorized personnel only.
                                 </div>
                             </div>
                         </div>
@@ -117,10 +112,10 @@ export function LandingHeader() {
                     ))}
                     <div className="flex flex-col gap-4 mt-4">
                         <Link href="/auth/login" className="w-full">
-                            <Button variant="outline" className="w-full h-12 font-bold">Login</Button>
+                            <Button variant="outline" className="w-full h-10 text-sm font-bold">Login</Button>
                         </Link>
                         <Link href="/auth/register" className="w-full">
-                            <Button className="w-full h-12 font-bold">Launch Platform</Button>
+                            <Button className="w-full h-10 text-sm font-bold">Launch Platform</Button>
                         </Link>
                     </div>
                 </div>

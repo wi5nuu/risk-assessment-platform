@@ -13,7 +13,8 @@ import {
     ShieldCheck,
     ArrowRight,
     Activity,
-    Lock
+    Lock,
+    Shield
 } from 'lucide-react'
 import Link from 'next/link'
 
@@ -145,6 +146,31 @@ export default function AdminDashboardPage() {
                             <Link href="/admin/organization" className="w-full">
                                 <Button className="w-full group-hover:bg-purple-600 transition-colors">
                                     Manage Organization
+                                    <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
+                                </Button>
+                            </Link>
+                        </CardFooter>
+                    </Card>
+
+                    <Card className="group hover:shadow-lg transition-all border-none shadow-sm overflow-hidden flex flex-col border-l-4 border-l-primary lg:col-span-2">
+                        <CardHeader>
+                            <div className="flex items-center justify-between">
+                                <div className="space-y-1">
+                                    <div className="w-12 h-12 bg-primary/10 rounded-xl flex items-center justify-center mb-4 text-primary">
+                                        <Shield className="w-6 h-6" />
+                                    </div>
+                                    <CardTitle>Security Command Center</CardTitle>
+                                    <CardDescription>
+                                        Monitor forensic audit logs, identify unauthorized access attempts, and verify system integrity.
+                                    </CardDescription>
+                                </div>
+                                <Activity className="w-12 h-12 text-primary/20 animate-pulse" />
+                            </div>
+                        </CardHeader>
+                        <CardFooter>
+                            <Link href="/admin/security" className="w-full">
+                                <Button className="w-full border-2 border-primary/20 hover:bg-primary/10 text-primary bg-transparent group-hover:border-primary transition-all">
+                                    Access Security Logs
                                     <ArrowRight className="w-4 h-4 ml-2 group-hover:translate-x-1 transition-transform" />
                                 </Button>
                             </Link>

@@ -1,13 +1,17 @@
 "use client"
 
 import React from 'react'
-import { CheckCircle2, Search, Target, ShieldCheck, Activity } from 'lucide-react'
+import { CheckCircle2, Search, Target, ShieldCheck, Activity, Layers, ShieldAlert, ClipboardCheck, BarChart3 } from 'lucide-react'
 
 const steps = [
-    { num: '01', title: 'Measurement', icon: Target },
-    { num: '02', title: 'Profiling', icon: Search },
-    { num: '03', title: 'Containment', icon: ShieldCheck },
-    { num: '04', title: 'Exposure', icon: Activity },
+    { num: '01', title: 'Measurement Criteria', icon: Target },
+    { num: '02', title: 'Asset Profiles', icon: Search },
+    { num: '03', title: 'Containers', icon: Layers },
+    { num: '04', title: 'Areas of Concern', icon: ShieldAlert },
+    { num: '05', title: 'Threat Scenarios', icon: Activity },
+    { num: '06', title: 'Identify Risks', icon: ClipboardCheck },
+    { num: '07', title: 'Analyze Risks', icon: BarChart3 },
+    { num: '08', title: 'Mitigation Approach', icon: ShieldCheck },
 ]
 
 export function MethodologySection() {
@@ -19,17 +23,17 @@ export function MethodologySection() {
                         <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold uppercase tracking-widest mb-6">
                             Scientific Methodology
                         </div>
-                        <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-8 leading-[1.1]">The OCTAVE Allegro <br /> <span className="text-primary underline decoration-primary/20 decoration-8 underline-offset-8 font-serif italic">Advantage</span></h2>
+                        <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-8 leading-[1.1]">The OCTAVE Allegro <br /> <span className="text-primary underline decoration-primary/20 decoration-8 underline-offset-8 font-serif italic">Institutional Model</span></h2>
                         <p className="text-xl text-muted-foreground font-medium mb-12 max-w-xl">
-                            Standardized precision from Carnegie Mellon SEI. We replace guesswork with mathematically sound NIST-aligned structural integrity.
+                            Developed by Carnegie Mellon SEI, we translate abstract risk into predictive integrity. We replace traditional guesswork with a mathematically rigorous, NIST-aligned governance structure.
                         </p>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
                             {[
                                 "Evidence-based decision logic",
-                                "Quantitative impact mapping",
+                                "Quantitative risk-to-impact mapping",
                                 "Continuous posture monitoring",
-                                "Global compliance alignment"
+                                "Frictionless regulatory alignment"
                             ].map((item, i) => (
                                 <div key={i} className="flex items-center gap-4 group p-2 rounded-xl transition-colors hover:bg-white/5">
                                     <div className="w-10 h-10 rounded-full bg-primary/10 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
@@ -43,26 +47,25 @@ export function MethodologySection() {
 
                     <div className="lg:w-1/2 relative">
                         {/* Circle Visualization */}
-                        <div className="relative w-full aspect-square max-w-md mx-auto">
+                        <div className="relative w-full aspect-square max-w-md mx-auto scale-90 sm:scale-100 transition-transform duration-700">
                             <div className="absolute inset-0 border-[40px] border-white/5 rounded-full animate-spin-slow" />
                             <div className="absolute inset-[40px] border-[2px] border-dashed border-primary/20 rounded-full animate-reverse-spin" />
 
                             {/* Step Icons along the circle */}
                             {steps.map((step, i) => {
-                                const angles = [0, 90, 180, 270];
-                                const angle = angles[i];
+                                const angle = (i * (360 / steps.length)) - 90;
                                 return (
                                     <div
                                         key={i}
-                                        className="absolute w-24 h-24 bg-background border border-white/10 rounded-3xl flex flex-col items-center justify-center shadow-2xl p-2 transition-transform hover:scale-110 z-10"
+                                        className="absolute w-20 h-20 md:w-24 md:h-24 bg-background border border-white/10 rounded-3xl flex flex-col items-center justify-center shadow-2xl p-2 transition-transform hover:scale-110 z-10"
                                         style={{
-                                            top: `${50 + 45 * Math.sin(angle * Math.PI / 180)}%`,
-                                            left: `${50 + 45 * Math.cos(angle * Math.PI / 180)}%`,
+                                            top: `${50 + 42 * Math.sin(angle * Math.PI / 180)}%`,
+                                            left: `${50 + 42 * Math.cos(angle * Math.PI / 180)}%`,
                                             transform: 'translate(-50%, -50%)'
                                         }}
                                     >
-                                        <step.icon className="w-8 h-8 text-primary mb-2" />
-                                        <span className="text-[10px] font-black uppercase text-muted-foreground">{step.title}</span>
+                                        <step.icon className="w-6 h-6 md:w-8 md:h-8 text-primary mb-1 md:mb-2" />
+                                        <span className="text-[8px] md:text-[9px] font-black uppercase text-center text-muted-foreground leading-tight px-1">{step.title}</span>
                                     </div>
                                 )
                             })}

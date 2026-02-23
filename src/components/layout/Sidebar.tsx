@@ -12,7 +12,8 @@ import {
     Building2,
     FileText,
     Brain,
-    LogOut
+    LogOut,
+    Shield
 } from 'lucide-react'
 import { cn } from '@/lib/utils'
 import { createClient } from '@/lib/supabase/client'
@@ -51,6 +52,8 @@ export function Sidebar({ isMobile, onMobileClose }: SidebarProps) {
         navItems.push({
             label: 'Admin Control',
             items: [
+                { name: 'Admin Overview', href: '/admin', icon: LayoutDashboard },
+                { name: 'Security Command Center', href: '/admin/security', icon: Shield },
                 { name: 'Users Management', href: '/admin/users', icon: Users },
                 { name: 'Organization Profile', href: '/admin/organization', icon: Building2 },
             ]

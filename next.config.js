@@ -32,8 +32,12 @@ const nextConfig = {
                         value: '1; mode=block',
                     },
                     {
+                        key: 'Permissions-Policy',
+                        value: 'camera=(), microphone=(), geolocation=(), interest-cohort=()',
+                    },
+                    {
                         key: 'Content-Security-Policy',
-                        value: "default-src 'self'; script-src 'self' 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob: https:; font-src 'self' data:; connect-src 'self' https://ocrnmhyawvxhpssadhmz.supabase.co wss://ocrnmhyawvxhpssadhmz.supabase.co https://generativelanguage.googleapis.com;",
+                        value: "default-src 'self' https://*.supabase.co; script-src 'self' 'unsafe-eval' 'unsafe-inline' https://*.google.com https://*.gstatic.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; img-src 'self' data: blob: https://images.unsplash.com https://*.googleusercontent.com; font-src 'self' https://fonts.gstatic.com data:; connect-src 'self' https://*.supabase.co wss://*.supabase.co https://generativelanguage.googleapis.com https://*.googleapis.com;",
                     },
                 ],
             },

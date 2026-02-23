@@ -5,6 +5,8 @@ import { LandingHeader } from './LandingHeader'
 import { HeroSection } from './HeroSection'
 import { FeaturesSection } from './FeaturesSection'
 import { MethodologySection } from './MethodologySection'
+import { JourneySection } from './JourneySection'
+import { FAQSection } from './FAQSection'
 import { CTASection, LandingFooter } from './LandingFooter'
 import { LandingBackground } from './LandingBackground'
 import { LandingAI } from './LandingAI'
@@ -18,6 +20,8 @@ export function LandingPage() {
                 <HeroSection />
                 <FeaturesSection />
                 <MethodologySection />
+                <JourneySection />
+                <FAQSection />
                 <CTASection />
             </main>
             <LandingFooter />

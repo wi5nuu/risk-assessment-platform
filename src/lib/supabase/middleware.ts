@@ -104,6 +104,7 @@ export const PROTECTED_ROUTES = [
   '/settings',
   '/admin',
   '/audit',
+  '/ai-advisor',
 ]
 
 export const ADMIN_ROUTES = [

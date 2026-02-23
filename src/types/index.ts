@@ -1,5 +1,5 @@
 /**
- * OCTAVE Allegro Risk Assessment Platform
+ * Risk Shield System - Risk Assessment Platform
  * Application Types and Interfaces
  */
 
