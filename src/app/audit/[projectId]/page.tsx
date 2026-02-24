@@ -175,7 +175,7 @@ export default function AuditPage() {
                             projectId={projectId}
                             checklistId={checklistId}
                             profileId={profileId}
-                            canUpload={true}
+                            canUpload={!auth.isAdmin()}
                         />
                     </TabsContent>
 

@@ -70,8 +70,13 @@ export default function AdminDashboardPage() {
             <div className="space-y-8 max-w-7xl mx-auto">
                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                     <div>
-                        <h1 className="text-3xl font-bold tracking-tight">Admin Control Panel</h1>
-                        <p className="text-muted-foreground mt-1">Manage organization settings and system access controls.</p>
+                        <h1 className="text-4xl font-black tracking-tighter uppercase italic text-slate-900 flex items-center gap-3">
+                            <Settings className="w-10 h-10 text-primary" />
+                            Admin Control
+                        </h1>
+                        <p className="text-muted-foreground font-medium mt-1 uppercase tracking-widest text-sm italic">
+                            System Governance & Access Control Policies
+                        </p>
                     </div>
                     <Badge variant="outline" className="w-fit px-3 py-1 bg-primary/5 border-primary/20 text-primary flex items-center gap-2">
                         <Lock className="w-3 h-3" />

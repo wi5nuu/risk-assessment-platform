@@ -70,8 +70,8 @@ export function AuditChecklist({ projectId, profileId, checklistId, onCreateChec
     }
 
     const updateItemStatus = async (itemId: string, status: string) => {
-        if (!canEdit) {
-            toast.error('Unauthorized: Only Admins and Auditors can update compliance status')
+        if (!auth.isAuditor()) {
+            toast.error('Unauthorized: Only Auditors can update compliance status')
             return
         }
         setSavingItemId(itemId)
@@ -234,7 +234,7 @@ export function AuditChecklist({ projectId, profileId, checklistId, onCreateChec
                                                             key={key}
                                                             variant={item.compliance_status === key ? 'default' : 'outline'}
                                                             size="sm"
-                                                            disabled={savingItemId === item.id || !canEdit}
+                                                            disabled={savingItemId === item.id || !auth.isAuditor()}
                                                             onClick={(e) => { e.stopPropagation(); updateItemStatus(item.id, key) }}
                                                             className={`h-9 ${item.compliance_status === key ? 'shadow-md border-primary/50' : ''}`}
                                                         >
@@ -256,7 +256,7 @@ export function AuditChecklist({ projectId, profileId, checklistId, onCreateChec
                                                         checklistId={checklistId}
                                                         itemId={item.id}
                                                         profileId={profileId}
-                                                        canUpload={true}
+                                                        canUpload={!auth.isAdmin()}
                                                     />
                                                 </div>
 

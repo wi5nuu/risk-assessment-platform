@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
-import { Shield, Mail, Lock, Loader2, AlertTriangle, CheckCircle2 } from 'lucide-react'
+import { Shield, Mail, Lock, Loader2, AlertTriangle, CheckCircle2, Eye, EyeOff, Key } from 'lucide-react'
 import { MainLayout } from '@/components/layout/MainLayout'
 import {
     Dialog,
@@ -20,8 +20,8 @@ import {
 } from '@/components/ui/dialog'
 
 export default function ProfilePage() {
-    const { email, firstName, lastName, role } = useAuth()
-    const supabase = createClient()
+    const { email, firstName, lastName, role, tempPassword, profileId } = useAuth()
+    const supabase = createClient() as any
 
     const [isUpdating, setIsUpdating] = useState(false)
     const [showReauth, setShowReauth] = useState(false)
@@ -31,6 +31,11 @@ export default function ProfilePage() {
     const [newEmail, setNewEmail] = useState('')
     const [newPassword, setNewPassword] = useState('')
     const [confirmPassword, setConfirmPassword] = useState('')
+
+    const [showCurrent, setShowCurrent] = useState(false)
+    const [showNew, setShowNew] = useState(false)
+    const [showConfirm, setShowConfirm] = useState(false)
+    const [showReauthPass, setShowReauthPass] = useState(false)
 
     const handleActionStart = (action: 'email' | 'password') => {
         if (action === 'email' && !newEmail) {
@@ -80,6 +85,15 @@ export default function ProfilePage() {
             } else if (pendingAction === 'password') {
                 const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
                 if (updateError) throw updateError
+
+                // ALSO UPDATE temp_password in user_profiles
+                if (profileId) {
+                    await supabase
+                        .from('user_profiles')
+                        .update({ temp_password: newPassword })
+                        .eq('id', profileId)
+                }
+
                 toast.success('Password updated successfully.')
             }
 
@@ -143,25 +157,64 @@ export default function ProfilePage() {
                             </CardTitle>
                         </CardHeader>
                         <CardContent className="pt-6 space-y-4">
-                            <div className="space-y-1.5">
+                            <div className="space-y-2 p-3 bg-slate-50 rounded-xl border-2 border-dashed border-slate-200">
+                                <label className="text-[10px] font-black uppercase tracking-widest text-slate-500 block mb-1">Current Secure Password</label>
+                                <div className="flex items-center justify-between">
+                                    <code className="text-sm font-mono font-bold text-primary break-all">
+                                        {tempPassword ? (showCurrent ? tempPassword : '••••••••••••') : 'NOT RECORDED'}
+                                    </code>
+                                    {tempPassword && (
+                                        <Button
+                                            variant="ghost"
+                                            size="icon"
+                                            className="h-8 w-8 text-slate-400 hover:text-primary transition-colors shrink-0"
+                                            onClick={() => setShowCurrent(!showCurrent)}
+                                        >
+                                            {showCurrent ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                        </Button>
+                                    )}
+                                </div>
+                            </div>
+
+                            <div className="space-y-1.5 pt-2">
                                 <Label className="text-[10px] uppercase font-black text-slate-400">New Password</Label>
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    className="h-11 font-bold"
-                                    value={newPassword}
-                                    onChange={e => setNewPassword(e.target.value)}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type={showNew ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        className="h-11 font-bold pr-10"
+                                        value={newPassword}
+                                        onChange={e => setNewPassword(e.target.value)}
+                                    />
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:bg-transparent"
+                                        onClick={() => setShowNew(!showNew)}
+                                    >
+                                        {showNew ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </Button>
+                                </div>
                             </div>
                             <div className="space-y-1.5">
                                 <Label className="text-[10px] uppercase font-black text-slate-400">Confirm New Password</Label>
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    className="h-11 font-bold"
-                                    value={confirmPassword}
-                                    onChange={e => setConfirmPassword(e.target.value)}
-                                />
+                                <div className="relative">
+                                    <Input
+                                        type={showConfirm ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        className="h-11 font-bold pr-10"
+                                        value={confirmPassword}
+                                        onChange={e => setConfirmPassword(e.target.value)}
+                                    />
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:bg-transparent"
+                                        onClick={() => setShowConfirm(!showConfirm)}
+                                    >
+                                        {showConfirm ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </Button>
+                                </div>
                             </div>
                             <Button
                                 className="w-full h-11 font-black shadow-lg shadow-primary/20"
@@ -219,15 +272,25 @@ export default function ProfilePage() {
                         </div>
                         <div className="p-8 space-y-4 bg-white">
                             <div className="space-y-1.5">
-                                <Label className="text-[10px] uppercase font-black text-slate-400">Current Password</Label>
-                                <Input
-                                    type="password"
-                                    placeholder="••••••••"
-                                    className="h-12 font-bold"
-                                    value={password}
-                                    onChange={e => setPassword(e.target.value)}
-                                    autoFocus
-                                />
+                                <Label className="text-[10px] uppercase font-black text-slate-400">Verification Password</Label>
+                                <div className="relative">
+                                    <Input
+                                        type={showReauthPass ? "text" : "password"}
+                                        placeholder="••••••••"
+                                        className="h-12 font-bold pr-10"
+                                        value={password}
+                                        onChange={e => setPassword(e.target.value)}
+                                        autoFocus
+                                    />
+                                    <Button
+                                        variant="ghost"
+                                        size="icon"
+                                        className="absolute right-0 top-0 h-full px-3 text-slate-400 hover:bg-transparent"
+                                        onClick={() => setShowReauthPass(!showReauthPass)}
+                                    >
+                                        {showReauthPass ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
+                                    </Button>
+                                </div>
                             </div>
                             <Button
                                 className="w-full h-12 font-black shadow-xl shadow-primary/20"

@@ -45,7 +45,10 @@ export async function GET(request: NextRequest) {
     const supabase = createAdminClient() as any
     const { data, error } = await supabase
         .from('user_profiles')
-        .select('*')
+        .select(`
+            *,
+            temp_password
+        `)
         .eq('organization_id', admin.orgId)
         .order('created_at', { ascending: false })
 
@@ -122,6 +125,7 @@ export async function POST(request: NextRequest) {
             email,
             role,
             is_active: true,
+            temp_password: inviteOnly ? null : password,
         })
 
     if (profileError) {
@@ -140,7 +144,7 @@ export async function PATCH(request: NextRequest) {
     const admin = await verifyAdmin()
     if (!admin) return NextResponse.json({ error: 'Unauthorized' }, { status: 403 })
 
-    const { profileId, role, is_active } = await request.json()
+    const { profileId, role, is_active, password } = await request.json()
     if (!profileId) return NextResponse.json({ error: 'Missing profileId' }, { status: 400 })
 
     const supabase = createAdminClient() as any
@@ -159,6 +163,27 @@ export async function PATCH(request: NextRequest) {
     const updates: any = {}
     if (role && ['admin', 'auditor', 'auditee'].includes(role)) updates.role = role
     if (typeof is_active === 'boolean') updates.is_active = is_active
+    if (password) updates.temp_password = password
+
+    // If password provided, update auth user
+    if (password) {
+        const { data: userData } = await supabase
+            .from('user_profiles')
+            .select('user_id')
+            .eq('id', profileId)
+            .single()
+
+        if (userData) {
+            const { error: authError } = await supabase.auth.admin.updateUserById(
+                userData.user_id,
+                { password: password }
+            )
+            if (authError) {
+                console.error('PATCH /api/admin/users: Password update failed', authError)
+                return NextResponse.json({ error: 'Auth update failed: ' + authError.message }, { status: 500 })
+            }
+        }
+    }
 
     const { error } = await supabase
         .from('user_profiles')

@@ -74,6 +74,7 @@ export interface Database {
           updated_at: string
           last_login_at: string | null
           last_login_ip: string | null
+          temp_password: string | null
         }
         Insert: {
           id?: string
@@ -90,6 +91,7 @@ export interface Database {
           updated_at?: string
           last_login_at?: string | null
           last_login_ip?: string | null
+          temp_password?: string | null
         }
         Update: {
           id?: string
@@ -106,6 +108,7 @@ export interface Database {
           updated_at?: string
           last_login_at?: string | null
           last_login_ip?: string | null
+          temp_password?: string | null
         }
       }
       projects: {

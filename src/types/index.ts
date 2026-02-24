@@ -410,6 +410,7 @@ export interface DashboardStats {
   lowRisks: number
   risksByStatus: Record<RiskStatus, number>
   recentActivity: AuditLog[]
+  complianceScore?: number
 }
 
 export interface RiskTrend {

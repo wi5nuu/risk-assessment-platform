@@ -7,8 +7,10 @@ import { Button } from '@/components/ui/button'
 import { Textarea } from '@/components/ui/textarea'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { Loader2, Brain, Lightbulb, Send } from 'lucide-react'
+import { Loader2, Brain, Lightbulb, Send, MessageSquare, Sparkles } from 'lucide-react'
 import { getGeminiAdvice } from '@/lib/gemini'
+import ReactMarkdown from 'react-markdown'
+import remarkGfm from 'remark-gfm'
 
 interface AIAdvisorProps {
     projectId: string
@@ -20,20 +22,18 @@ interface Advice {
     priority: 'info' | 'warning' | 'critical'
 }
 
-const FormattedText = ({ text }: { text: string }) => {
-    if (!text) return null
-
-    // Split by double asterisks for bolding
-    const parts = text.split(/(\*\*.*?\*\*)/g)
-
+const MarkdownContent = ({ content }: { content: string }) => {
     return (
-        <div className="whitespace-pre-wrap">
-            {parts.map((part, i) => {
-                if (part.startsWith('**') && part.endsWith('**')) {
-                    return <strong key={i}>{part.slice(2, -2)}</strong>
-                }
-                return part
-            })}
+        <div className="prose prose-sm prose-slate max-w-none 
+                prose-p:leading-relaxed prose-p:mb-4 
+                prose-headings:font-bold prose-headings:text-slate-900 prose-headings:mb-2 prose-headings:mt-4
+                prose-ul:list-disc prose-ul:pl-4 prose-ul:mb-4
+                prose-li:mb-1
+                prose-strong:text-slate-900 prose-strong:font-black
+                text-slate-700 font-medium">
+            <ReactMarkdown remarkPlugins={[remarkGfm]}>
+                {content}
+            </ReactMarkdown>
         </div>
     )
 }
@@ -148,9 +148,12 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
                     {adviceList.length > 0 && (
                         <div className="space-y-3 mt-4">
                             {adviceList.map((advice, idx) => (
-                                <div key={idx} className={`p-4 rounded-lg ${priorityColors[advice.priority]}`}>
-                                    <h4 className="font-semibold text-sm">{advice.title}</h4>
-                                    <p className="text-sm text-muted-foreground mt-1">{advice.body}</p>
+                                <div key={idx} className={`p-4 rounded-xl border ${priorityColors[advice.priority]} shadow-sm`}>
+                                    <h4 className="font-bold text-sm mb-3 flex items-center gap-2">
+                                        <Lightbulb className="w-4 h-4 text-primary" />
+                                        {advice.title}
+                                    </h4>
+                                    <MarkdownContent content={advice.body} />
                                 </div>
                             ))}
                         </div>
@@ -168,10 +171,12 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
                         <div key={idx} className="space-y-4">
                             <div className="flex justify-end"><div className="bg-primary/10 rounded-lg px-3 py-2 max-w-[80%] shadow-sm"><p className="text-sm font-medium">{pair.q}</p></div></div>
                             <div className="flex justify-start">
-                                <div className="bg-muted rounded-lg px-4 py-3 max-w-[85%] shadow-sm border border-border/50">
-                                    <div className="text-sm leading-relaxed text-foreground">
-                                        <FormattedText text={pair.a} />
+                                <div className="bg-white rounded-2xl px-5 py-4 max-w-[90%] shadow-sm border border-slate-100 ring-1 ring-slate-50">
+                                    <div className="flex items-center gap-2 mb-3 border-b border-slate-50 pb-2">
+                                        <Sparkles className="w-4 h-4 text-primary" />
+                                        <span className="text-[10px] font-black uppercase tracking-widest text-primary">Official Response</span>
                                     </div>
+                                    <MarkdownContent content={pair.a} />
                                 </div>
                             </div>
                         </div>

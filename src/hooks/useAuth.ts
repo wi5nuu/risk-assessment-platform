@@ -13,6 +13,7 @@ interface AuthState {
     role: UserRole | null
     organizationId: string | null
     organizationName: string | null
+    tempPassword?: string | null
     isLoading: boolean
 }
 
@@ -27,6 +28,7 @@ export function useAuth() {
         role: null,
         organizationId: null,
         organizationName: null,
+        tempPassword: null,
         isLoading: true,
     })
 
@@ -66,6 +68,7 @@ export function useAuth() {
                     role: profile.role?.toLowerCase() as UserRole,
                     organizationId: profile.organization_id,
                     organizationName: org?.name || null,
+                    tempPassword: profile.temp_password,
                     isLoading: false,
                 })
             } else {

@@ -52,7 +52,8 @@ export function Sidebar({ isMobile, onMobileClose }: SidebarProps) {
         navItems.push({
             label: 'Admin Control',
             items: [
-                { name: 'Admin Overview', href: '/admin', icon: LayoutDashboard },
+                { name: 'Admin Control', href: '/admin', icon: Settings },
+                { name: 'Admin Overview', href: '/admin/overview', icon: LayoutDashboard },
                 { name: 'Security Command Center', href: '/admin/security', icon: Shield },
                 { name: 'Users Management', href: '/admin/users', icon: Users },
                 { name: 'Organization Profile', href: '/admin/organization', icon: Building2 },
@@ -92,7 +93,9 @@ export function Sidebar({ isMobile, onMobileClose }: SidebarProps) {
                         </h4>
                         <div className="space-y-1">
                             {group.items.map((item) => {
-                                const isActive = pathname === item.href || pathname.startsWith(item.href + '/')
+                                const isActive = item.href === '/admin'
+                                    ? pathname === '/admin'
+                                    : (pathname === item.href || pathname.startsWith(item.href + '/'))
                                 return (
                                     <Link
                                         key={item.href}
