@@ -139,10 +139,10 @@ export function AuditChecklist({ projectId, profileId, checklistId, onCreateChec
                     <Button
                         className="w-full"
                         onClick={() => onCreateChecklist('OCTAVE Allegro')}
-                        disabled={!canEdit}
+                        disabled={!auth.isAuditor()}
                     >
                         <Shield className="w-4 h-4 mr-2" />
-                        {canEdit ? 'Generate OCTAVE Allegro Audit Checklist' : 'Waiting for Auditor to Start'}
+                        {auth.isAuditor() ? 'Generate OCTAVE Allegro Audit Checklist' : 'Waiting for Auditor to Start'}
                     </Button>
                 </CardContent>
             </Card>

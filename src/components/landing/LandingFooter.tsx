@@ -54,7 +54,7 @@ export function LandingFooter() {
 
                 <div className="pt-8 border-t border-white/5 text-center">
                     <p className="text-xs text-muted-foreground">
-                        Designed with excellence for the security community. Built using Next.js, Supabase, and Tailwind CSS.
+                        Developer By Team Risk Assesment System
                     </p>
                 </div>
             </div>

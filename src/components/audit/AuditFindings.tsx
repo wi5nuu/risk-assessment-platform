@@ -104,8 +104,8 @@ export function AuditFindings({ projectId, checklistId }: AuditFindingsProps) {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault()
-        if (!canEdit) {
-            toast.error('Unauthorized: Only Admins and Auditors can add audit findings')
+        if (!auth.isAuditor()) {
+            toast.error('Unauthorized: Only Auditors can add audit findings')
             return
         }
         try {
@@ -129,8 +129,8 @@ export function AuditFindings({ projectId, checklistId }: AuditFindingsProps) {
     }
 
     const autoGenerateFindings = async () => {
-        if (!canEdit) {
-            toast.error('Unauthorized: Only Admins and Auditors can use Auto-Generate')
+        if (!auth.isAuditor()) {
+            toast.error('Unauthorized: Only Auditors can use Auto-Generate')
             return
         }
         if (!checklistId) { toast.error('Create a checklist first'); return }
@@ -206,7 +206,7 @@ export function AuditFindings({ projectId, checklistId }: AuditFindingsProps) {
                         <Wand2 className="w-4 h-4 mr-2" />
                         {isGenerating ? 'Generating...' : 'Auto-Generate'}
                     </Button>
-                    {canEdit && (
+                    {auth.isAuditor() && (
                         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
                             <DialogTrigger asChild>
                                 <Button><Plus className="w-4 h-4 mr-2" /> Add Finding</Button>

@@ -69,6 +69,10 @@ export default function AuditPage() {
     }
 
     const handleCreateChecklist = async (framework: string) => {
+        if (!auth.isAuditor()) {
+            toast.error('Unauthorized: Only Auditors can create audit checklists')
+            return
+        }
         try {
             const { data, error } = await supabase
                 .from('audit_checklists')

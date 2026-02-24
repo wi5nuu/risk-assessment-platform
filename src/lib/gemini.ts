@@ -3,32 +3,101 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
 
 export const RISK_SHIELD_PROMPT = `
-You are the "Risk Shield Security Advisor", an expert in Cybersecurity Risk Assessment and the OCTAVE Allegro methodology.
-Your goal is to provide clear, actionable, and professional security advice.
+You are the "Risk Shield Security Advisor", an expert in Cybersecurity Risk Assessment (OCTAVE Allegro).
+Your goal is to provide elite, professional security insights in a strictly structured JSON format.
 
-When explaining technical vulnerabilities to non-technical stakeholders (like University Management):
-1. Explain "What it is" in simple analogies.
-2. Explain the "Business Impact" (financial, reputational, legal, operational).
-3. Provide "Priority Recommendations".
+JSON Structure:
+{
+  "summary": "Brief high-level overview of the current risk posture.",
+  "compliance_status": {
+    "score": 0-100,
+    "label": "Critically Defenseless | High Risk | Moderate | Secure"
+  },
+  "priorities": [
+    {
+      "id": 1,
+      "title": "Short descriptive title",
+      "risk_score": 0-25,
+      "severity": "critical | high | medium | low",
+      "analogy": "A simple analogy for non-technical stakeholders",
+      "impact": {
+        "operational": "...",
+        "financial": "...",
+        "reputational": "..."
+      },
+      "recommendations": ["Action item 1", "Action item 2"]
+    }
+  ],
+  "strategic_roadmap": ["Strategic step 1", "Strategic step 2"]
+}
 
-Always maintain a professional, helpful, and authoritative tone. Use Markdown for formatting (bolding, lists).
+Rules:
+1. Respond ONLY with the JSON object. No markdown preamble.
+2. Use professional, authoritative tone.
+3. Ensure analogies are clear and impactful.
 `;
 
 export async function getGeminiAdvice(prompt: string, context?: any) {
-    try {
-        const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+    // Clean the API key in case it has quotes from .env
+    const rawApiKey = process.env.GOOGLE_AI_API_KEY;
+    const apiKey = rawApiKey?.replace(/^"|"$/g, '');
 
-        let fullPrompt = RISK_SHIELD_PROMPT;
-        if (context) {
-            fullPrompt += `\n\nContext for this analysis:\n${JSON.stringify(context, null, 2)}`;
-        }
-        fullPrompt += `\n\nUser Question/Request: ${prompt}`;
-
-        const result = await model.generateContent(fullPrompt);
-        const response = await result.response;
-        return response.text();
-    } catch (error) {
-        console.error("Gemini AI Error:", error);
-        throw new Error("Failed to get advice from Gemini AI. Please check your API key and connection.");
+    if (!apiKey) {
+        throw new Error("API Key is missing. Please configure GOOGLE_AI_API_KEY in .env.local and RESTART your server.");
     }
+
+    const genAI = new GoogleGenerativeAI(apiKey);
+
+    // Prioritize the model that was confirmed to work for this account
+    const modelsToTry = [
+        "gemini-3-flash-preview",
+        "gemini-2.0-flash",
+        "gemini-1.5-flash",
+        "gemini-pro"
+    ];
+
+    let lastError = null;
+
+    for (const modelName of modelsToTry) {
+        try {
+            const model = genAI.getGenerativeModel({ model: modelName });
+
+            let fullPrompt = RISK_SHIELD_PROMPT;
+            if (context) {
+                fullPrompt += `\n\nContext for this analysis:\n${JSON.stringify(context, null, 2)}`;
+            }
+            fullPrompt += `\n\nUser Question/Request: ${prompt}`;
+
+            const result = await model.generateContent(fullPrompt);
+            const response = await result.response;
+            let text = response.text();
+
+            // Clean up potential markdown JSON blocks
+            if (text.includes("```json")) {
+                text = text.split("```json")[1].split("```")[0].trim();
+            } else if (text.includes("```")) {
+                text = text.split("```")[1].split("```")[0].trim();
+            }
+
+            return text;
+        } catch (error: any) {
+            lastError = error;
+            console.warn(`[AI Advisor] Model ${modelName} failed, trying next...`);
+            // Only stop for definitive permission/auth issues
+            if (error.status === 401 || error.status === 403) break;
+        }
+    }
+
+    const status = lastError?.status || 500;
+    const message = lastError?.message || "Unknown error occurred";
+
+    if (status === 403) {
+        throw new Error("Permission Denied (403). Your account may have restricted access to Google AI Studio. Try using a personal @gmail.com account.");
+    }
+
+    if (status === 404) {
+        throw new Error("AI Model not found (404). Please ensure the Generative Language API is enabled in Google AI Studio.");
+    }
+
+    throw new Error(`Gemini AI Error: ${message}`);
 }

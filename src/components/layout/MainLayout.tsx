@@ -1,18 +1,27 @@
 "use client"
 
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Sidebar } from './Sidebar'
 import { MobileNav } from './MobileNav'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
-import { Shield, Bell, User, Settings, Sparkles, Megaphone, Lightbulb } from 'lucide-react'
+import { Shield, Bell, User, Settings, Sparkles, Megaphone, Lightbulb, LogOut } from 'lucide-react'
 import { Avatar, AvatarFallback } from '@/components/ui/avatar'
 import { toast } from 'sonner'
+import { createClient } from '@/lib/supabase/client'
+import { useRouter } from 'next/navigation'
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
     const { firstName, lastName, email, organizationName, role } = useAuth()
+    const router = useRouter()
 
-    React.useEffect(() => {
+    const handleLogout = async () => {
+        const supabase = createClient()
+        await supabase.auth.signOut()
+        router.push('/')
+    }
+
+    useEffect(() => {
         const welcome = sessionStorage.getItem('login_welcome')
         if (welcome) {
             toast(welcome, {
@@ -59,7 +68,6 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                             </button>
                             {/* Smart Updates Popover */}
                             <div className="absolute top-full right-0 mt-2 w-72 bg-white rounded-2xl shadow-2xl border border-slate-100 opacity-0 translate-y-2 pointer-events-none group-hover/notif:opacity-100 group-hover/notif:translate-y-0 group-hover/notif:pointer-events-auto transition-all duration-300 z-50 p-4">
-                                {/* Bridge to prevent hover loss */}
                                 <div className="absolute -top-4 left-0 right-0 h-4" />
                                 <div className="flex items-center justify-between mb-4">
                                     <h3 className="text-xs font-black uppercase tracking-widest text-slate-500">Platform Updates</h3>
@@ -90,17 +98,40 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                                 </button>
                             </div>
                         </div>
-                        <Link href="/settings/profile" className="flex items-center gap-3 pl-4 border-l hover:opacity-80 transition-opacity">
-                            <div className="text-right hidden sm:block">
-                                <p className="text-sm font-bold text-slate-900">{firstName} {lastName}</p>
-                                <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">{email}</p>
+
+                        <div className="relative group/user">
+                            <div className="flex items-center gap-3 pl-4 border-l hover:opacity-80 transition-opacity cursor-pointer">
+                                <div className="text-right hidden sm:block">
+                                    <p className="text-sm font-bold text-slate-900">{firstName} {lastName}</p>
+                                    <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">{email}</p>
+                                </div>
+                                <Avatar className="w-9 h-9 border-2 border-primary/20 shadow-sm">
+                                    <AvatarFallback className="bg-primary/10 text-primary text-xs font-black">
+                                        {firstName?.[0]}{lastName?.[0]}
+                                    </AvatarFallback>
+                                </Avatar>
                             </div>
-                            <Avatar className="w-9 h-9 border-2 border-primary/20 shadow-sm">
-                                <AvatarFallback className="bg-primary/10 text-primary text-xs font-black">
-                                    {firstName?.[0]}{lastName?.[0]}
-                                </AvatarFallback>
-                            </Avatar>
-                        </Link>
+
+                            {/* User Dropdown */}
+                            <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-slate-100 opacity-0 translate-y-2 pointer-events-none group-hover/user:opacity-100 group-hover/user:translate-y-0 group-hover/user:pointer-events-auto transition-all duration-300 z-50 p-2">
+                                <Link href="/settings/profile" className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                                    <User className="w-4 h-4" />
+                                    Profile Saya
+                                </Link>
+                                <Link href="/settings" className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
+                                    <Settings className="w-4 h-4" />
+                                    Pengaturan
+                                </Link>
+                                <div className="h-px bg-slate-100 my-1" />
+                                <button
+                                    onClick={handleLogout}
+                                    className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                                >
+                                    <LogOut className="w-4 h-4" />
+                                    Keluar Sistem
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </header>
 
