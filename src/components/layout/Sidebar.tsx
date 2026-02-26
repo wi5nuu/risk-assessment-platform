@@ -57,6 +57,7 @@ export function Sidebar({ isMobile, onMobileClose }: SidebarProps) {
                 { name: 'Security Command Center', href: '/admin/security', icon: Shield },
                 { name: 'Users Management', href: '/admin/users', icon: Users },
                 { name: 'Organization Profile', href: '/admin/organization', icon: Building2 },
+                { name: 'Project Report', href: '/admin/report', icon: FileText },
             ]
         })
     }
