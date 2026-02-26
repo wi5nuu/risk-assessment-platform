@@ -12,7 +12,7 @@
 | 001202400034 | **MUHAMMAD ILHAM MAULANA** | ilham36677@gmail.com |
 | 001202400079 | **CHRISTOFER SOFIAN RIALDI SITOMPUL** | refotsirhc2@gmail.com |
 | 001202400081 | **MUHAMMAD AHDA BRILIANTAMA** | muhahdabriliantama01@gmail.com |
-| 001202400043 | **RAFA BASIA HANIF** | - | rafabasia2208@gmail.com
+| 001202400043 | **RAFA BASIA HANIF** | rafabasia2208@gmail.com |
 
 ---
 
@@ -88,7 +88,13 @@ graph LR
 - **Professional Exports**: One-click generation of professional reports in **PDF, DOCX, and CSV**.
 - **Executive & Technical Views**: Summarized reports for management and detailed findings for technical teams.
 
+### 12. Secure Admin Reporting
+- **Identity Verification**: Multi-factor identity check (Name, NIM, Email) against a secure authorized team database.
+- **Automated PDF Generation**: Full compliance report generated directly in the browser following the official academic template.
+- **Access Logging**: Every download is tracked and logged with user identity and timestamp for forensic auditing.
+
 ---
+
 
 ## ✨ Features Showcase
 
@@ -99,6 +105,7 @@ graph LR
 | **AI Auditor** | Real-time security advice powered by **Google Gemini Pro**. | ✅ Integrated |
 | **Instant Avatar** | Biometric profile sync with real-time UI refresh. | ✅ Optimized |
 | **Audit Evidence** | Secure file upload and mapping to OCTAVE controls. | ✅ Integrated |
+| **Admin Report** | Secure identity-verified PDF generation for academic submission. | ✅ Verified |
 
 ---
 
