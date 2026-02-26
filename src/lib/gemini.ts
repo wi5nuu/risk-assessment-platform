@@ -2,7 +2,7 @@ import { GoogleGenerativeAI } from "@google/generative-ai";
 
 const genAI = new GoogleGenerativeAI(process.env.GOOGLE_AI_API_KEY || "");
 
-export const RISK_SHIELD_PROMPT = `
+export const RISK_SHIELD_ANALYSIS_PROMPT = `
 You are the "Risk Shield Security Advisor", an expert in Cybersecurity Risk Assessment (OCTAVE Allegro).
 Your goal is to provide elite, professional security insights in a strictly structured JSON format.
 
@@ -37,7 +37,14 @@ Rules:
 3. Ensure analogies are clear and impactful.
 `;
 
-export async function getGeminiAdvice(prompt: string, context?: any) {
+export const RISK_SHIELD_CHAT_PROMPT = `
+You are the "Risk Shield Security Advisor", an expert in Cybersecurity GRC.
+Respond to the user's questions or comments in a professional, helpful, and concise manner.
+Use Markdown for formatting if helpful, but keep the tone authoritative yet accessible.
+Do NOT use JSON format. Speak naturally.
+`;
+
+export async function getGeminiAdvice(prompt: string, context?: any, mode: 'analysis' | 'chat' = 'chat') {
     // Clean the API key in case it has quotes from .env
     const rawApiKey = process.env.GOOGLE_AI_API_KEY;
     const apiKey = rawApiKey?.replace(/^"|"$/g, '');
@@ -62,9 +69,9 @@ export async function getGeminiAdvice(prompt: string, context?: any) {
         try {
             const model = genAI.getGenerativeModel({ model: modelName });
 
-            let fullPrompt = RISK_SHIELD_PROMPT;
+            let fullPrompt = mode === 'analysis' ? RISK_SHIELD_ANALYSIS_PROMPT : RISK_SHIELD_CHAT_PROMPT;
             if (context) {
-                fullPrompt += `\n\nContext for this analysis:\n${JSON.stringify(context, null, 2)}`;
+                fullPrompt += `\n\nContext for this context:\n${JSON.stringify(context, null, 2)}`;
             }
             fullPrompt += `\n\nUser Question/Request: ${prompt}`;
 

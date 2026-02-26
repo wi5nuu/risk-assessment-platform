@@ -97,7 +97,7 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
             const response = await fetch('/api/ai-advisor', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt, context })
+                body: JSON.stringify({ prompt, context, mode: 'analysis' })
             });
 
             if (!response.ok) {
@@ -134,7 +134,7 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
             const response = await fetch('/api/ai-advisor', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ prompt: currentQuestion })
+                body: JSON.stringify({ prompt: currentQuestion, mode: 'chat' })
             });
 
             if (!response.ok) {
@@ -167,13 +167,13 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
 
                 <div className="relative z-10 flex flex-col md:flex-row items-center justify-between gap-8">
                     <div className="space-y-4 text-center md:text-left">
-                        <Badge className="bg-primary/20 text-primary border-primary/30 py-1 px-4 text-xs font-black tracking-widest uppercase">
+                        <Badge className="bg-primary/10 text-primary border-primary/20 py-1 px-4 text-xs font-bold tracking-widest uppercase">
                             Premium Security Intelligence
                         </Badge>
-                        <h1 className="text-3xl md:text-4xl font-black text-white leading-tight">
+                        <h1 className="text-3xl md:text-4xl font-bold text-white leading-tight">
                             AI Security Advisor
                         </h1>
-                        <p className="text-slate-400 max-w-md text-sm md:text-base font-medium">
+                        <p className="text-slate-400 max-w-md text-sm md:text-base">
                             Harness advanced generative AI to transform your compliance data into professional security strategy.
                         </p>
                     </div>
@@ -182,12 +182,12 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
                         onClick={runAnalysis}
                         disabled={isAnalyzing}
                         size="lg"
-                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-black px-8 py-8 rounded-2xl shadow-xl shadow-primary/20 transition-all hover:scale-105 active:scale-95 disabled:opacity-70 group"
+                        className="bg-primary hover:bg-primary/90 text-primary-foreground font-bold px-8 py-6 rounded-xl shadow-lg transition-all hover:scale-[1.02] active:scale-[0.98] disabled:opacity-70 group"
                     >
                         {isAnalyzing ? (
-                            <><Loader2 className="w-6 h-6 mr-3 animate-spin" /> ANALYZING ASSETS...</>
+                            <><Loader2 className="w-5 h-5 mr-3 animate-spin" /> ANALYZING ASSETS...</>
                         ) : (
-                            <><Sparkles className="w-6 h-6 mr-3 group-hover:rotate-12 transition-transform" /> GENERATE STRATEGIC REPORT</>
+                            <><Sparkles className="w-5 h-5 mr-3 group-hover:rotate-12 transition-transform" /> GENERATE REPORT</>
                         )}
                     </Button>
                 </div>
@@ -204,33 +204,33 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
                     >
                         {/* Summary & Compliance Overview */}
                         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                            <Card className="md:col-span-2 rounded-3xl border-none shadow-xl shadow-slate-200/50 bg-white overflow-hidden">
-                                <CardHeader className="border-b border-slate-50 bg-slate-50/50">
-                                    <CardTitle className="text-base font-black flex items-center gap-2 text-slate-800">
+                            <Card className="md:col-span-2 rounded-2xl border-none shadow-md bg-white overflow-hidden">
+                                <CardHeader className="border-b border-slate-50 bg-slate-50/30">
+                                    <CardTitle className="text-base font-bold flex items-center gap-2 text-slate-800 uppercase tracking-tight">
                                         <Target className="w-4 h-4 text-primary" />
                                         EXECUTIVE SUMMARY
                                     </CardTitle>
                                 </CardHeader>
-                                <CardContent className="pt-6 font-medium text-slate-600 leading-relaxed">
+                                <CardContent className="pt-6 font-medium text-slate-600 leading-relaxed text-sm">
                                     {structuredAdvice.summary}
                                 </CardContent>
                             </Card>
 
-                            <Card className="rounded-3xl border-none shadow-xl shadow-slate-200/50 bg-gradient-to-br from-slate-800 to-slate-900 text-white overflow-hidden">
-                                <CardHeader>
-                                    <CardTitle className="text-xs font-black tracking-widest uppercase text-slate-400">Compliance Score</CardTitle>
+                            <Card className="rounded-2xl border-none shadow-md bg-slate-900 text-white overflow-hidden">
+                                <CardHeader className="pb-2">
+                                    <CardTitle className="text-[10px] font-bold tracking-widest uppercase text-slate-400">Compliance</CardTitle>
                                 </CardHeader>
                                 <CardContent className="space-y-4">
-                                    <div className="text-6xl font-black">{structuredAdvice.compliance_status.score}%</div>
+                                    <div className="text-5xl font-bold">{structuredAdvice.compliance_status.score}%</div>
                                     <div className="space-y-2">
-                                        <div className="h-2 bg-white/10 rounded-full overflow-hidden">
+                                        <div className="h-1.5 bg-white/10 rounded-full overflow-hidden">
                                             <motion.div
                                                 initial={{ width: 0 }}
                                                 animate={{ width: `${structuredAdvice.compliance_status.score}%` }}
                                                 className="h-full bg-primary"
                                             />
                                         </div>
-                                        <p className="text-[10px] font-black uppercase tracking-tighter text-primary">{structuredAdvice.compliance_status.label}</p>
+                                        <p className="text-[10px] font-bold uppercase tracking-tight text-primary-foreground/80">{structuredAdvice.compliance_status.label}</p>
                                     </div>
                                 </CardContent>
                             </Card>
@@ -301,7 +301,7 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
                             <CardHeader className="border-b border-slate-50 pb-4">
                                 <CardTitle className="text-base font-black flex items-center gap-2 text-slate-800 uppercase tracking-tight">
                                     <Shield className="w-4 h-4 text-primary" />
-                                    STRATEGIK ROADMAP PARA MANAGEMENT
+                                    STRATEGIC ROADMAP FOR MANAGEMENT
                                 </CardTitle>
                             </CardHeader>
                             <CardContent className="p-0">
@@ -331,11 +331,13 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
             </AnimatePresence>
 
             {/* AI Interaction Section */}
-            <div className="space-y-6">
-                <div className="flex items-center gap-3">
-                    <div className="h-px bg-slate-200 flex-1" />
-                    <h2 className="text-xs font-black uppercase tracking-[0.3em] text-slate-400">Ask the Expert Advisor</h2>
-                    <div className="h-px bg-slate-200 flex-1" />
+            <div className="space-y-8 pt-6 border-t border-slate-100">
+                <div className="space-y-1">
+                    <h2 className="text-xl font-bold text-slate-900 flex items-center gap-2">
+                        <MessageSquare className="w-5 h-5 text-primary" />
+                        Ask the Expert Advisor
+                    </h2>
+                    <p className="text-sm text-slate-500">Get specific guidance on your security strategy or technical controls.</p>
                 </div>
 
                 <div className="space-y-6 max-w-4xl mx-auto">
@@ -346,16 +348,16 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
                             animate={{ opacity: 1, y: 0 }}
                             className="space-y-4"
                         >
-                            <div className="flex justify-end pr-4">
-                                <div className="bg-slate-800 text-slate-100 rounded-3xl rounded-tr-none px-6 py-4 shadow-lg max-w-[80%]">
-                                    <p className="text-sm font-bold">{pair.q}</p>
+                            <div className="flex justify-end pr-2">
+                                <div className="bg-slate-100 text-slate-800 rounded-2xl rounded-tr-none px-5 py-3 shadow-sm border border-slate-200 max-w-[80%]">
+                                    <p className="text-sm font-semibold">{pair.q}</p>
                                 </div>
                             </div>
                             <div className="flex justify-start">
-                                <div className="bg-white rounded-3xl rounded-tl-none px-8 py-6 max-w-[90%] shadow-xl shadow-slate-200/50 border border-slate-50">
-                                    <div className="flex items-center gap-2 mb-4 text-primary">
-                                        <Sparkles className="w-4 h-4" />
-                                        <span className="text-[10px] font-black uppercase tracking-widest italic">Advisor Insights</span>
+                                <div className="bg-white rounded-2xl rounded-tl-none px-6 py-5 max-w-[90%] shadow-md border border-slate-100">
+                                    <div className="flex items-center gap-2 mb-3 text-primary">
+                                        <Brain className="w-4 h-4" />
+                                        <span className="text-[10px] font-bold uppercase tracking-wider italic">Strategic Insight</span>
                                     </div>
                                     <MarkdownContent content={pair.a} />
                                 </div>
@@ -376,27 +378,33 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
                         </div>
                     )}
 
-                    <div className="relative group/input pt-4">
-                        <div className="absolute -inset-1 bg-gradient-to-r from-primary/10 to-blue-500/10 rounded-[2.5rem] blur opacity-25 group-focus-within/input:opacity-100 transition-opacity" />
-                        <div className="relative bg-white rounded-[2rem] border border-slate-200 shadow-xl p-2 flex items-center pr-4">
+                    <Card className="rounded-2xl border border-slate-200 shadow-lg overflow-hidden bg-white">
+                        <div className="p-1 pr-4 flex items-start gap-2 bg-slate-50/50 border-b border-slate-100">
                             <Textarea
                                 value={question}
                                 onChange={e => setQuestion(e.target.value)}
-                                placeholder="Tanyakan apa saja tentang strategi keamanan Anda..."
-                                className="min-h-[60px] max-h-[150px] border-none focus-visible:ring-0 shadow-none text-sm font-bold placeholder:text-slate-300 resize-none px-6 py-4 flex-1"
+                                placeholder="Describe your security concern or ask for specific advice..."
+                                className="min-h-[100px] border-none focus-visible:ring-0 shadow-none text-sm font-medium placeholder:text-slate-400 resize-none px-5 py-4 flex-1 bg-transparent"
                                 onKeyDown={e => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); handleQuestion() } }}
                                 disabled={isThinking}
                             />
+                        </div>
+                        <div className="px-4 py-3 flex items-center justify-between bg-white">
+                            <div className="flex items-center gap-2 text-xs text-slate-400 font-medium italic">
+                                <Info className="w-3.5 h-3.5" />
+                                AI-powered recommendations based on your project data.
+                            </div>
                             <Button
                                 onClick={handleQuestion}
-                                size="lg"
-                                className="rounded-2xl w-14 h-14 bg-slate-900 hover:bg-slate-800 text-white shadow-xl transition-transform hover:scale-105 active:scale-95 disabled:opacity-30 p-0"
+                                size="sm"
+                                className="rounded-lg bg-slate-900 hover:bg-slate-800 text-white px-5 font-bold shadow-md transition-all active:scale-95 disabled:opacity-30"
                                 disabled={isThinking || !question.trim()}
                             >
-                                <Send className="w-5 h-5" />
+                                {isThinking ? <Loader2 className="w-4 h-4 animate-spin mr-2" /> : <Send className="w-4 h-4 mr-2" />}
+                                Ask Advisor
                             </Button>
                         </div>
-                    </div>
+                    </Card>
                 </div>
             </div>
         </div>

@@ -3,13 +3,13 @@ import { getGeminiAdvice } from '@/lib/gemini';
 
 export async function POST(req: NextRequest) {
     try {
-        const { prompt, context } = await req.json();
+        const { prompt, context, mode } = await req.json();
 
         if (!prompt) {
             return NextResponse.json({ error: 'Prompt is required' }, { status: 400 });
         }
 
-        const advice = await getGeminiAdvice(prompt, context);
+        const advice = await getGeminiAdvice(prompt, context, mode);
         return NextResponse.json({ advice });
     } catch (error: any) {
         console.error('AI Advisor API Error:', error);

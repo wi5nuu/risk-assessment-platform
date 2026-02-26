@@ -12,24 +12,24 @@ import { HelpCircle } from 'lucide-react'
 
 const faqs = [
     {
-        question: "Bagaimana arsitektur OCTAVE Allegro menjamin akurasi penilaian?",
-        answer: "OCTAVE Allegro beroperasi pada model aset-sentris yang dikembangkan oleh SEI. Metodologi ini menghilangkan bias subjektif dengan memetakan 'Information Assets' ke dalam delapan langkah strategis yang mengintegrasika identifikasi ancaman, analisis kerentanan, dan dampak operasional secara kuantitatif."
+        question: "How does the OCTAVE Allegro architecture guarantee assessment accuracy?",
+        answer: "OCTAVE Allegro operates on an asset-centric model developed by SEI. This methodology eliminates subjective bias by mapping 'Information Assets' into eight strategic steps that integrate threat identification, vulnerability analysis, and operational impact quantitatively."
     },
     {
-        question: "Bagaimana platform menangani privasi data audit yang sensitif?",
-        answer: "Kami mengimplementasikan filosofi 'Offline AI Integrity'. Seluruh mesin penalaran AI kami berjalan secara otonom dalam sandbox terenkripsi. Tidak ada metadata kedaulatan informasi yang dikirim ke cloud publik untuk pelatihan model, memastikan kepatuhan penuh terhadap standar Zero-Trust."
+        question: "How does the platform handle the privacy of sensitive audit data?",
+        answer: "We implement the 'Offline AI Integrity' philosophy. All of our AI reasoning engines run autonomously within an encrypted sandbox. No information sovereignty metadata is sent to the public cloud for model training, ensuring full compliance with Zero-Trust standards."
     },
     {
-        question: "Apakah laporan yang dihasilkan memenuhi standar ISO/IEC 27001:2022?",
-        answer: "Ya. Setiap audit dalam Risk Shield dipetakan secara matematis ke kontrol ISO 27001:2022, NIST Cybersecurity Framework, dan regulasi lokal seperti UU PDP. Laporan PDF yang dihasilkan mencakup analisis dampak risiko, prioritas mitigasi, dan *Checklist* kontrol teknis yang siap untuk audit eksternal."
+        question: "Do the generated reports meet ISO/IEC 27001:2022 standards?",
+        answer: "Yes. Every audit in Risk Shield is mathematically mapped to ISO 27001:2022, NIST Cybersecurity Framework, and local regulations such as the PDP Law. The generated PDF reports include risk impact analysis, mitigation priorities, and technical control *Checklists* ready for external audits."
     },
     {
-        question: "Bagaimana sistem mengelola skalabilitas penilaian risiko?",
-        answer: "Melalui arsitektur Role-Based Access Control (RBAC) tingkat enterprise, platform mendukung kolaborasi multi-stakeholder. Auditor dapat mendelegasikan pengumpulan bukti ke pemilik aset sambil tetap menjaga integritas data melalui jalur audit (*audit trail*) yang tidak dapat dirubah."
+        question: "How does the system manage the scalability of risk assessments?",
+        answer: "Through an enterprise-level Role-Based Access Control (RBAC) architecture, the platform supports multi-stakeholder collaboration. Auditors can delegate evidence collection to asset owners while maintaining data integrity through an immutable *audit trail*."
     },
     {
-        question: "Apa keunggulan kompetitif menggunakan Risk Shield bagi organisasi?",
-        answer: "Risk Shield mentransformasi manajemen risiko dari pusat biaya menjadi aset strategis. Dengan visibilitas *real-time* terhadap postur maturitas keamanan, organisasi dapat mengalokasikan sumber daya secara presisi pada area dengan profil risiko tertinggi, mempercepat kepatuhan regulasi secara signifikan."
+        question: "What is the competitive advantage of using Risk Shield for an organization?",
+        answer: "Risk Shield transforms risk management from a cost center into a strategic asset. With *real-time* visibility into security maturity posture, organizations can precisely allocate resources to areas with the highest risk profiles, significantly accelerating regulatory compliance."
     }
 ]
 
@@ -53,10 +53,10 @@ export function FAQSection() {
                             Security Wisdom
                         </div>
                         <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-6">
-                            Pertanyaan <span className="text-primary">Umum</span>
+                            Frequently Asked <span className="text-primary">Questions</span>
                         </h2>
                         <p className="text-muted-foreground font-medium">
-                            Segala yang perlu Anda ketahui tentang privasi AI dan metodologi GRC kami.
+                            Everything you need to know about our AI privacy and GRC methodology.
                         </p>
                     </motion.div>
 
@@ -88,7 +88,7 @@ export function FAQSection() {
                         className="mt-16 p-8 rounded-3xl bg-white/[0.02] border border-white/5 text-center"
                     >
                         <p className="text-sm font-bold text-muted-foreground">
-                            Punya pertanyaan lain? Hubungi tim pakar kepatuhan kami secara gratis.
+                            Have other questions? Contact our team of compliance experts for free.
                         </p>
                     </motion.div>
                 </div>

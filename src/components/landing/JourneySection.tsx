@@ -43,10 +43,10 @@ export function JourneySection() {
             <div className="container mx-auto px-6">
                 <div className="text-center mb-16">
                     <h2 className="text-3xl md:text-5xl font-black tracking-tight mb-4">
-                        Jejak <span className="text-primary italic font-serif">Transformasi</span>
+                        Transformation <span className="text-primary italic font-serif">Journey</span>
                     </h2>
                     <p className="text-muted-foreground text-sm max-w-lg mx-auto">
-                        Evolusi metodologi risiko dari pondasi legacy hingga kecerdasan otonom masa depan.
+                        The evolution of risk methodology from legacy foundations to the autonomous intelligence of the future.
                     </p>
                 </div>
 

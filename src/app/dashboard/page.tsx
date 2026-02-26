@@ -201,29 +201,45 @@ export default function DashboardPage() {
   return (
     <MainLayout>
       <div className="space-y-8 max-w-7xl mx-auto pb-10">
-        {/* Welcome Section */}
-        <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-          <div className="space-y-1">
-            <h1 className="text-2xl md:text-3xl font-bold tracking-tight text-foreground italic uppercase italic font-black">Good Day, {auth.firstName}!</h1>
-            <p className="text-sm md:text-base text-muted-foreground font-medium">Monitor your organization&apos;s cybersecurity posture and audit status.</p>
-          </div>
-          <div className="flex flex-wrap gap-3">
-            {auth.isAdmin() && (
-              <Link href="/admin" className="flex-1 sm:flex-none">
-                <Button variant="outline" className="w-full bg-card border-2 font-bold hover:bg-slate-50">
-                  <Settings className="w-4 h-4 mr-2" />
-                  Admin
-                </Button>
-              </Link>
-            )}
-            {auth.canEdit() && (
-              <Link href="/projects/new" className="flex-1 sm:flex-none">
-                <Button className="w-full shadow-lg shadow-primary/20 font-bold">
-                  <Plus className="w-4 h-4 mr-2" />
-                  New Assessment
-                </Button>
-              </Link>
-            )}
+        {/* Hero Section with Background Image */}
+        <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-lg">
+          {/* Background Image Layer */}
+          <div
+            className="absolute inset-0 bg-cover bg-center bg-no-repeat"
+            style={{ backgroundImage: "url('/dashboard.png')" }}
+          />
+          {/* Overlay for Contrast */}
+          <div className="absolute inset-0 bg-slate-900/40 backdrop-blur-[2px]" />
+
+          {/* Content Layer */}
+          <div className="relative p-8 md:p-12 flex flex-col md:flex-row md:items-center justify-between gap-6">
+            <div className="space-y-2">
+              <h1 className="text-3xl md:text-4xl font-bold tracking-tight text-white drop-shadow-md">
+                Good Day, {auth.firstName}!
+              </h1>
+              <p className="text-base md:text-lg text-slate-100/90 font-medium max-w-2xl drop-shadow-sm">
+                Monitor your organization&apos;s cybersecurity posture and audit status.
+              </p>
+            </div>
+
+            <div className="flex flex-wrap gap-4 mt-4 md:mt-0">
+              {auth.isAdmin() && (
+                <Link href="/admin" className="flex-1 sm:flex-none">
+                  <Button variant="outline" className="w-full bg-white/10 backdrop-blur-md border border-white/20 text-white font-bold hover:bg-white/20 transition-all px-6">
+                    <Settings className="w-4 h-4 mr-2" />
+                    Admin
+                  </Button>
+                </Link>
+              )}
+              {auth.canEdit() && (
+                <Link href="/projects/new" className="flex-1 sm:flex-none">
+                  <Button className="w-full bg-white text-primary hover:bg-slate-50 font-bold shadow-xl px-6">
+                    <Plus className="w-4 h-4 mr-2" />
+                    New Assessment
+                  </Button>
+                </Link>
+              )}
+            </div>
           </div>
         </div>
 
@@ -258,286 +274,296 @@ export default function DashboardPage() {
         </div>
 
         {/* Projects and Risks Distribution */}
-        <div className="lg:col-span-2">
-          <Card className="border-none shadow-xl overflow-hidden bg-card ring-1 ring-slate-100">
-            <CardHeader className="border-b bg-slate-50/50 px-4 sm:px-6 py-4 flex flex-row items-center justify-between">
-              <div>
-                <CardTitle className="text-base sm:text-lg font-bold">Recent Projects</CardTitle>
-                <CardDescription className="text-xs sm:text-sm font-medium">Latest risk assessments</CardDescription>
+        <Card className="border-none shadow-xl overflow-hidden bg-card ring-1 ring-slate-100">
+          <CardHeader className="border-b bg-slate-50/50 px-4 sm:px-6 py-4 flex flex-row items-center justify-between">
+            <div>
+              <CardTitle className="text-base sm:text-lg font-bold">Recent Projects</CardTitle>
+              <CardDescription className="text-xs sm:text-sm font-medium">Latest risk assessments</CardDescription>
+            </div>
+            <Link href="/projects">
+              <Button variant="ghost" size="sm" className="text-primary hover:text-primary h-8 px-2 text-xs font-black uppercase tracking-widest">
+                View All
+              </Button>
+            </Link>
+          </CardHeader>
+          <CardContent className="px-6 py-2">
+            {projects.length === 0 ? (
+              <div className="text-center py-12 text-muted-foreground">
+                <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-20" />
+                <p>No projects yet. Create your first project to get started.</p>
+                <Link href="/projects/new" className="mt-4 inline-block">
+                  <Button variant="outline">
+                    <Plus className="w-4 h-4 mr-2" />
+                    Create Project
+                  </Button>
+                </Link>
               </div>
-              <Link href="/projects">
-                <Button variant="ghost" size="sm" className="text-primary hover:text-primary h-8 px-2 text-xs font-black uppercase tracking-widest">
-                  View All
-                </Button>
-              </Link>
-            </CardHeader>
-            <CardContent className="px-6 py-2">
-              {projects.length === 0 ? (
-                <div className="text-center py-12 text-muted-foreground">
-                  <FolderOpen className="w-16 h-16 mx-auto mb-4 opacity-20" />
-                  <p>No projects yet. Create your first project to get started.</p>
-                  <Link href="/projects/new" className="mt-4 inline-block">
-                    <Button variant="outline">
-                      <Plus className="w-4 h-4 mr-2" />
-                      Create Project
-                    </Button>
-                  </Link>
-                </div>
-              ) : (
-                <div className="divide-y divide-slate-100">
-                  {projects.map((project) => (
-                    <div key={project.id} className="py-5 flex items-center justify-between group">
-                      <div className="flex-1 pr-4">
-                        <div className="flex items-center gap-3">
-                          <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">{project.name}</h3>
-                          <Badge variant={getStatusVariant(project.status)}>
-                            {project.status.replace('_', ' ')}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-4 mt-1">
-                          <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
-                            Step {project.current_step} of 8 • {project.completedSteps} completed
-                          </p>
-                          <Progress value={project.progress} className="h-1.5 w-32" />
-                        </div>
+            ) : (
+              <div className="divide-y divide-slate-100">
+                {projects.map((project) => (
+                  <div key={project.id} className="py-5 flex items-center justify-between group">
+                    <div className="flex-1 pr-4">
+                      <div className="flex items-center gap-3">
+                        <h3 className="font-bold text-foreground group-hover:text-primary transition-colors">{project.name}</h3>
+                        <Badge variant={getStatusVariant(project.status)}>
+                          {project.status.replace('_', ' ')}
+                        </Badge>
                       </div>
-                      <div className="flex items-center gap-2">
-                        <Link href={`/audit/${project.id}`}>
-                          <Button variant="ghost" size="sm" className="h-9 px-3 font-bold hover:bg-primary/10 hover:text-primary">
-                            <ClipboardCheck className="w-4 h-4 mr-1.5" />
-                            Audit
-                          </Button>
-                        </Link>
-                        <Link href={`/wizard/${project.id}`}>
-                          <Button variant="outline" size="sm" className="h-9 px-4 font-bold border-2">
-                            Open
-                          </Button>
-                        </Link>
+                      <div className="flex items-center gap-4 mt-1">
+                        <p className="text-[10px] font-bold text-muted-foreground uppercase tracking-widest">
+                          Step {project.current_step} of 8 • {project.completedSteps} completed
+                        </p>
+                        <Progress value={project.progress} className="h-1.5 w-32" />
                       </div>
                     </div>
-                  ))}
-                </div>
-              )}
+                    <div className="flex items-center gap-2">
+                      <Link href={`/audit/${project.id}`}>
+                        <Button variant="ghost" size="sm" className="h-9 px-3 font-bold hover:bg-primary/10 hover:text-primary">
+                          <ClipboardCheck className="w-4 h-4 mr-1.5" />
+                          Audit
+                        </Button>
+                      </Link>
+                      <Link href={`/wizard/${project.id}`}>
+                        <Button variant="outline" size="sm" className="h-9 px-4 font-bold border-2">
+                          Open
+                        </Button>
+                      </Link>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </Card>
+
+        {/* Advanced Risk Intelligence */}
+        <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
+          <Card className="border-none shadow-xl bg-white ring-1 ring-slate-100 overflow-hidden">
+            <CardHeader className="border-b bg-slate-50/50 py-4">
+              <div className="flex items-center gap-2">
+                <Target className="w-5 h-5 text-primary" />
+                <CardTitle className="text-lg font-bold">Risk Matrix Heatmap</CardTitle>
+              </div>
+              <CardDescription className="text-xs font-medium italic">Likelihood vs. Impact Analysis</CardDescription>
+            </CardHeader>
+            <CardContent className="p-6">
+              <RiskMatrix risks={risks} />
             </CardContent>
           </Card>
 
-          {/* Advanced Risk Intelligence */}
-          <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8">
-            <Card className="border-none shadow-xl bg-white ring-1 ring-slate-100 overflow-hidden">
-              <CardHeader className="border-b bg-slate-50/50 py-4">
+          <div className="space-y-8">
+            {/* Project Deadlines/Timeline */}
+            <Card className="border-none shadow-xl bg-slate-900 text-white overflow-hidden flex flex-col">
+              <CardHeader className="p-4 border-b border-white/10 flex flex-row items-center justify-between">
                 <div className="flex items-center gap-2">
-                  <Target className="w-5 h-5 text-primary" />
-                  <CardTitle className="text-lg font-bold">Risk Matrix Heatmap</CardTitle>
+                  <Clock className="w-4 h-4 text-primary" />
+                  <h3 className="font-bold uppercase tracking-widest text-[10px]">Strategic Timeline</h3>
                 </div>
-                <CardDescription className="text-xs font-medium italic">Likelihood vs. Impact Analysis</CardDescription>
+                <Badge className="bg-primary/20 text-primary border-none text-[8px] font-bold uppercase">Active Phase</Badge>
               </CardHeader>
-              <CardContent className="p-6">
-                <RiskMatrix risks={risks} />
+              <CardContent className="p-6 space-y-4">
+                {projects[0] ? (
+                  <>
+                    <div className="space-y-1">
+                      <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Primary Objective</p>
+                      <h4 className="font-bold text-sm text-white truncate">{projects[0].name}</h4>
+                    </div>
+                    <div className="flex items-end justify-between">
+                      <div>
+                        <p className="text-4xl font-black tracking-tighter">
+                          {projects[0].target_completion_date
+                            ? Math.max(0, Math.ceil((new Date(projects[0].target_completion_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
+                            : 'N/A'
+                          }
+                        </p>
+                        <p className="text-[10px] uppercase font-black text-slate-500">
+                          {projects[0].target_completion_date ? 'Days Remaining' : 'No Deadline Set'}
+                        </p>
+                      </div>
+                      <div className="text-right">
+                        <p className="text-lg font-black text-primary">{projects[0].progress}%</p>
+                        <p className="text-[10px] uppercase font-black text-slate-500 italic">Current Velocity</p>
+                      </div>
+                    </div>
+                    <Progress value={projects[0].progress} className="h-1.5 bg-white/10" />
+                  </>
+                ) : (
+                  <p className="text-xs text-slate-500 italic">No active projects to track.</p>
+                )}
               </CardContent>
             </Card>
 
-            <div className="space-y-8">
-              {/* Project Deadlines/Timeline */}
-              <Card className="border-none shadow-xl bg-slate-900 text-white overflow-hidden flex flex-col">
-                <CardHeader className="p-4 border-b border-white/10 flex flex-row items-center justify-between">
-                  <div className="flex items-center gap-2">
-                    <Clock className="w-4 h-4 text-primary" />
-                    <h3 className="font-black uppercase tracking-widest text-[10px]">Strategic Timeline</h3>
+            {/* AI Advisor Card */}
+            <Card className="border-none shadow-xl bg-gradient-to-br from-indigo-600 via-primary to-blue-500 text-white overflow-hidden relative group min-h-[180px]">
+              <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                <Sparkles className="w-24 h-24 rotate-12 group-hover:scale-110 transition-transform" />
+              </div>
+              <CardHeader className="p-4 relative">
+                <div className="flex items-center gap-2">
+                  <div className="w-8 h-8 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30">
+                    <ShieldCheck className="w-5 h-5 text-white" />
                   </div>
-                  <Badge className="bg-primary/20 text-primary border-none text-[8px] font-black italic uppercase italic">Active Phase</Badge>
-                </CardHeader>
-                <CardContent className="p-6 space-y-4">
-                  {projects[0] ? (
-                    <>
-                      <div className="space-y-1">
-                        <p className="text-[10px] font-black uppercase tracking-widest text-slate-400">Primary Objective</p>
-                        <h4 className="font-bold text-sm text-white truncate">{projects[0].name}</h4>
-                      </div>
-                      <div className="flex items-end justify-between">
-                        <div>
-                          <p className="text-4xl font-black tracking-tighter">
-                            {projects[0].target_completion_date
-                              ? Math.max(0, Math.ceil((new Date(projects[0].target_completion_date).getTime() - new Date().getTime()) / (1000 * 60 * 60 * 24)))
-                              : 'N/A'
-                            }
-                          </p>
-                          <p className="text-[10px] uppercase font-black text-slate-500">
-                            {projects[0].target_completion_date ? 'Days Remaining' : 'No Deadline Set'}
-                          </p>
-                        </div>
-                        <div className="text-right">
-                          <p className="text-lg font-black text-primary">{projects[0].progress}%</p>
-                          <p className="text-[10px] uppercase font-black text-slate-500 italic">Current Velocity</p>
-                        </div>
-                      </div>
-                      <Progress value={projects[0].progress} className="h-1.5 bg-white/10" />
-                    </>
-                  ) : (
-                    <p className="text-xs text-slate-500 italic">No active projects to track.</p>
-                  )}
-                </CardContent>
-              </Card>
-
-              {/* AI Advisor Card */}
-              <Card className="border-none shadow-xl bg-gradient-to-br from-indigo-600 via-primary to-blue-500 text-white overflow-hidden relative group min-h-[180px]">
-                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
-                  <Sparkles className="w-24 h-24 rotate-12 group-hover:scale-110 transition-transform" />
+                  <div>
+                    <h3 className="font-black uppercase tracking-widest text-[10px]">AI Security Advisor</h3>
+                    <p className="text-[8px] text-white/60 font-medium">Real-time Strategy</p>
+                  </div>
                 </div>
-                <CardHeader className="p-4 relative">
-                  <div className="flex items-center gap-2">
-                    <div className="w-8 h-8 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center border border-white/30">
-                      <ShieldCheck className="w-5 h-5 text-white" />
-                    </div>
-                    <div>
-                      <h3 className="font-black uppercase tracking-widest text-[10px]">AI Security Advisor</h3>
-                      <p className="text-[8px] text-white/60 font-medium">Real-time Strategy</p>
-                    </div>
-                  </div>
-                </CardHeader>
-                <CardContent className="px-6 pb-6 relative">
-                  <p className="text-xs font-bold leading-relaxed italic pr-4">
-                    {stats?.criticalRisks && stats.criticalRisks > 0
-                      ? `Attention! Analysis identifies ${stats.criticalRisks} critical vulnerabilities. Focus immediate remediation on "Step 8: Impact Mitigation" to safeguard core assets.`
-                      : stats?.highRisks && stats.highRisks > 0
-                        ? `Organization posture is guarded. Recommendation: Review high-priority risks in Project "${projects[0]?.name}" and ensure evidence collection is optimized.`
-                        : "System integrity is optimal. Maintain current monitoring cadence and proceed with scheduled audits."
-                    }
-                  </p>
-                  <Link href="/ai-advisor">
-                    <Button className="mt-6 w-full h-9 bg-white text-primary hover:bg-white/90 border-none font-black text-[10px] uppercase tracking-widest shadow-xl shadow-black/20">
-                      GET DETAILED INSIGHTS
-                      <ArrowUpRight className="w-3 h-3 ml-2" />
-                    </Button>
-                  </Link>
-                </CardContent>
-              </Card>
-            </div>
-          </div>
-
-          {/* Top Vulnerable Assets */}
-          <div className="mt-8">
-            <Card className="border-none shadow-xl bg-card ring-1 ring-slate-100 overflow-hidden">
-              <CardHeader className="border-b bg-slate-50/50 px-6 py-4 flex flex-row items-center justify-between">
-                <div>
-                  <div className="flex items-center gap-2">
-                    <Target className="w-5 h-5 text-red-500" />
-                    <CardTitle className="text-lg font-bold">Top Vulnerable Assets</CardTitle>
-                  </div>
-                  <CardDescription className="text-xs font-medium italic">High-impact components requiring protection</CardDescription>
-                </div>
-                <Link href="/projects">
-                  <Button variant="ghost" size="sm" className="h-8 px-2 text-xs font-black uppercase tracking-widest text-primary">All Projects</Button>
-                </Link>
               </CardHeader>
-              <CardContent className="p-0">
-                <div className="divide-y divide-slate-100">
-                  {assets.length > 0 ? (
-                    assets.sort((a, b) => (b.max_impact || 0) - (a.max_impact || 0)).slice(0, 4).map((asset) => (
-                      <div key={asset.id} className="px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
-                        <div className="flex items-center gap-4">
-                          <div className={cn(
-                            "w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm",
-                            asset.max_impact >= 4 ? "bg-red-50 border-red-100 text-red-600" : "bg-slate-50 border-slate-100 text-slate-400"
-                          )}>
-                            <FileText className="w-5 h-5" />
-                          </div>
-                          <div>
-                            <p className="font-bold text-sm text-foreground">{asset.name}</p>
-                            <div className="flex items-center gap-2 mt-0.5">
-                              <Badge variant="outline" className="text-[8px] uppercase font-black tracking-widest h-4 px-1">{asset.asset_type}</Badge>
-                              <span className="text-[10px] text-muted-foreground font-medium">Impact Level: {asset.max_impact}/5</span>
-                            </div>
-                          </div>
-                        </div>
-                        <div className="flex items-center gap-3">
-                          <div className="text-right hidden sm:block">
-                            <p className="text-[10px] uppercase font-black text-slate-400 mb-1">Status</p>
-                            <Badge className={cn(
-                              "text-[8px] font-black uppercase tracking-widest",
-                              asset.max_impact >= 4 ? "bg-red-500/10 text-red-600 border-none" : "bg-emerald-500/10 text-emerald-600 border-none"
-                            )}>
-                              {asset.max_impact >= 4 ? 'HIGH RISK' : 'STABLE'}
-                            </Badge>
-                          </div>
-                          <Link href={`/wizard/${asset.project_id}`}>
-                            <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
-                              <ArrowUpRight className="w-4 h-4" />
-                            </Button>
-                          </Link>
-                        </div>
-                      </div>
-                    ))
-                  ) : (
-                    <div className="p-12 text-center">
-                      <AlertCircle className="w-12 h-12 text-slate-200 mx-auto mb-3" />
-                      <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No assets prioritized yet</p>
-                    </div>
-                  )}
-                </div>
+              <CardContent className="px-6 pb-6 relative">
+                <p className="text-xs font-bold leading-relaxed italic pr-4">
+                  {stats?.criticalRisks && stats.criticalRisks > 0
+                    ? `Attention! Analysis identifies ${stats.criticalRisks} critical vulnerabilities. Focus immediate remediation on "Step 8: Impact Mitigation" to safeguard core assets.`
+                    : stats?.highRisks && stats.highRisks > 0
+                      ? `Organization posture is guarded. Recommendation: Review high-priority risks in Project "${projects[0]?.name}" and ensure evidence collection is optimized.`
+                      : "System integrity is optimal. Maintain current monitoring cadence and proceed with scheduled audits."
+                  }
+                </p>
+                <Link href="/ai-advisor">
+                  <Button className="mt-6 w-full h-9 bg-white text-primary hover:bg-white/90 border-none font-bold text-[10px] uppercase tracking-widest shadow-xl shadow-black/20">
+                    GET DETAILED INSIGHTS
+                    <ArrowUpRight className="w-3 h-3 ml-2" />
+                  </Button>
+                </Link>
               </CardContent>
             </Card>
           </div>
         </div>
 
-        <div className="space-y-8">
+        {/* Top Vulnerable Assets */}
+        <div className="mt-8">
           <Card className="border-none shadow-xl bg-card ring-1 ring-slate-100 overflow-hidden">
-            <CardHeader className="border-b bg-slate-50/50 px-6 py-4">
-              <CardTitle className="text-lg font-bold">Risk Distribution</CardTitle>
-              <CardDescription className="font-medium">Overview by priority level</CardDescription>
+            <CardHeader className="border-b bg-slate-50/50 px-6 py-4 flex flex-row items-center justify-between">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Target className="w-5 h-5 text-red-500" />
+                  <CardTitle className="text-lg font-bold">Top Vulnerable Assets</CardTitle>
+                </div>
+                <CardDescription className="text-xs font-medium italic">High-impact components requiring protection</CardDescription>
+              </div>
+              <Link href="/projects">
+                <Button variant="ghost" size="sm" className="h-8 px-2 text-xs font-black uppercase tracking-widest text-primary">All Projects</Button>
+              </Link>
             </CardHeader>
-            <CardContent className="p-6 h-[300px]">
+            <CardContent className="p-0">
+              <div className="divide-y divide-slate-100">
+                {assets.length > 0 ? (
+                  assets.sort((a, b) => (b.max_impact || 0) - (a.max_impact || 0)).slice(0, 4).map((asset) => (
+                    <div key={asset.id} className="px-6 py-4 flex items-center justify-between hover:bg-slate-50/50 transition-colors">
+                      <div className="flex items-center gap-4">
+                        <div className={cn(
+                          "w-10 h-10 rounded-xl flex items-center justify-center border shadow-sm",
+                          asset.max_impact >= 4 ? "bg-red-50 border-red-100 text-red-600" : "bg-slate-50 border-slate-100 text-slate-400"
+                        )}>
+                          <FileText className="w-5 h-5" />
+                        </div>
+                        <div>
+                          <p className="font-bold text-sm text-foreground">{asset.name}</p>
+                          <div className="flex items-center gap-2 mt-0.5">
+                            <Badge variant="outline" className="text-[8px] uppercase font-black tracking-widest h-4 px-1">{asset.asset_type}</Badge>
+                            <span className="text-[10px] text-muted-foreground font-medium">Impact Level: {asset.max_impact}/5</span>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex items-center gap-3">
+                        <div className="text-right hidden sm:block">
+                          <p className="text-[10px] uppercase font-black text-slate-400 mb-1">Status</p>
+                          <Badge className={cn(
+                            "text-[8px] font-black uppercase tracking-widest",
+                            asset.max_impact >= 4 ? "bg-red-500/10 text-red-600 border-none" : "bg-emerald-500/10 text-emerald-600 border-none"
+                          )}>
+                            {asset.max_impact >= 4 ? 'HIGH RISK' : 'STABLE'}
+                          </Badge>
+                        </div>
+                        <Link href={`/wizard/${asset.project_id}`}>
+                          <Button variant="ghost" size="icon" className="h-8 w-8 rounded-full">
+                            <ArrowUpRight className="w-4 h-4" />
+                          </Button>
+                        </Link>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="p-12 text-center">
+                    <AlertCircle className="w-12 h-12 text-slate-200 mx-auto mb-3" />
+                    <p className="text-xs font-bold text-slate-400 uppercase tracking-widest">No assets prioritized yet</p>
+                  </div>
+                )}
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Risk Distribution Card */}
+          <Card className="border-none shadow-xl bg-card ring-1 ring-slate-100 overflow-hidden flex flex-col">
+            <CardHeader className="border-b bg-slate-50/50 px-6 py-4 flex flex-row items-center justify-between">
+              <div>
+                <CardTitle className="text-lg font-bold">Risk Distribution</CardTitle>
+                <CardDescription className="text-xs font-medium italic">Overview by priority level</CardDescription>
+              </div>
+              <Link href="/risk-register">
+                <Button variant="ghost" size="sm" className="h-8 px-2 text-xs font-black uppercase tracking-widest text-primary hover:bg-primary/5">
+                  Full Register
+                  <ArrowUpRight className="w-3 h-3 ml-1" />
+                </Button>
+              </Link>
+            </CardHeader>
+            <CardContent className="p-6 flex flex-col md:flex-row items-center gap-6 h-[340px]">
               {stats?.totalRisks === 0 ? (
-                <div className="flex flex-col items-center justify-center h-full text-muted-foreground opacity-50">
+                <div className="flex flex-col items-center justify-center w-full h-full text-muted-foreground opacity-50">
                   <Shield className="w-12 h-12 mb-2" />
                   <p className="text-sm font-medium">No risk data recorded</p>
                 </div>
               ) : (
-                <ResponsiveContainer width="100%" height="100%">
-                  <PieChart>
-                    <Pie
-                      data={riskChartData}
-                      cx="50%"
-                      cy="45%"
-                      innerRadius={60}
-                      outerRadius={80}
-                      paddingAngle={5}
-                      dataKey="value"
-                    >
-                      {riskChartData.map((entry, index) => (
-                        <Cell key={`cell-${index}`} fill={entry.color} />
-                      ))}
-                    </Pie>
-                    <Tooltip
-                      contentStyle={{
-                        borderRadius: '12px',
-                        border: 'none',
-                        boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
-                        fontSize: '12px',
-                        fontWeight: 'bold'
-                      }}
-                    />
-                    <Legend
-                      verticalAlign="bottom"
-                      height={36}
-                      formatter={(value) => <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{value}</span>}
-                    />
-                  </PieChart>
-                </ResponsiveContainer>
+                <>
+                  <div className="w-full h-full md:w-1/2">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <PieChart>
+                        <Pie
+                          data={riskChartData}
+                          cx="50%"
+                          cy="50%"
+                          innerRadius={65}
+                          outerRadius={85}
+                          paddingAngle={5}
+                          dataKey="value"
+                        >
+                          {riskChartData.map((entry, index) => (
+                            <Cell key={`cell-${index}`} fill={entry.color} />
+                          ))}
+                        </Pie>
+                        <Tooltip
+                          contentStyle={{
+                            borderRadius: '12px',
+                            border: 'none',
+                            boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
+                            fontSize: '11px',
+                            fontWeight: 'bold'
+                          }}
+                        />
+                      </PieChart>
+                    </ResponsiveContainer>
+                  </div>
+                  <div className="w-full md:w-1/2 space-y-3">
+                    {riskChartData.map((level) => (
+                      <div key={level.name} className="flex items-center justify-between p-3 rounded-xl bg-slate-50 border border-slate-100 group hover:border-primary/20 transition-all">
+                        <div className="flex items-center gap-3">
+                          <div className="w-3 h-3 rounded-full" style={{ backgroundColor: level.color }} />
+                          <span className="text-[10px] font-black uppercase tracking-widest text-slate-500">{level.name}</span>
+                        </div>
+                        <span className="text-sm font-black text-slate-900">{level.value}</span>
+                      </div>
+                    ))}
+                    <div className="pt-2">
+                      <p className="text-[9px] text-muted-foreground italic font-medium">Total Risks Identified: {stats?.totalRisks || 0}</p>
+                    </div>
+                  </div>
+                </>
               )}
             </CardContent>
-            <div className="px-6 pb-6 pt-0">
-              <Link href="/risk-register">
-                <Button variant="outline" className="w-full justify-between group h-11 font-bold border-2 hover:bg-slate-50 transition-all">
-                  <span className="flex items-center">
-                    <Activity className="w-4 h-4 mr-2 text-primary group-hover:scale-110 transition-transform" />
-                    Risk Register
-                  </span>
-                  <Shield className="w-4 h-4 opacity-20" />
-                </Button>
-              </Link>
-            </div>
           </Card>
 
+          {/* Risk Posture Trend Card */}
           <Card className="border-none shadow-xl bg-card ring-1 ring-slate-100 overflow-hidden">
             <CardHeader className="border-b bg-slate-50/50 px-6 py-4">
               <div className="flex items-center justify-between">
@@ -545,15 +571,15 @@ export default function DashboardPage() {
                   <CardTitle className="text-lg font-bold">Risk Posture Trend</CardTitle>
                   <CardDescription className="text-xs font-medium italic">Security trajectory over last 7 weeks</CardDescription>
                 </div>
-                <Badge variant="outline" className="bg-emerald-50 text-emerald-600 border-emerald-100 text-[8px] font-black italic">IMPROVING</Badge>
+                <Badge className="bg-emerald-50 text-emerald-600 border border-emerald-100 text-[8px] font-black italic">POSTURE IMPROVING</Badge>
               </div>
             </CardHeader>
-            <CardContent className="p-6 h-[250px]">
+            <CardContent className="p-6 h-[340px]">
               <ResponsiveContainer width="100%" height="100%">
                 <AreaChart data={trendData}>
                   <defs>
                     <linearGradient id="colorScore" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.1} />
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.15} />
                       <stop offset="95%" stopColor="#6366f1" stopOpacity={0} />
                     </linearGradient>
                   </defs>
@@ -562,58 +588,63 @@ export default function DashboardPage() {
                     dataKey="name"
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }}
+                    tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }}
+                    dy={10}
                   />
                   <YAxis
                     axisLine={false}
                     tickLine={false}
-                    tick={{ fontSize: 10, fill: '#64748b', fontWeight: 700 }}
+                    tick={{ fontSize: 10, fill: '#94a3b8', fontWeight: 700 }}
+                    dx={-10}
+                    domain={['dataMin - 5', 100]}
                   />
                   <Tooltip
                     contentStyle={{
                       borderRadius: '12px',
-                      border: 'none',
+                      border: '1px solid #f1f5f9',
                       boxShadow: '0 20px 25px -5px rgb(0 0 0 / 0.1)',
-                      fontSize: '12px',
+                      fontSize: '11px',
                       fontWeight: 'bold'
                     }}
+                    cursor={{ stroke: '#6366f1', strokeWidth: 1, strokeDasharray: '4 4' }}
                   />
                   <Area
                     type="monotone"
                     dataKey="score"
                     stroke="#6366f1"
-                    strokeWidth={3}
+                    strokeWidth={4}
                     fillOpacity={1}
                     fill="url(#colorScore)"
+                    animationDuration={1500}
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </CardContent>
           </Card>
-
-          <Card className="border-none shadow-xl bg-primary text-white overflow-hidden group">
-            <CardHeader className="p-4 bg-white/5 border-b border-white/10">
-              <div className="flex items-center gap-2">
-                <ShieldCheck className="w-5 h-5 text-white" />
-                <h3 className="font-black uppercase tracking-widest text-xs">Compliance Pulse</h3>
-              </div>
-            </CardHeader>
-            <CardContent className="p-5">
-              <p className="text-xs text-white/70 mb-4 font-medium italic">Your OCTAVE Allegro compliance health is currently {((stats as any)?.complianceScore || 0) > 70 ? 'optimal' : 'stable'}.</p>
-              <div className="flex items-end justify-between">
-                <div>
-                  <span className="text-4xl font-black tracking-tighter">{(stats as any)?.complianceScore || 0}%</span>
-                  <span className="text-xs text-white/50 ml-2 font-bold uppercase">↑ 4.2%</span>
-                </div>
-                <Badge className="bg-white text-primary hover:bg-white font-black text-[10px]">
-                  {((stats as any)?.complianceScore || 0) > 80 ? 'EXCELLENT' : ((stats as any)?.complianceScore || 0) > 60 ? 'OPTIMAL' : 'MONITOR'}
-                </Badge>
-              </div>
-            </CardContent>
-          </Card>
         </div>
+
+        <Card className="border-none shadow-xl bg-primary text-white overflow-hidden group">
+          <CardHeader className="p-4 bg-white/5 border-b border-white/10">
+            <div className="flex items-center gap-2">
+              <ShieldCheck className="w-5 h-5 text-white" />
+              <h3 className="font-black uppercase tracking-widest text-xs">Compliance Pulse</h3>
+            </div>
+          </CardHeader>
+          <CardContent className="p-5">
+            <p className="text-xs text-white/70 mb-4 font-medium italic">Your OCTAVE Allegro compliance health is currently {((stats as any)?.complianceScore || 0) > 70 ? 'optimal' : 'stable'}.</p>
+            <div className="flex items-end justify-between">
+              <div>
+                <span className="text-4xl font-black tracking-tighter">{(stats as any)?.complianceScore || 0}%</span>
+                <span className="text-xs text-white/50 ml-2 font-bold uppercase">↑ 4.2%</span>
+              </div>
+              <Badge className="bg-white text-primary hover:bg-white font-black text-[10px]">
+                {((stats as any)?.complianceScore || 0) > 80 ? 'EXCELLENT' : ((stats as any)?.complianceScore || 0) > 60 ? 'OPTIMAL' : 'MONITOR'}
+              </Badge>
+            </div>
+          </CardContent>
+        </Card>
       </div>
-    </MainLayout>
+    </MainLayout >
   )
 }
 

@@ -77,7 +77,7 @@ export default function ProjectsListPage() {
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
           <div>
             <h1 className="text-2xl md:text-3xl font-bold tracking-tight">Risk Assessment Projects</h1>
-            <p className="text-muted-foreground mt-1 text-xs sm:text-sm font-medium">Manage and track your OCTAVE Allegro security risk assessments.</p>
+            <p className="text-muted-foreground mt-1 text-xs sm:text-sm">Manage and track your OCTAVE Allegro security risk assessments.</p>
           </div>
           <Link href="/projects/new" className="sm:flex-none">
             <Button className="w-full sm:w-auto">
@@ -106,8 +106,8 @@ export default function ProjectsListPage() {
                     </Badge>
                     <span className="text-[10px] text-muted-foreground font-mono uppercase">{p.id.slice(0, 8)}</span>
                   </div>
-                  <CardTitle className="group-hover:text-primary transition-colors">{p.name}</CardTitle>
-                  <CardDescription className="line-clamp-2 min-h-[40px]">{p.description || 'No description provided.'}</CardDescription>
+                  <CardTitle className="font-bold group-hover:text-primary transition-colors">{p.name}</CardTitle>
+                  <CardDescription className="line-clamp-2 min-h-[40px] text-xs">{p.description || 'No description provided.'}</CardDescription>
                 </CardHeader>
                 <CardContent className="flex-1 space-y-4">
                   <div className="space-y-2">

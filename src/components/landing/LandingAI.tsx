@@ -19,7 +19,7 @@ export function LandingAI() {
             setMessages([
                 {
                     role: 'ai',
-                    content: `${getTimeBasedGreeting()} Saya adalah AI Assistant. Saya dioptimalkan untuk memandu Anda melalui metodologi OCTAVE Allegro dan strategi ketahanan siber organisasi. Area mana yang ingin Anda tinjau secara strategis?`
+                    content: `${getTimeBasedGreeting()} I am your AI Assistant. I am optimized to guide you through the OCTAVE Allegro methodology and organizational cyber resilience strategies. Which area would you like to review strategically?`
                 }
             ])
         }
@@ -88,7 +88,7 @@ export function LandingAI() {
 
             const response = match
                 ? match.answer
-                : "Parameter input tidak spesifik. Saya memiliki keahlian dalam Metodologi OCTAVE, Tata Kelola GRC, dan Infrastruktur Keamanan. Area mana yang ingin Anda eksplorasi secara mendalam?"
+                : "The input parameter is not specific. I have expertise in the OCTAVE Methodology, GRC Governance, and Security Infrastructure. Which area would you like to explore in depth?"
 
             setMessages(prev => [...prev, { role: 'ai', content: response }])
 
@@ -200,7 +200,7 @@ export function LandingAI() {
                                     value={input}
                                     onChange={e => setInput(e.target.value)}
                                     onKeyPress={e => e.key === 'Enter' && handleSend(input)}
-                                    placeholder="Tanyakan tentang Keamanan..."
+                                    placeholder="Ask about Security..."
                                     className="w-full bg-slate-100/80 border-2 border-transparent focus:border-primary/20 focus:bg-white rounded-2xl pl-5 pr-14 py-4 text-sm font-normal transition-all outline-none placeholder:text-slate-400"
                                 />
                                 <button

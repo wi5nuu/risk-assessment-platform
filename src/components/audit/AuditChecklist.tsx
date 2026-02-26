@@ -205,10 +205,10 @@ export function AuditChecklist({ projectId, profileId, checklistId, onCreateChec
                                                 <StatusIcon className="w-5 h-5" />
                                             </div>
                                             <div>
-                                                <p className="text-sm font-semibold">
+                                                <p className="text-sm font-bold">
                                                     {item.control_title}
                                                     {item.source === 'vulnerability_triggered' && (
-                                                        <Badge variant="outline" className="ml-2 text-[10px] uppercase bg-purple-50 text-purple-700 border-purple-200">Auto-generated</Badge>
+                                                        <Badge variant="outline" className="ml-2 text-[10px] uppercase bg-slate-50 text-slate-600 border-slate-200">Auto-generated</Badge>
                                                     )}
                                                 </p>
                                             </div>

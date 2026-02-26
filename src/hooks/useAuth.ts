@@ -10,6 +10,7 @@ interface AuthState {
     email: string | null
     firstName: string | null
     lastName: string | null
+    avatarUrl: string | null
     role: UserRole | null
     organizationId: string | null
     organizationName: string | null
@@ -25,6 +26,7 @@ export function useAuth() {
         email: null,
         firstName: null,
         lastName: null,
+        avatarUrl: null,
         role: null,
         organizationId: null,
         organizationName: null,
@@ -44,7 +46,7 @@ export function useAuth() {
                 return
             }
 
-            // Fetch profile - simple fetch
+            // Fetch profile
             const { data: profile, error: profileError } = await supabase
                 .from('user_profiles')
                 .select('*')
@@ -52,7 +54,6 @@ export function useAuth() {
                 .maybeSingle()
 
             if (profile) {
-                // Get organization name separately if needed, or stick to profile
                 const { data: org } = await supabase
                     .from('organizations')
                     .select('name')
@@ -65,6 +66,7 @@ export function useAuth() {
                     email: profile.email,
                     firstName: profile.first_name,
                     lastName: profile.last_name,
+                    avatarUrl: profile.avatar_url,
                     role: profile.role?.toLowerCase() as UserRole,
                     organizationId: profile.organization_id,
                     organizationName: org?.name || null,
@@ -82,6 +84,7 @@ export function useAuth() {
 
     return {
         ...auth,
+        refreshAuth: loadAuth,
         isAdmin: () => auth.role?.toLowerCase() === 'admin',
         isAuditor: () => auth.role?.toLowerCase() === 'auditor',
         isAuditee: () => auth.role?.toLowerCase() === 'auditee',

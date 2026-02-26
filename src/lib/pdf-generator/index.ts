@@ -48,10 +48,29 @@ export async function generateRiskAssessmentReport(
   // Final Opinion
   generateFinalOpinion(doc, data)
 
+  // Add Page Frame (Subtle)
+  generatePageFrames(doc)
+
   // Footer
   generateFooter(doc)
 
   return doc.output('blob')
+}
+
+/**
+ * Add a subtle professional frame to all pages
+ */
+function generatePageFrames(doc: jsPDF) {
+  const pageCount = doc.getNumberOfPages()
+  const pageWidth = doc.internal.pageSize.width
+  const pageHeight = doc.internal.pageSize.height
+
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i)
+    doc.setDrawColor(241, 245, 249) // Slate-100
+    doc.setLineWidth(0.1)
+    doc.rect(10, 10, pageWidth - 20, pageHeight - 20)
+  }
 }
 
 /**
@@ -61,61 +80,83 @@ function generateHeader(doc: jsPDF, data: ReportData) {
   const pageWidth = doc.internal.pageSize.width
 
   // Platform Branding
+  doc.setFillColor(15, 23, 42) // Slate-900
+  doc.rect(0, 0, pageWidth, 40, 'F')
+
   doc.setFontSize(10)
-  doc.setTextColor(100, 100, 100)
-  doc.text('RISK SHIELD SYSTEM', pageWidth / 2, 15, { align: 'center' })
+  doc.setTextColor(255, 255, 255)
+  doc.setFont('helvetica', 'bold')
+  doc.text('RISK SHIELD SYSTEM', 20, 25)
 
-  // Title
-  doc.setFontSize(24)
-  doc.setTextColor(0, 0, 0)
-  doc.text('Security Risk Assessment', pageWidth / 2, 30, { align: 'center' })
+  doc.setFontSize(8)
+  doc.setTextColor(200, 200, 200)
+  doc.setFont('helvetica', 'normal')
+  doc.text('CONFIDENTIAL SECURITY REPORT', pageWidth - 20, 25, { align: 'right' })
 
-  // Subtitle
+  // Main Category
+  doc.setFontSize(22)
+  doc.setTextColor(15, 23, 42)
+  doc.setFont('helvetica', 'bold')
+  doc.text('Security Risk Assessment', 20, 60)
+
+  // Project Name
   doc.setFontSize(14)
   doc.setTextColor(100, 100, 100)
-  doc.text(data.project.name, pageWidth / 2, 45, { align: 'center' })
+  doc.setFont('helvetica', 'normal')
+  doc.text(data.project.name, 20, 72)
 
-  // Report info
-  doc.setFontSize(10)
-  doc.text(`Generated: ${formatDate(new Date().toISOString())}`, 20, 60)
-  doc.text(`Methodology: OCTAVE Allegro`, 20, 68)
-  doc.text(`Status: ${data.project.status}`, 20, 76)
+  // Metadata Table Info
+  doc.setFontSize(9)
+  doc.setTextColor(100, 100, 100)
+  const metaY = 85
+  doc.text(`Project ID: ${data.project.id.slice(0, 8).toUpperCase()}`, 20, metaY)
+  doc.text(`Generated: ${formatDate(new Date().toISOString())}`, 80, metaY)
+  doc.text(`Methodology: OCTAVE Allegro`, 140, metaY)
 
   // Line separator
-  doc.setDrawColor(200, 200, 200)
-  doc.line(20, 85, pageWidth - 20, 85)
+  doc.setDrawColor(226, 232, 240) // Slate-200
+  doc.setLineWidth(0.5)
+  doc.line(20, 95, pageWidth - 20, 95)
 }
 
 /**
  * Generate executive summary section
  */
 function generateExecutiveSummary(doc: jsPDF, data: ReportData) {
-  doc.setFontSize(16)
-  doc.setTextColor(0, 0, 0)
-  doc.text('Executive Summary', 20, 100)
+  doc.setFontSize(14)
+  doc.setTextColor(15, 23, 42)
+  doc.setFont('helvetica', 'bold')
+  doc.text('1. Executive Summary', 20, 110)
 
   const distribution = calculateRiskDistribution(data.risks)
   const finalOpinion = determineFinalOpinion(distribution)
 
-  doc.setFontSize(11)
-  doc.setTextColor(60, 60, 60)
+  doc.setFontSize(10)
+  doc.setTextColor(51, 65, 85)
+  doc.setFont('helvetica', 'normal')
 
-  const summaryText = `
-This risk assessment was conducted following the OCTAVE Allegro methodology to identify 
-and evaluate information security risks facing the organization.
+  const summaryIntro = `This comprehensive security risk assessment was conducted using the OCTAVE Allegro methodology. The objective was to identify, analyze, and prioritize information security assets and their associated threat scenarios.`
+  const splitIntro = doc.splitTextToSize(summaryIntro, 170)
+  doc.text(splitIntro, 20, 120)
 
-Key Findings:
-• Total Risks Identified: ${data.risks.length}
-• Critical Risks: ${distribution.critical}
-• High Risks: ${distribution.high}
-• Medium Risks: ${distribution.medium}
-• Low Risks: ${distribution.low}
+  // Key Statistics Box
+  doc.setFillColor(248, 250, 252)
+  doc.rect(20, 135, 170, 45, 'F')
+  doc.setDrawColor(226, 232, 240)
+  doc.rect(20, 135, 170, 45, 'S')
 
-Overall Assessment: ${finalOpinion}
-  `.trim()
+  doc.setFontSize(9)
+  doc.setFont('helvetica', 'bold')
+  doc.text('RISK METRICS OVERVIEW', 25, 145)
 
-  const splitText = doc.splitTextToSize(summaryText, 170)
-  doc.text(splitText, 20, 115)
+  doc.setFont('helvetica', 'normal')
+  doc.text(`Total Risks Identified: ${data.risks.length}`, 30, 155)
+  doc.text(`Critical Severity: ${distribution.critical}`, 30, 162)
+  doc.text(`High Severity: ${distribution.high}`, 30, 169)
+
+  doc.text(`Medium Severity: ${distribution.medium}`, 110, 155)
+  doc.text(`Low Severity: ${distribution.low}`, 110, 162)
+  doc.text(`Overall Posture: ${finalOpinion}`, 110, 169)
 }
 
 /**
@@ -319,36 +360,51 @@ function generateMitigationPlan(doc: jsPDF, data: ReportData) {
 function generateFinalOpinion(doc: jsPDF, data: ReportData) {
   doc.addPage()
 
-  doc.setFontSize(16)
-  doc.setTextColor(0, 0, 0)
+  doc.setFontSize(14)
+  doc.setTextColor(15, 23, 42)
+  doc.setFont('helvetica', 'bold')
   doc.text('Final Risk Opinion', 20, 30)
 
   const distribution = calculateRiskDistribution(data.risks)
   const finalOpinion = determineFinalOpinion(distribution)
 
   // Color code based on opinion
-  let opinionColor: [number, number, number] = [0, 128, 0] // Green
+  let opinionColor: [number, number, number] = [16, 185, 129] // Emerald-500
   if (finalOpinion === 'Immediate Remediation Required') {
-    opinionColor = [255, 0, 0] // Red
+    opinionColor = [239, 68, 68] // Red-500
   } else if (finalOpinion === 'High Risk Exposure') {
-    opinionColor = [255, 165, 0] // Orange
+    opinionColor = [249, 115, 22] // Orange-500
   } else if (finalOpinion === 'Moderate Risk Exposure') {
-    opinionColor = [255, 255, 0] // Yellow
+    opinionColor = [234, 179, 8] // Yellow-500
   }
 
-  doc.setFillColor(...opinionColor)
-  doc.rect(20, 45, 170, 30, 'F')
+  // Modern Opinion Card
+  doc.setDrawColor(...opinionColor)
+  doc.setLineWidth(2)
+  doc.line(20, 40, 20, 70)
 
-  doc.setFontSize(14)
-  doc.setTextColor(0, 0, 0)
-  doc.text(finalOpinion, 105, 65, { align: 'center' })
+  doc.setFillColor(248, 250, 252)
+  doc.rect(21, 40, 169, 30, 'F')
 
-  doc.setFontSize(11)
-  doc.setTextColor(60, 60, 60)
+  doc.setFontSize(12)
+  doc.setTextColor(...opinionColor)
+  doc.setFont('helvetica', 'bold')
+  doc.text(finalOpinion.toUpperCase(), 30, 52)
+
+  doc.setFontSize(10)
+  doc.setTextColor(100, 100, 100)
+  doc.setFont('helvetica', 'normal')
+  doc.text('Assessor Final Recommendation', 30, 62)
 
   const opinionText = getOpinionDescription(finalOpinion)
   const splitText = doc.splitTextToSize(opinionText, 170)
-  doc.text(splitText, 20, 95)
+  doc.text(splitText, 20, 85)
+
+  // Signature Area
+  doc.setFontSize(9)
+  doc.text('Authorized Signature:', 20, 130)
+  doc.line(20, 150, 80, 150)
+  doc.text('Chief Information Security Officer (CISO)', 20, 155)
 }
 
 /**
@@ -383,15 +439,20 @@ function generateFooter(doc: jsPDF) {
     doc.setPage(i)
     doc.setFontSize(8)
     doc.setTextColor(150, 150, 150)
+
+    // "Simple but Powerful" Pagination Logic
+    const pageLabel = pageCount === 1 ? 'Page 1' : `Page ${i} of ${pageCount}`
+
     doc.text(
-      `OCTAVE Allegro Risk Assessment Report - Page ${i} of ${pageCount}`,
+      `OCTAVE Allegro Risk Assessment | ${pageLabel}`,
       20,
-      doc.internal.pageSize.height - 10
+      doc.internal.pageSize.height - 15
     )
+
     doc.text(
-      'Confidential - For Internal Use Only',
+      'CONFIDENTIAL | RISK SHIELD SYSTEM',
       doc.internal.pageSize.width - 20,
-      doc.internal.pageSize.height - 10,
+      doc.internal.pageSize.height - 15,
       { align: 'right' }
     )
   }

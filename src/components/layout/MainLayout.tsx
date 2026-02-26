@@ -6,13 +6,13 @@ import { MobileNav } from './MobileNav'
 import { useAuth } from '@/hooks/useAuth'
 import Link from 'next/link'
 import { Shield, Bell, User, Settings, Sparkles, Megaphone, Lightbulb, LogOut } from 'lucide-react'
-import { Avatar, AvatarFallback } from '@/components/ui/avatar'
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar'
 import { toast } from 'sonner'
 import { createClient } from '@/lib/supabase/client'
 import { useRouter } from 'next/navigation'
 
 export function MainLayout({ children }: { children: React.ReactNode }) {
-    const { firstName, lastName, email, organizationName, role } = useAuth()
+    const { firstName, lastName, email, organizationName, role, avatarUrl } = useAuth()
     const router = useRouter()
 
     const handleLogout = async () => {
@@ -26,7 +26,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
         if (welcome) {
             toast(welcome, {
                 icon: <Sparkles className="w-4 h-4 text-amber-500" />,
-                description: "Keamanan akun Anda adalah prioritas kami.",
+                description: "Your account security is our priority.",
                 duration: 5000,
             })
             sessionStorage.removeItem('login_welcome')
@@ -79,8 +79,8 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                                             <Lightbulb className="w-4 h-4 text-amber-600" />
                                         </div>
                                         <div>
-                                            <p className="text-[11px] font-bold text-slate-800">Tips Pro</p>
-                                            <p className="text-[10px] text-slate-500 leading-tight">Gunakan Metodologi OCTAVE Allegro untuk hasil risk assessment yang lebih akurat.</p>
+                                            <p className="text-[11px] font-bold text-slate-800">Pro Tip</p>
+                                            <p className="text-[10px] text-slate-500 leading-tight">Use the OCTAVE Allegro Methodology for more accurate risk assessment results.</p>
                                         </div>
                                     </div>
                                     <div className="flex gap-3">
@@ -88,13 +88,13 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                                             <Megaphone className="w-4 h-4 text-blue-600" />
                                         </div>
                                         <div>
-                                            <p className="text-[11px] font-bold text-slate-800">Update Fitur</p>
-                                            <p className="text-[10px] text-slate-500 leading-tight">Export laporan kini mendukung format Word dan Excel untuk fleksibilitas tinggi.</p>
+                                            <p className="text-[11px] font-bold text-slate-800">Feature Update</p>
+                                            <p className="text-[10px] text-slate-500 leading-tight">Report export now supports Word and Excel formats for high flexibility.</p>
                                         </div>
                                     </div>
                                 </div>
                                 <button className="w-full mt-4 py-2 text-[10px] font-bold text-primary hover:bg-primary/5 rounded-lg transition-colors border border-primary/10">
-                                    Lihat Semua Notifikasi
+                                    View All Notifications
                                 </button>
                             </div>
                         </div>
@@ -106,6 +106,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                                     <p className="text-[10px] text-muted-foreground font-medium uppercase tracking-tighter">{email}</p>
                                 </div>
                                 <Avatar className="w-9 h-9 border-2 border-primary/20 shadow-sm">
+                                    {avatarUrl && <AvatarImage src={avatarUrl} alt={`${firstName} ${lastName}`} className="object-cover" />}
                                     <AvatarFallback className="bg-primary/10 text-primary text-xs font-black">
                                         {firstName?.[0]}{lastName?.[0]}
                                     </AvatarFallback>
@@ -116,11 +117,11 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                             <div className="absolute top-full right-0 mt-2 w-48 bg-white rounded-xl shadow-2xl border border-slate-100 opacity-0 translate-y-2 pointer-events-none group-hover/user:opacity-100 group-hover/user:translate-y-0 group-hover/user:pointer-events-auto transition-all duration-300 z-50 p-2">
                                 <Link href="/settings/profile" className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
                                     <User className="w-4 h-4" />
-                                    Profile Saya
+                                    My Profile
                                 </Link>
                                 <Link href="/settings" className="flex items-center gap-2 px-3 py-2 text-xs font-bold text-slate-600 hover:bg-slate-50 rounded-lg transition-colors">
                                     <Settings className="w-4 h-4" />
-                                    Pengaturan
+                                    Settings
                                 </Link>
                                 <div className="h-px bg-slate-100 my-1" />
                                 <button
@@ -128,7 +129,7 @@ export function MainLayout({ children }: { children: React.ReactNode }) {
                                     className="w-full flex items-center gap-2 px-3 py-2 text-xs font-bold text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                                 >
                                     <LogOut className="w-4 h-4" />
-                                    Keluar Sistem
+                                    Sign Out
                                 </button>
                             </div>
                         </div>

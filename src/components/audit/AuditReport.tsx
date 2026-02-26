@@ -135,7 +135,31 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
         const content = document.getElementById('report-content')
         if (!content || !reportData) return
 
-        const header = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'><title>Audit Report</title><style>body { font-family: 'Segoe UI', sans-serif; } table { border-collapse: collapse; width: 100%; } th, td { border: 1px solid #ccc; padding: 8px; }</style></head><body>";
+        const header = `
+            <html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:w='urn:schemas-microsoft-com:office:word' xmlns='http://www.w3.org/TR/REC-html40'>
+            <head>
+                <meta charset='utf-8'>
+                <title>Security Audit Report</title>
+                <style>
+                    body { font-family: 'Segoe UI', Arial, sans-serif; color: #334155; line-height: 1.6; }
+                    .header { border-bottom: 2pt solid #0f172a; padding-bottom: 12pt; margin-bottom: 20pt; }
+                    .title { font-size: 24pt; font-weight: bold; color: #0f172a; text-align: center; }
+                    .subtitle { font-size: 14pt; color: #64748b; text-align: center; margin-bottom: 30pt; }
+                    h2 { color: #0f172a; border-left: 4pt solid #2563eb; padding-left: 10pt; margin-top: 25pt; }
+                    table { border-collapse: collapse; width: 100%; margin: 15pt 0; }
+                    th { background-color: #f8fafc; border: 1pt solid #cbd5e1; padding: 10pt; text-align: left; font-weight: bold; }
+                    td { border: 1pt solid #cbd5e1; padding: 10pt; }
+                    .badge { padding: 2pt 6pt; border-radius: 4pt; font-size: 8pt; font-weight: bold; text-transform: uppercase; }
+                    .critical { background-color: #ef4444; color: white; }
+                    .high { background-color: #f97316; color: white; }
+                </style>
+            </head>
+            <body>
+                <div class='header'>
+                    <div style='font-weight: bold; font-size: 10pt;'>RISK SHIELD SYSTEM</div>
+                    <div style='color: #64748b; font-size: 8pt;'>CONFIDENTIAL SECURITY REPORT</div>
+                </div>
+        `;
         const footer = "</body></html>";
         const html = header + content.innerHTML + footer;
 
@@ -153,28 +177,44 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
     }
 
     const handleExportCSV = () => {
-        if (!reportData?.findings || reportData.findings.length === 0) {
-            toast.error('No findings to export')
-            return
-        }
+        if (!reportData) return
 
-        const headers = ['ID', 'Issue', 'Severity', 'Recommendation', 'Created At']
-        const csvContent = [
-            headers.join(','),
-            ...reportData.findings.map((f: any) => [
-                f.id,
-                `"${f.issue.replace(/"/g, '""')}"`,
-                f.severity,
-                `"${f.recommendation?.replace(/"/g, '""') || ''}"`,
-                f.created_at
-            ].join(','))
-        ].join('\n')
+        const { project, risks, findings, assets } = reportData
 
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        // Build sections
+        const sections = []
+
+        // 1. Project Metadata
+        sections.push(['--- PROJECT METADATA ---'])
+        sections.push(['Project Name', project?.name])
+        sections.push(['Project ID', project?.id])
+        sections.push(['Organization', reportData.org?.name || 'N/A'])
+        sections.push(['Report Date', new Date().toISOString()])
+        sections.push([''])
+
+        // 2. Assets
+        sections.push(['--- ASSET INVENTORY ---'])
+        sections.push(['Asset Name', 'Type', 'Criticality', 'Owner'])
+        assets.forEach((a: any) => sections.push([`"${a.name}"`, a.type, a.criticality_score, `"${a.owner || ''}"`]))
+        sections.push([''])
+
+        // 3. Risks
+        sections.push(['--- RISK REGISTER ---'])
+        sections.push(['Title', 'Level', 'Score', 'Status'])
+        risks.forEach((r: any) => sections.push([`"${r.risk_title}"`, r.risk_level, r.risk_score, r.status]))
+        sections.push([''])
+
+        // 4. Audit Findings
+        sections.push(['--- AUDIT FINDINGS ---'])
+        sections.push(['Issue', 'Severity', 'Recommendation'])
+        findings.forEach((f: any) => sections.push([`"${f.issue.replace(/"/g, '""')}"`, f.severity, `"${f.recommendation?.replace(/"/g, '""') || ''}"`]))
+
+        const csvContent = sections.map(row => row.join(',')).join('\n')
+        const blob = new Blob(['\ufeff', csvContent], { type: 'text/csv;charset=utf-8;' })
         const url = URL.createObjectURL(blob)
         const link = document.createElement('a')
         link.setAttribute('href', url)
-        link.setAttribute('download', `Audit_Findings_${reportData.project?.name || 'Report'}.csv`)
+        link.setAttribute('download', `Risk_Shield_Data_${project?.name?.replace(/\s+/g, '_')}_${new Date().getTime()}.csv`)
         document.body.appendChild(link)
         link.click()
         document.body.removeChild(link)
@@ -196,26 +236,44 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
 
     return (
         <div className="space-y-6">
-            <div className="flex items-center justify-between no-print pt-2">
-                <div className="flex gap-2">
-                    <Button variant={view === 'summary' ? 'default' : 'outline'} onClick={() => setView('summary')} size="sm" className="font-bold">Summary View</Button>
-                    <Button variant={view === 'full' ? 'default' : 'outline'} onClick={() => setView('full')} size="sm" className="font-bold">Full Preview</Button>
-                </div>
-                <div className="flex gap-2">
-                    <Button variant="outline" size="sm" onClick={handlePrint} className="font-bold hover:bg-slate-50 border-2">
-                        <Printer className="w-4 h-4 mr-2" />
-                        PDF
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={handleExportWord} className="font-bold hover:bg-slate-50 border-2">
-                        <FileText className="w-4 h-4 mr-2 text-blue-600" />
-                        Word
-                    </Button>
-                    <Button variant="outline" size="sm" onClick={handleExportCSV} className="font-bold hover:bg-slate-50 border-2">
-                        <Download className="w-4 h-4 mr-2 text-green-600" />
-                        Excel/CSV
-                    </Button>
-                </div>
-            </div>
+            <Card className="no-print border-slate-200 shadow-sm bg-slate-50/50">
+                <CardContent className="p-4 flex flex-col md:flex-row items-center justify-between gap-4">
+                    <div className="flex gap-2 bg-white p-1 rounded-lg border border-slate-200">
+                        <Button
+                            variant={view === 'summary' ? 'default' : 'ghost'}
+                            onClick={() => setView('summary')}
+                            size="sm"
+                            className="font-bold h-8"
+                        >
+                            Summary
+                        </Button>
+                        <Button
+                            variant={view === 'full' ? 'default' : 'ghost'}
+                            onClick={() => setView('full')}
+                            size="sm"
+                            className="font-bold h-8"
+                        >
+                            Full Report
+                        </Button>
+                    </div>
+
+                    <div className="flex items-center gap-3">
+                        <span className="text-[10px] font-bold text-slate-400 uppercase tracking-widest mr-2">Export Professional Report</span>
+                        <Button variant="outline" size="sm" onClick={handlePrint} className="font-bold h-9 bg-white hover:bg-slate-50 border-slate-200 shadow-sm">
+                            <Printer className="w-4 h-4 mr-2" />
+                            PDF
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleExportWord} className="font-bold h-9 bg-white hover:bg-slate-50 border-slate-200 shadow-sm">
+                            <FileText className="w-4 h-4 mr-2 text-blue-600" />
+                            DOCX
+                        </Button>
+                        <Button variant="outline" size="sm" onClick={handleExportCSV} className="font-bold h-9 bg-white hover:bg-slate-50 border-slate-200 shadow-sm">
+                            <Download className="w-4 h-4 mr-2 text-green-600" />
+                            CSV/XLS
+                        </Button>
+                    </div>
+                </CardContent>
+            </Card>
 
             <div id="report-content" className="bg-white text-slate-900 border shadow-xl overflow-hidden print:shadow-none print:border-none">
                 <div className="h-2 bg-primary" />
