@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card'
 import { RiskRegister } from '@/components/risk/RiskRegister'
 import { RiskMatrix } from '@/components/risk/RiskMatrix'
 import { RiskWithDetails, Risk } from '@/types'
-import { Loader2, ArrowLeft, Download } from 'lucide-react'
+import { Loader2, ArrowLeft, Download, Shield } from 'lucide-react'
 import { toast } from 'sonner'
 import { MainLayout } from '@/components/layout/MainLayout'
 
@@ -195,6 +195,26 @@ export default function RiskRegisterPage() {
                 {isLoading ? (
                   <div className="flex items-center justify-center py-12">
                     <Loader2 className="w-8 h-8 animate-spin" />
+                  </div>
+                ) : risksWithDetails.length === 0 ? (
+                  <div className="text-center py-16 px-4">
+                    <div className="w-16 h-16 bg-muted rounded-full flex items-center justify-center mx-auto mb-4">
+                      <Shield className="w-8 h-8 text-muted-foreground opacity-20" />
+                    </div>
+                    <h3 className="text-lg font-bold text-slate-900">No Risks Identified Yet</h3>
+                    <p className="text-sm text-muted-foreground max-w-xs mx-auto mt-2">
+                      This project doesn't have any risks recorded. Please complete the Risk Assessment Wizard or check if your data is in another project.
+                    </p>
+                    <div className="flex flex-col sm:flex-row items-center justify-center gap-3 mt-8">
+                      <Link href={`/wizard/${selectedProject}`}>
+                        <Button className="font-bold">
+                          Start Assessment Wizard
+                        </Button>
+                      </Link>
+                      <p className="text-xs text-muted-foreground italic">
+                        Tip: Check the project selector above
+                      </p>
+                    </div>
                   </div>
                 ) : (
                   <RiskRegister risks={risksWithDetails} />

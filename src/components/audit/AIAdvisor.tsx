@@ -67,15 +67,44 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
     const [qaPairs, setQaPairs] = useState<{ q: string; a: string }[]>([])
     const [isThinking, setIsThinking] = useState(false)
 
+    useEffect(() => {
+        loadExistingAdvice()
+    }, [projectId])
+
+    const loadExistingAdvice = async () => {
+        try {
+            const { data, error } = await supabase
+                .from('ai_insights')
+                .select('*')
+                .eq('project_id', projectId)
+                .eq('insight_type', 'analysis')
+                .maybeSingle()
+
+            if (error) throw error
+            if (data) {
+                setStructuredAdvice(data.content as StructuredAdvice)
+            }
+        } catch (err) {
+            console.error('Failed to load existing AI analysis')
+        }
+    }
+
     const runAnalysis = async () => {
         setIsAnalyzing(true)
         try {
-            const [risksRes, findingsRes, checklistRes, orgRes] = await Promise.all([
+            const [risksRes, findingsRes, checklistRes, orgRes, userRes] = await Promise.all([
                 supabase.from('risks').select('*, risk_vulnerability_mapping(vulnerability_id, vulnerabilities(name, category))').eq('project_id', projectId).eq('is_active', true),
                 supabase.from('audit_findings').select('*').eq('project_id', projectId),
                 supabase.from('audit_checklists').select('*, audit_items(*)').eq('project_id', projectId).maybeSingle(),
                 supabase.from('organizations').select('*').limit(1).single(),
+                supabase.auth.getUser()
             ])
+
+            const profileRes = await supabase
+                .from('user_profiles')
+                .select('id')
+                .eq('user_id', userRes.data.user?.id)
+                .single()
 
             const context = {
                 organization: orgRes.data?.name,
@@ -111,6 +140,16 @@ export function AIAdvisor({ projectId }: AIAdvisorProps) {
                 const parsed = JSON.parse(data.advice)
                 setStructuredAdvice(parsed)
                 setRawAdvice(null)
+
+                // Persist to database
+                await supabase.from('ai_insights').upsert({
+                    project_id: projectId,
+                    insight_type: 'analysis',
+                    content: parsed,
+                    generated_by: profileRes.data?.id
+                }, { onConflict: 'project_id,insight_type' })
+
+                toast.success('AI Analysis saved to report')
             } catch (e) {
                 console.warn("AI response was not valid JSON, falling back to markdown")
                 setRawAdvice(data.advice)

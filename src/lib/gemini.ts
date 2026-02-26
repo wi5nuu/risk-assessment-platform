@@ -44,7 +44,20 @@ Use Markdown for formatting if helpful, but keep the tone authoritative yet acce
 Do NOT use JSON format. Speak naturally.
 `;
 
-export async function getGeminiAdvice(prompt: string, context?: any, mode: 'analysis' | 'chat' = 'chat') {
+export const RISK_SHIELD_WIDGET_PROMPT = `
+You are "ShieldBot", the interactive AI assistant for the Risk Shield System.
+Your main goal is to help users understand their security posture based on the real-time data from their database.
+
+Guidelines:
+1. ALWAYS use the provided context (projects, risks, audit logs) to answer.
+2. If the user asks about their risks, cite the specific risk titles and scores from the context.
+3. If they ask about project status, summarize the projects found in the context.
+4. Keep answers concise, actionable, and professional.
+5. If data is missing in the context, politely suggest they complete the Risk Assessment Wizard.
+6. Support both Indonesian and English based on the user's language.
+`;
+
+export async function getGeminiAdvice(prompt: string, context?: any, mode: 'analysis' | 'chat' | 'widget' = 'chat') {
     // Clean the API key in case it has quotes from .env
     const rawApiKey = process.env.GOOGLE_AI_API_KEY;
     const apiKey = rawApiKey?.replace(/^"|"$/g, '');
@@ -69,9 +82,13 @@ export async function getGeminiAdvice(prompt: string, context?: any, mode: 'anal
         try {
             const model = genAI.getGenerativeModel({ model: modelName });
 
-            let fullPrompt = mode === 'analysis' ? RISK_SHIELD_ANALYSIS_PROMPT : RISK_SHIELD_CHAT_PROMPT;
+            let systemPrompt = RISK_SHIELD_CHAT_PROMPT;
+            if (mode === 'analysis') systemPrompt = RISK_SHIELD_ANALYSIS_PROMPT;
+            if (mode === 'widget') systemPrompt = RISK_SHIELD_WIDGET_PROMPT;
+
+            let fullPrompt = systemPrompt;
             if (context) {
-                fullPrompt += `\n\nContext for this context:\n${JSON.stringify(context, null, 2)}`;
+                fullPrompt += `\n\nContext for this conversation:\n${JSON.stringify(context, null, 2)}`;
             }
             fullPrompt += `\n\nUser Question/Request: ${prompt}`;
 

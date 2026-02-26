@@ -325,6 +325,17 @@ export interface ReportData {
   risks: Risk[]
   analyses: RiskAnalysis[]
   mitigationPlans: MitigationPlan[]
+  aiAnalysis?: {
+    summary: string
+    priorities: Array<{
+      id: number
+      title: string
+      severity: string
+      analogy: string
+      recommendations: string[]
+    }>
+    strategic_roadmap: string[]
+  }
 }
 
 export interface ReportSection {

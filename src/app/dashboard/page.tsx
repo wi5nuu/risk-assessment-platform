@@ -128,7 +128,6 @@ export default function DashboardPage() {
           .eq('organization_id', profile.organization_id)
           .eq('is_active', true)
           .order('created_at', { ascending: false })
-          .limit(5)
 
         const projectsWithProgress = (projectsData as any[] || []).map((project: any) => {
           const completedSteps = [
@@ -143,7 +142,8 @@ export default function DashboardPage() {
           }
         })
 
-        setProjects(projectsWithProgress)
+        // Use ONLY top 5 for the Recent Projects list display
+        setProjects(projectsWithProgress.slice(0, 5))
 
         const { data: risksData } = await supabase
           .from('risks')
@@ -153,11 +153,11 @@ export default function DashboardPage() {
         setRisks(risksData || [])
         const riskDistribution = calculateRiskDistribution(risksData || [])
 
-        // Fetch Assets
+        // Fetch Assets for all projects in this organization to populate Top Vulnerable Assets
         const { data: assetsData } = await supabase
           .from('assets')
           .select('*')
-          .eq('project_id', projectsWithProgress[0]?.id)
+          .in('project_id', projectsWithProgress.map((p: any) => p.id))
           .eq('is_active', true)
 
         setAssets(assetsData || [])

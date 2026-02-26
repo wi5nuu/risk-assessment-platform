@@ -68,7 +68,7 @@ export default function AdminReportPage() {
 
     return (
         <MainLayout>
-            <div className="max-w-4xl mx-auto space-y-8 pb-10">
+            <div className="max-w-5xl space-y-6 pb-10 -mt-2 md:-mt-4">
                 {/* Header */}
                 <div className="relative rounded-2xl overflow-hidden border border-slate-200 shadow-lg">
                     <div className="absolute inset-0 bg-gradient-to-br from-slate-900 via-indigo-950 to-slate-900" />

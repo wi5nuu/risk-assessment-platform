@@ -6,7 +6,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Button } from '@/components/ui/button'
 import { Badge } from '@/components/ui/badge'
 import { toast } from 'sonner'
-import { FileText, Download, Loader2, Printer, ShieldCheck, AlertCircle, CheckCircle2, TrendingUp, Info } from 'lucide-react'
+import { FileText, Download, Loader2, Printer, ShieldCheck, AlertCircle, CheckCircle2, TrendingUp, Info, Brain } from 'lucide-react'
 import { useAuth } from '@/hooks/useAuth'
 import { downloadReport } from '@/lib/pdf-generator'
 
@@ -40,7 +40,8 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
                 containersRes,
                 concernsRes,
                 scenariosRes,
-                analysesRes
+                analysesRes,
+                aiRes
             ] = await Promise.all([
                 supabase.from('projects').select('*').eq('id', projectId).single(),
                 supabase.from('risks').select('*').eq('project_id', projectId).eq('is_active', true).order('risk_score', { ascending: false }),
@@ -56,6 +57,7 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
                 supabase.from('concerns').select('*').eq('project_id', projectId).eq('is_active', true),
                 supabase.from('threat_scenarios').select('*').eq('project_id', projectId).eq('is_active', true),
                 supabase.from('risk_analysis').select('*').in('risk_id', (await supabase.from('risks').select('id').eq('project_id', projectId)).data?.map((r: any) => r.id) || []),
+                supabase.from('ai_insights').select('*').eq('project_id', projectId).eq('insight_type', 'analysis').maybeSingle(),
             ])
 
             const risks = risksRes.data || []
@@ -88,6 +90,7 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
                 mitigations,
                 score,
                 opinion,
+                aiAnalysis: aiRes.data?.content,
                 summary: {
                     totalRisks: risks.length,
                     criticalRisks: risks.filter((r: any) => r.risk_level === 'critical').length,
@@ -108,7 +111,8 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
                     threatScenarios: scenariosRes.data || [],
                     risks: risks,
                     analyses: analysesRes.data || [],
-                    mitigationPlans: mitigations
+                    mitigationPlans: mitigations,
+                    aiAnalysis: aiRes.data?.content
                 }
             })
         } catch (err) {
@@ -152,12 +156,18 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
                     .badge { padding: 2pt 6pt; border-radius: 4pt; font-size: 8pt; font-weight: bold; text-transform: uppercase; }
                     .critical { background-color: #ef4444; color: white; }
                     .high { background-color: #f97316; color: white; }
+                    
+                    /* AI Section for Word */
+                    .bg-slate-900 { background-color: #ffffff !important; border: 1pt solid #e2e8f0 !important; color: #0f172a !important; padding: 15pt !important; border-radius: 8pt !important; }
+                    .text-white { color: #0f172a !important; }
+                    .text-slate-400, .text-slate-200 { color: #64748b !important; }
+                    .bg-white\/5 { background-color: #f8fafc !important; border: 0.5pt solid #e2e8f0 !important; }
                 </style>
             </head>
             <body>
                 <div class='header'>
                     <div style='font-weight: bold; font-size: 10pt;'>RISK SHIELD SYSTEM</div>
-                    <div style='color: #64748b; font-size: 8pt;'>CONFIDENTIAL SECURITY REPORT</div>
+                    <div style='color: #64748b; font-size: 8pt;'>CONFIDENTIAL SECURITY REPORT | WORD EXPORT</div>
                 </div>
         `;
         const footer = "</body></html>";
@@ -208,6 +218,13 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
         sections.push(['--- AUDIT FINDINGS ---'])
         sections.push(['Issue', 'Severity', 'Recommendation'])
         findings.forEach((f: any) => sections.push([`"${f.issue.replace(/"/g, '""')}"`, f.severity, `"${f.recommendation?.replace(/"/g, '""') || ''}"`]))
+        sections.push([''])
+
+        // 5. AI Strategic Summary
+        if (reportData.aiAnalysis) {
+            sections.push(['--- AI STRATEGIC INTELLIGENCE ---'])
+            sections.push(['Summary', `"${reportData.aiAnalysis.summary.replace(/"/g, '""')}"`])
+        }
 
         const csvContent = sections.map(row => row.join(',')).join('\n')
         const blob = new Blob(['\ufeff', csvContent], { type: 'text/csv;charset=utf-8;' })
@@ -228,7 +245,7 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
         return <Card><CardContent className="py-12 text-center text-muted-foreground">Failed to load report data.</CardContent></Card>
     }
 
-    const { summary, opinion, project, org, risks, findings, assets } = reportData
+    const { summary, opinion, project, org, risks, findings, assets, aiAnalysis } = reportData
 
     // Porsi Role Logic
     const canSeeTechnicalGaps = role === 'admin' || role === 'auditor'
@@ -374,6 +391,42 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
                                 </section>
                             )}
 
+                            {canSeeTechnicalGaps && aiAnalysis && (
+                                <section className="space-y-4 page-break">
+                                    <h2 className="text-2xl font-bold border-l-4 border-primary pl-4">4. AI Strategic Intelligence</h2>
+                                    <div className="bg-slate-900 text-white rounded-3xl p-8 space-y-6">
+                                        <div className="flex items-center gap-2 mb-2">
+                                            <Brain className="w-5 h-5 text-primary" />
+                                            <span className="text-xs font-bold uppercase tracking-widest text-slate-400">Strategic Summary</span>
+                                        </div>
+                                        <p className="text-lg font-medium leading-relaxed text-slate-200">
+                                            {aiAnalysis.summary}
+                                        </p>
+
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-8">
+                                            {aiAnalysis.priorities?.map((p: any, i: number) => (
+                                                <div key={i} className="bg-white/5 border border-white/10 p-5 rounded-2xl">
+                                                    <div className="flex items-center justify-between mb-3">
+                                                        <span className="text-[10px] font-black uppercase tracking-widest text-primary">Priority #{p.id}</span>
+                                                        <Badge variant="outline" className="border-white/20 text-white text-[8px]">{p.severity}</Badge>
+                                                    </div>
+                                                    <h4 className="font-bold text-base mb-2">{p.title}</h4>
+                                                    <p className="text-xs text-slate-400 italic mb-4">"{p.analogy}"</p>
+                                                    <div className="space-y-1">
+                                                        {p.recommendations?.slice(0, 2).map((rec: string, ri: number) => (
+                                                            <div key={ri} className="flex items-center gap-2 text-[10px] text-slate-300">
+                                                                <div className="w-1 h-1 rounded-full bg-primary" />
+                                                                {rec}
+                                                            </div>
+                                                        ))}
+                                                    </div>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </div>
+                                </section>
+                            )}
+
                             {canSeeFindings && (
                                 <section className="space-y-4">
                                     <h2 className="text-2xl font-bold border-l-4 border-primary pl-4">4. Compliance Observations</h2>
@@ -400,9 +453,25 @@ export function AuditReport({ projectId, checklistId }: AuditReportProps) {
                 @media print {
                     header, footer, nav, aside, .no-print { display: none !important; }
                     main { padding: 0 !important; margin: 0 !important; width: 100% !important; max-width: 100% !important; left: 0 !important; position: static !important; }
-                    body { background: white !important; font-size: 12pt; }
+                    body { background: white !important; font-size: 11pt; color: #0f172a; }
                     .page-break { page-break-before: always; }
-                    .bg-slate-50 { background-color: #f8fafc !important; }
+                    .bg-slate-50 { background-color: #f8fafc !important; -webkit-print-color-adjust: exact; }
+                    
+                    /* Print optimization for AI dark section */
+                    .bg-slate-900 { 
+                        background: white !important; 
+                        color: #0f172a !important; 
+                        border: 1pt solid #e2e8f0 !important; 
+                        padding: 20pt !important;
+                        -webkit-print-color-adjust: exact;
+                    }
+                    .text-white { color: #0f172a !important; }
+                    .text-slate-400, .text-slate-200 { color: #475569 !important; }
+                    .bg-white\/5 { background: #f8fafc !important; border: 0.5pt solid #e2e8f0 !important; }
+                    
+                    /* Table adjustments */
+                    th { background-color: #f1f5f9 !important; }
+                    td, th { border: 0.5pt solid #e2e8f0 !important; }
                 }
             `}</style>
         </div>

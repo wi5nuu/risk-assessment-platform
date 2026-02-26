@@ -48,6 +48,11 @@ export async function generateRiskAssessmentReport(
   // Final Opinion
   generateFinalOpinion(doc, data)
 
+  // AI Strategic Insights (If available)
+  if (data.aiAnalysis) {
+    generateAIInsights(doc, data)
+  }
+
   // Add Page Frame (Subtle)
   generatePageFrames(doc)
 
@@ -405,6 +410,128 @@ function generateFinalOpinion(doc: jsPDF, data: ReportData) {
   doc.text('Authorized Signature:', 20, 130)
   doc.line(20, 150, 80, 150)
   doc.text('Chief Information Security Officer (CISO)', 20, 155)
+}
+
+/**
+ * Generate AI Insights section
+ */
+/**
+ * Generate AI Insights section
+ */
+function generateAIInsights(doc: jsPDF, data: ReportData) {
+  if (!data.aiAnalysis) return
+
+  doc.addPage()
+  const pageWidth = doc.internal.pageSize.width
+  const pageHeight = doc.internal.pageSize.height
+
+  // Professional Header for AI Section
+  doc.setFillColor(248, 250, 252) // Slate-50 Header
+  doc.rect(0, 0, pageWidth, 45, 'F')
+
+  doc.setFontSize(20)
+  doc.setTextColor(15, 23, 42) // Slate-900
+  doc.setFont('helvetica', 'bold')
+  doc.text('AI Strategic Intelligence', 20, 30)
+
+  doc.setFontSize(9)
+  doc.setTextColor(59, 130, 246) // Blue-500
+  doc.setFont('helvetica', 'bold')
+  doc.text('PREMIUM GENERATIVE SECURITY ANALYSIS', 20, 40)
+
+  // 1. Strategic Executive Summary
+  let yPos = 60
+  doc.setFontSize(12)
+  doc.setTextColor(15, 23, 42)
+  doc.setFont('helvetica', 'bold')
+  doc.text('1. STRATEGIC EXECUTIVE SUMMARY', 20, yPos)
+
+  yPos += 10
+  doc.setFont('helvetica', 'normal')
+  doc.setFontSize(10)
+  doc.setTextColor(51, 65, 85) // Slate-600
+
+  const summaryText = data.aiAnalysis.summary
+  const splitSummary = doc.splitTextToSize(summaryText, 170)
+  doc.text(splitSummary, 20, yPos)
+
+  // Calculate next Y position based on summary length
+  yPos += (splitSummary.length * 5) + 15
+
+  // 2. Critical Priorities
+  if (yPos > pageHeight - 40) { doc.addPage(); yPos = 30; }
+  doc.setFontSize(12)
+  doc.setTextColor(15, 23, 42)
+  doc.setFont('helvetica', 'bold')
+  doc.text('2. CRITICAL PRIORITIES & ANALOGIES', 20, yPos)
+
+  yPos += 10
+
+  data.aiAnalysis.priorities.forEach((p, idx) => {
+    // Check for page break
+    if (yPos > pageHeight - 60) {
+      doc.addPage()
+      yPos = 30
+    }
+
+    // Priority Card
+    doc.setFillColor(241, 245, 249) // Slate-100
+    doc.rect(20, yPos, 170, 45, 'F')
+    doc.setDrawColor(226, 232, 240) // Slate-200
+    doc.rect(20, yPos, 170, 45, 'S')
+
+    doc.setFontSize(8)
+    doc.setTextColor(59, 130, 246)
+    doc.text(`PRIORITY #${p.id} | SEVERITY: ${p.severity.toUpperCase()}`, 25, yPos + 10)
+
+    doc.setFontSize(10)
+    doc.setTextColor(15, 23, 42)
+    doc.setFont('helvetica', 'bold')
+    doc.text(p.title, 25, yPos + 20)
+
+    doc.setFontSize(9)
+    doc.setTextColor(71, 85, 105)
+    doc.setFont('helvetica', 'italic')
+    const analogyLines = doc.splitTextToSize(`"${p.analogy}"`, 160)
+    doc.text(analogyLines, 25, yPos + 30)
+
+    yPos += 55
+    doc.setFont('helvetica', 'normal')
+  })
+
+  // 3. Strategic Roadmap
+  if (data.aiAnalysis.strategic_roadmap) {
+    if (yPos > pageHeight - 60) {
+      doc.addPage()
+      yPos = 30
+    } else {
+      yPos += 10
+    }
+
+    doc.setFontSize(12)
+    doc.setTextColor(15, 23, 42)
+    doc.setFont('helvetica', 'bold')
+    doc.text('3. MANAGEMENT STRATEGIC ROADMAP', 20, yPos)
+
+    yPos += 10
+    data.aiAnalysis.strategic_roadmap.forEach((step, idx) => {
+      if (yPos > pageHeight - 20) { doc.addPage(); yPos = 30; }
+
+      doc.setFillColor(248, 250, 252)
+      doc.rect(20, yPos, 170, 12, 'F')
+
+      doc.setFontSize(9)
+      doc.setTextColor(59, 130, 246)
+      doc.setFont('helvetica', 'bold')
+      doc.text(`${idx + 1}`, 25, yPos + 8)
+
+      doc.setTextColor(51, 65, 85)
+      doc.setFont('helvetica', 'normal')
+      doc.text(step, 35, yPos + 8)
+
+      yPos += 15
+    })
+  }
 }
 
 /**

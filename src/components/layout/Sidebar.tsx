@@ -44,6 +44,7 @@ export function Sidebar({ isMobile, onMobileClose }: SidebarProps) {
             items: [
                 { name: 'AI Security Advisor', href: '/ai-advisor', icon: Brain },
                 { name: 'Risk Register', href: '/risk-register', icon: FileText },
+                { name: 'User Manual', href: '/guide', icon: Building2 },
             ]
         }
     ]

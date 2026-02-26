@@ -3,6 +3,7 @@
 import React from 'react'
 import { LandingHeader } from './LandingHeader'
 import { HeroSection } from './HeroSection'
+import { TeamSection } from './TeamSection'
 import { FeaturesSection } from './FeaturesSection'
 import { MethodologySection } from './MethodologySection'
 import { JourneySection } from './JourneySection'
@@ -18,6 +19,7 @@ export function LandingPage() {
             <LandingHeader />
             <main className="flex-1">
                 <HeroSection />
+                <TeamSection />
                 <FeaturesSection />
                 <MethodologySection />
                 <JourneySection />

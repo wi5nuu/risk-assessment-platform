@@ -6,13 +6,13 @@
 
 ## 👥 Meet the Team
 
-| NIM | Name | Email |
+| NIM | Name | Role |
 | :--- | :--- | :--- |
-| 001202400138 | **WISNU ALFIAN NUR ASHAR** | wisnualfian117@gmail.com |
-| 001202400034 | **MUHAMMAD ILHAM MAULANA** | ilham36677@gmail.com |
-| 001202400079 | **CHRISTOFER SOFIAN RIALDI SITOMPUL** | refotsirhc2@gmail.com |
-| 001202400081 | **MUHAMMAD AHDA BRILIANTAMA** | muhahdabriliantama01@gmail.com |
-| 001202400043 | **RAFA BASIA HANIF** | rafabasia2208@gmail.com |
+| 001202400138 | **WISNU ALFIAN NUR ASHAR** | Software Engineering & Cyber Security  |
+| 001202400034 | **MUHAMMAD ILHAM MAULANA** | Backend Developer & Web Applications Engineer |
+| 001202400081 | **MUHAMMAD AHDA BRILIANTAMA** | Quality Assurance & QnA  |
+| 001202400079 | **CHRISTOFER SOFIAN RIALDI SITOMPUL** | Technical Documentation |
+| 001202400043 | **RAFA BASIA HANIF** | Cybersecurity Testing Analyst |
 
 ---
 
@@ -43,6 +43,16 @@ graph LR
 
 ### 1. User & Auditor Management
 - **Role-Based Access Control (RBAC)**: Distinct permissions for **Administrators**, **Auditors**, and **Auditees**.
+- **Role Permissions Matrix**:
+| Action / Capability | Admin | Auditor | Auditee |
+| :--- | :---: | :---: | :---: |
+| **Manage Users & Org** | ✅ | ❌ | ❌ |
+| **Create New Project** | ✅ | ✅ | ❌ |
+| **OCTAVE 8-Step Wizard** | ✅ | ✅ | ❌ |
+| **Set Compliance Status** | ❌ | ✅ | ❌ |
+| **Write Audit Findings** | ❌ | ✅ | ❌ |
+| **Upload Audit Evidence** | ❌ | ✅ | ✅ |
+
 - **Secure Access**: Profile management and session monitoring to ensure system integrity.
 
 ### 2. Organization Profile
@@ -79,16 +89,22 @@ graph LR
 - **Automated Findings**: The system detects non-compliant controls and automatically drafts audit findings.
 - **Severity Classification**: Findings are categorized from Low to Critical for immediate management attention.
 
-### 10. AI Auditor Assistant
-- **Gemini AI Integration**: Autonomous security advisor providing technical remediation steps.
-- **Technical translation**: AI translates complex technical gaps into management-friendly language.
-- **Mitigation Recommender**: Intelligent suggestions for risk treatment plans.
+### 10. ShieldBot (Local AI Engine)
+- **Zero-API Interaction**: Specialized AI widget that runs using local database context only, satisfying academic/offline requirements.
+- **Dynamic Context**: Analyzes Risks, Projects, and Users directly from the PostgreSQL database in real-time.
+- **Rotating Intelligence**: Features a floating tooltip that cycles through helpful suggestions and role-based greetings.
 
-### 11. Report Generation
-- **Professional Exports**: One-click generation of professional reports in **PDF, DOCX, and CSV**.
-- **Executive & Technical Views**: Summarized reports for management and detailed findings for technical teams.
+### 11. AI Security Advisor (Gemini)
+- **Strategic Analysis**: Uses Gemini Pro for high-level risk treatment plans and complex technical translations.
+- **Mitigation Recommender**: Intelligent suggestions for risk treatment plans based on global security standards.
 
-### 12. Secure Admin Reporting
+### 12. Intelligence Stream & Notification Center
+- **Intelligence Stream**: A real-time, scrolling notification marquee that keeps the organization informed about the latest security posture.
+- **Shopee-Style Drawer**: High-fidelity slide-out notification panel for instant access to alerts and system updates.
+- **Integrated Inbox**: Comprehensive `/notifications` page with sidebar navigation and category-based filtering (Security, Database, Project, System).
+- **Real-time Toasts**: Instant browser notifications for mission-critical database changes.
+
+### 13. Secure Admin Reporting
 - **Identity Verification**: Multi-factor identity check (Name, NIM, Email) against a secure authorized team database.
 - **Automated PDF Generation**: Full compliance report generated directly in the browser following the official academic template.
 - **Access Logging**: Every download is tracked and logged with user identity and timestamp for forensic auditing.
@@ -101,9 +117,11 @@ graph LR
 | Feature | Description | Screenshot/Status |
 | :--- | :--- | :--- |
 | **NASA-Style UI** | High-tech, data-dense interface inspired by mission control. | ✅ Completed |
+| **Intelligence Stream** | Smooth scrolling marquee with real-time database-driven alerts. | ✅ NEW |
+| **Notification Center** | Shopee-style drawer and unified inbox for all platform alerts. | ✅ NEW |
+| **ShieldBot (Local)** | AI widget with rotating tooltips and zero-API local engine. | ✅ NEW |
 | **Risk Heatmap** | 5x5 Matrix visualizing potential business impact vs. likelihood. | ✅ Completed |
-| **AI Auditor** | Real-time security advice powered by **Google Gemini Pro**. | ✅ Integrated |
-| **Instant Avatar** | Biometric profile sync with real-time UI refresh. | ✅ Optimized |
+| **AI Auditor** | Strategic security advice powered by **Google Gemini Pro**. | ✅ Integrated |
 | **Audit Evidence** | Secure file upload and mapping to OCTAVE controls. | ✅ Integrated |
 | **Admin Report** | Secure identity-verified PDF generation for academic submission. | ✅ Verified |
 
@@ -142,17 +160,30 @@ The system is strictly aligned with the **OCTAVE Allegro** 8-step roadmap:
 ## 🗺️ Technical Architecture
 
 ### System Sequence Flow
-![pictureteechnicalsequenceflow](pictureteechnicalsequenceflow.png)
+![technicalsequenceflow](public/teechnicalsequenceflow.png)
 
 ---
 
 ## 📥 Getting Started
 
 1. **Clone & Install**: `npm install`
-2. **Configure Environment**: Set up your Supabase and Gemini API keys in `.env.local`.
+2. **Configure Environment**: Set up your Supabase and Gemini API keys in `.env.local`. (Refer to `.env.example`).
 3. **Run Platform**: `npm run dev`
-4. **Initialize Database**: Execute the SQL scripts in the `sql/` directory starting with `schema.sql`.
+4. **Initialize Database**: Execute the SQL scripts in the `sql/` directory.
+    - Start with `schema.sql` for the core structure.
+    - Use `seed_notifications.sql` and `master_dashboard_seed.sql` for demonstration data.
 
 ---
 
-© 2026 Risk Shield System - **Team Risk Assesment Platform Project**
+## 🔒 Security & Data Privacy
+
+> [!WARNING]
+> **This is a public repository for academic and showcase purposes.**
+
+- **No Sensitive Data**: This repository **DOES NOT** contain any real credentials, passwords, or production database keys. All API interactions are handled via environment variables that must be configured locally.
+- **Seed Data Warning**: The SQL files in the `sql/` directory contain **mock data** (simulated risks, organizations, and user profiles) for demonstration. Do not use these seeds in a production environment.
+- **Usage Restriction**: Users are free to study the architecture. However, the use of proprietary methodology or logic for commercial purposes without attribution is prohibited.
+
+---
+
+© 2026 Risk Shield System - **Team Risk Assessment Platform Project**
