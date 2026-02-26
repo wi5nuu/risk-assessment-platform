@@ -18,7 +18,24 @@
 
 ## 🎯 Project Overview
 
-This platform is designed to assist cybersecurity auditors in two major activities: **Risk Assessment** (identifying risks) and **Security Audit** (verifying controls). By utilizing the **OCTAVE Allegro** framework, it ensures that organizations can move beyond simple claims of security towards evidence-based compliance.
+This platform is a comprehensive **Autonomous GRC (Governance, Risk, and Compliance)** solution. It automates the **OCTAVE Allegro** roadmap to help organizations transition from subjective risk guessing to **evidence-based security verification**.
+
+### 🛠️ System Workflow
+```mermaid
+graph LR
+    A[Public Landing] --> B(Auth & Role Check)
+    B --> C{Dashboard}
+    C --> D[Risk Wizard]
+    C --> E[AI Advisor]
+    C --> F[Audit Center]
+    D --> G[Risk Heatmap]
+    F --> H[Evidence Vault]
+    H --> I[AI Integrity Sync]
+    I --> J((Final Report))
+    
+    style C fill:#06b6d4,stroke:#fff,stroke-width:2px,color:#000
+    style J fill:#22c55e,stroke:#fff,stroke-width:2px,color:#fff
+```
 
 ---
 
@@ -73,6 +90,18 @@ This platform is designed to assist cybersecurity auditors in two major activiti
 
 ---
 
+## ✨ Features Showcase
+
+| Feature | Description | Screenshot/Status |
+| :--- | :--- | :--- |
+| **NASA-Style UI** | High-tech, data-dense interface inspired by mission control. | ✅ Completed |
+| **Risk Heatmap** | 5x5 Matrix visualizing potential business impact vs. likelihood. | ✅ Completed |
+| **AI Auditor** | Real-time security advice powered by **Google Gemini Pro**. | ✅ Integrated |
+| **Instant Avatar** | Biometric profile sync with real-time UI refresh. | ✅ Optimized |
+| **Audit Evidence** | Secure file upload and mapping to OCTAVE controls. | ✅ Integrated |
+
+---
+
 ## 🚀 Technology Stack
 
 | Component | Technology |
@@ -88,10 +117,25 @@ This platform is designed to assist cybersecurity auditors in two major activiti
 
 ## 📝 Compliance & Methodology
 
-The system is strictly aligned with:
-- **OCTAVE Allegro**: The primary framework for information security risk assessment.
-- **OWASP Top 10**: Integrated vulnerability library and control mapping.
-- **GRC Principles**: Automated Governance, Risk, and Compliance workflows.
+The system is strictly aligned with the **OCTAVE Allegro** 8-step roadmap:
+1. **Establish Criteria**: Qualitative impact scales.
+2. **Develop Profile**: Asset identification.
+3. **Identify Containers**: Technical & physical storage.
+4. **Identify Threats**: Areas of concern.
+5. **Identify Risks**: Scenario development.
+6. **Analyze Risks**: Impact & Likelihood scoring.
+7. **Select Mitigation**: Treatment plans.
+8. **Verify Controls**: Audit & Evidence mapping.
+
+> [!IMPORTANT]
+> This platform is the first to integrate **Generative AI (Gemini)** to translate step 5-7 into automated technical remediation scripts.
+
+---
+
+## 🗺️ Technical Architecture
+
+### System Sequence Flow
+![pictureteechnicalsequenceflow](pictureteechnicalsequenceflow.png)
 
 ---
 
@@ -104,4 +148,4 @@ The system is strictly aligned with:
 
 ---
 
-© 2026 Risk Shield System - **Team Final Project**
+© 2026 Risk Shield System - **Team Risk Assesment Platform Project**

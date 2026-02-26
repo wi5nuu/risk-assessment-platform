@@ -162,17 +162,19 @@ export default function ProfilePage() {
 
             // Execute pending action
             if (pendingAction === 'email') {
-                const { error: updateError } = await supabase.auth.updateUser({ email: newEmail })
+                const trimmedEmail = newEmail.trim()
+                const { error: updateError } = await supabase.auth.updateUser({ email: trimmedEmail })
                 if (updateError) throw updateError
                 toast.success('Confirmation email sent to both old and new addresses.')
             } else if (pendingAction === 'password') {
-                const { error: updateError } = await supabase.auth.updateUser({ password: newPassword })
+                const trimmedPassword = newPassword.trim()
+                const { error: updateError } = await supabase.auth.updateUser({ password: trimmedPassword })
                 if (updateError) throw updateError
 
                 if (profileId) {
                     await supabase
                         .from('user_profiles')
-                        .update({ temp_password: newPassword })
+                        .update({ temp_password: trimmedPassword })
                         .eq('id', profileId)
                 }
                 toast.success('Password updated successfully.')
