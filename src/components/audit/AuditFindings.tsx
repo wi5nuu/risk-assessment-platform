@@ -136,10 +136,10 @@ export function AuditFindings({ projectId, checklistId }: AuditFindingsProps) {
         if (!checklistId) { toast.error('Create a checklist first'); return }
         setIsGenerating(true)
         try {
-            // Get non-compliant and partially compliant items
+            // Get non-compliant and partially compliant items, including the risk connection
             const { data: failedItems, error } = await supabase
                 .from('audit_items')
-                .select('id, control_title, control_description, compliance_status, category')
+                .select('id, control_title, control_description, compliance_status, category, triggered_by_risk_id')
                 .eq('checklist_id', checklistId)
                 .in('compliance_status', ['non_compliant', 'partially_compliant'])
 
@@ -148,6 +148,25 @@ export function AuditFindings({ projectId, checklistId }: AuditFindingsProps) {
                 toast.info('No non-compliant items found — nothing to generate')
                 setIsGenerating(false)
                 return
+            }
+
+            // Get the risks and their assets for the triggered items
+            const triggeredRiskIds = failedItems
+                .map((i: any) => i.triggered_by_risk_id)
+                .filter(Boolean)
+
+            let riskAssetMap: Record<string, string> = {}
+            if (triggeredRiskIds.length > 0) {
+                const { data: riskData } = await supabase
+                    .from('risks')
+                    .select('id, asset_id')
+                    .in('id', triggeredRiskIds)
+
+                if (riskData) {
+                    riskData.forEach((r: any) => {
+                        if (r.asset_id) riskAssetMap[r.id] = r.asset_id
+                    })
+                }
             }
 
             // Check which items already have findings
@@ -170,6 +189,7 @@ export function AuditFindings({ projectId, checklistId }: AuditFindingsProps) {
                 audit_item_id: item.id,
                 issue: `${item.compliance_status === 'non_compliant' ? 'Non-compliant' : 'Partially compliant'}: ${item.control_title}`,
                 risk_description: `The control "${item.control_title}" (${item.category}) is ${item.compliance_status === 'non_compliant' ? 'not implemented' : 'only partially implemented'}. ${item.control_description || ''}`,
+                affected_asset_id: item.triggered_by_risk_id ? riskAssetMap[item.triggered_by_risk_id] : null,
                 recommendation: `Implement controls to address: ${item.control_title}. Ensure full compliance with ${item.category} requirements.`,
                 severity: item.compliance_status === 'non_compliant' ? 'high' : 'medium',
             }))

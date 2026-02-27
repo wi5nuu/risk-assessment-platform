@@ -104,6 +104,7 @@ export default function AuditPage() {
                         control_title: `[AUTO] Verify: ${rv.vulnerabilities.name}`,
                         control_description: rv.vulnerabilities.audit_checklist_item,
                         source: 'vulnerability_triggered',
+                        triggered_by_risk_id: rv.risk_id,
                     }))
 
                 // Deduplicate by control_title
